@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pacing App v39</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-main: #121212;
+            --bg-card: #1E1E1E;
+            --border-color: #2C2C2C;
+            --text-main: #E0E0E0;
+            --text-light: #FFFFFF;
+            
+            --color-rot: #FF8A8A;
+            --color-blau: #D6D6FF;
+            --color-gruen: #6B7A8F;
+            
+            --bg-rot-alpha: rgba(239, 68, 68, 0.2);
+            --bg-blau-alpha: rgba(214, 214, 255, 0.1);
+            --bg-gruen-alpha: rgba(107, 122, 143, 0.1);
+        }
+
+        body.cb-rotgruen {
+            --color-rot: #38bdf8; 
+            --color-blau: #facc15; 
+            --color-gruen: #f8fafc; 
+            --bg-rot-alpha: rgba(56, 189, 248, 0.2);
+            --bg-blau-alpha: rgba(250, 204, 21, 0.15);
+            --bg-gruen-alpha: rgba(248, 250, 252, 0.1);
+        }
+
+        body.cb-blaugelb {
+            --color-rot: #ef4444; 
+            --color-blau: #14b8a6; 
+            --color-gruen: #64748b; 
+            --bg-rot-alpha: rgba(239, 68, 68, 0.25);
+            --bg-blau-alpha: rgba(20, 184, 166, 0.15);
+            --bg-gruen-alpha: rgba(100, 116, 139, 0.1);
+        }
+
+        body.cb-monochrom {
+            --color-rot: #ffffff; 
+            --color-blau: #a3a3a3;
+            --color-gruen: #525252;
+            --bg-rot-alpha: rgba(255, 255, 255, 0.15);
+            --bg-blau-alpha: rgba(163, 163, 163, 0.1);
+            --bg-gruen-alpha: rgba(82, 82, 82, 0.08);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 16px;
+            max-width: 500px;
+            margin: 0 auto;
+            transition: font-size 0.2s, line-height 0.2s, filter 0.5s;
+        }
+
+        body.crash-darkness { filter: brightness(0.4) contrast(0.9); }
+
+        body.text-groess { font-size: 20px !important; line-height: 1.6 !important; }
+        body.text-groess .start-question { font-size: 28px !important; }
+        body.text-groess .label-text { font-size: 21px !important; }
+        body.text-groess .section-title { font-size: 16px !important; }
+        body.text-groess .ampel-btn, body.text-groess .acc-huge-btn, body.text-groess .menu-settings-btn, body.text-groess .quad-btn { font-size: 22px !important; }
+
+        body.text-sehrgroess { font-size: 24px !important; line-height: 1.7 !important; }
+        body.text-sehrgroess .start-question { font-size: 32px !important; }
+        body.text-sehrgroess .label-text { font-size: 25px !important; }
+        body.text-sehrgroess .section-title { font-size: 19px !important; }
+        body.text-sehrgroess .ampel-btn, body.text-sehrgroess .acc-huge-btn, body.text-sehrgroess .menu-settings-btn, body.text-sehrgroess .quad-btn { font-size: 24px !important; }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .start-container { text-align: center; padding: 10px 10px 20px 10px; }
+        .start-question { font-size: 24px; font-weight: 500; color: var(--text-light); margin-bottom: 35px; line-height: 1.4; }
+
+        .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+        .quad-btn {
+            background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px 12px; color: var(--text-light);
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; font-size: 15px; font-weight: 600;
+        }
+        .quad-btn:active { background-color: #252525; }
+        .quad-btn .icon { font-size: 26px; }
+        .quad-btn.placeholder { opacity: 0.4; cursor: not-allowed; border-style: dashed; }
+
+        .config-layer { display: none; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: left; }
+        .config-layer.open { display: block; }
+
+        .ampel-btn, .acc-huge-btn, .menu-settings-btn {
+            display: block; width: 100%; padding: 20px; margin-bottom: 14px; border-radius: 16px;
+            font-size: 18px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-color); color: var(--text-light); text-align: center;
+        }
+
+        .btn-acc-select { background-color: rgba(214, 214, 255, 0.1); border-color: #D6D6FF; color: #D6D6FF; }
+        .btn-gut { background-color: var(--bg-gruen-alpha); border-color: var(--color-gruen); color: var(--text-light); }
+        .btn-gehtso { background-color: var(--bg-blau-alpha); border-color: var(--color-blau); color: var(--text-light); }
+        .btn-naja { background-color: var(--bg-rot-alpha); border-color: var(--color-rot); color: var(--text-light); }
+        .btn-crash { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #FF8A8A; margin-bottom: 25px; }
+        .menu-settings-btn { background-color: #1A1A1A; border-color: #333; color: #aaa; font-size: 16px; font-weight: 500; }
+
+        .setup-input { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 16px; margin-bottom: 14px; margin-top: 6px; }
+        .pacing-select { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #D6D6FF; font-size: 16px; font-weight: 600; margin-top: 6px; margin-bottom: 16px; outline: none; }
+
+        .slider-container { margin-top: 14px; padding: 4px 0; }
+        .atem-slider { -webkit-appearance: none; width: 100%; height: 12px; border-radius: 6px; background: #333; outline: none; margin-top: 10px; }
+        .atem-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #D6D6FF; cursor: pointer; border: 2px solid #121212; }
+        .slider-labels { display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-top: 6px; font-weight: 500; }
+
+        .preview-breathe-box { margin-top: 15px; padding: 15px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.15); background-color: rgba(255, 255, 255, 0.03); text-align: center; font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+
+        .grid-container { display: flex; flex-direction: column; gap: 12px; }
+        .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #888888; margin-top: 8px; margin-bottom: 4px; }
+        
+        .field-row { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 24px; display: flex; align-items: center; gap: 20px; cursor: pointer; }
+        
+        .field-row.disabled-row { opacity: 0.25; filter: grayscale(1); cursor: not-allowed !important; }
+        .main-header-row { border-left: 4px solid var(--accent-color); }
+        .dots-container { display: flex; gap: 4px; min-width: 115px; font-family: monospace; font-size: 14px; color: #aaa; align-items: center; }
+        
+        .dot { width: 14px; height: 16px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+        .dot-red { background-color: var(--color-rot); }
+        .dot-lavender { background-color: var(--color-blau); }
+        .dot-slate { background-color: var(--color-gruen); }
+
+        .pulse-fast { animation: breathe 1.5s infinite ease-in-out; }
+        .pulse-med { animation: breathe 3s infinite ease-in-out; }
+        .pulse-slow { animation: breathe 5s infinite ease-in-out; }
+
+        @keyframes breathe {
+            0% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.12); opacity: 0.4; }
+            100% { transform: scale(1); opacity: 0.9; }
+        }
+
+        .pulse-crash-field { animation: crashWhiteBreathe 8s infinite ease-in-out; }
+        @keyframes crashWhiteBreathe {
+            0% { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.4); }
+            50% { background-color: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.65); color: rgba(255, 255, 255, 1.0); }
+            100% { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.4); }
+        }
+
+        .fade-out-5s { animation: fadeToTransparent 5s forwards linear; }
+        @keyframes fadeToTransparent { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+        .label-text { font-size: 16px; font-weight: 500; color: var(--text-main); flex-grow: 1; }
+        .sub-panel { display: none; flex-direction: column; gap: 10px; padding-left: 12px; margin-top: -4px; margin-bottom: 8px; }
+        .sub-panel.open-panel { display: flex !important; }
+        .chevron { font-size: 14px; color: #666666; }
+
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+        .card-title { font-size: 18px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
+        .az-box { font-family: monospace; background-color: var(--bg-main); padding: 8px 12px; border-radius: 6px; font-size: 13px; color: #D6D6FF; display: inline-block; margin-bottom: 16px; }
+        
+        .docs-status-box { background-color: #1A222D; border: 1px solid #29384D; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+        .badge-warning { background-color: #4A3319; color: #FFA333; border: 1px solid #7A5223; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
+
+        .notfall-box { background-color: rgba(255, 138, 138, 0.05); border: 1px dashed rgba(255, 138, 138, 0.2); border-radius: 14px; padding: 16px; margin-top: 20px; }
+        .notfall-title { font-size: 14px; font-weight: 600; color: #FF8A8A; margin-bottom: 4px; }
+        .notfall-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+        .notfall-btn { background-color: #2C1A1A; border: 1px solid #4A2727; color: #FF8A8A; padding: 14px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: ACCESSIBILITY SETUP (ONBOARDING) -->
+    <div id="accessibilitySetupScreen" class="screen active">
+        <div class="start-container" style="text-align: left;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; padding-top: 10px;">
+                <span style="font-size: 32px;">♿</span>
+                <h2 style="font-size: 24px; font-weight: 600; color: var(--text-light);">Einstellungen</h2>
+            </div>
+            <p style="font-size:14px; color:#aaa; text-align:center; margin-bottom:30px; line-height:1.4;">Wähle die für dich angenehmsten Einstellungen aus:</p>
+
+            <div class="quad-grid">
+                <button class="quad-btn" onclick="toggleConfigLayer('layerOnboardingSchrift')">
+                    <span class="icon" style="font-weight: bold; letter-spacing: -1px;">A⁺ / A⁻</span>
+                    <span>Schriftgröße</span>
+                </button>
+                <button class="quad-btn" onclick="toggleConfigLayer('layerOnboardingVisuell')">
+                    <span class="icon">🌓🎨</span>
+                    <span>Visuelle Ansicht</span>
+                </button>
+                <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
+                <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
+            </div>
+
+            <div id="layerOnboardingSchrift" class="config-layer">
+                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:15px;">Gewünschte Skalierung wählen:</h3>
+                <button class="acc-huge-btn btn-acc-select" style="padding:14px; font-size:16px;" onclick="applyGlobalTextScaleNoJump('normal')">🔎 Schrift: Normal</button>
+                <button class="acc-huge-btn btn-acc-select" style="padding:14px; font-size:19px;" onclick="applyGlobalTextScaleNoJump('groess')">🔎 Schrift: GROSS</button>
+                <button class="acc-huge-btn btn-acc-select" style="padding:14px; font-size:22px; font-weight: bold;" onclick="applyGlobalTextScaleNoJump('sehrgroess')">🔎 Schrift: SEHR GROSS</button>
+            </div>
+
+            <div id="layerOnboardingVisuell" class="config-layer">
+                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:15px;">Farbschwächen & Reizreduktion:</h3>
+                <select id="onboardingColorBlindSelect" class="pacing-select" style="margin-bottom:0;" onchange="applyColorProfile(this.value)">
+                    <option value="default">Standard (Reizarm Dunkel)</option>
+                    <option value="rotgruen">Rot-Grün-Schwäche</option>
+                    <option value="blaugelb">Blau-Gelb-Schwäche</option>
+                    <option value="monochrom">Monochrom (100% Graustufen)</option>
+                </select>
+            </div>
+
+            <button class="action-btn" style="background-color:#1E3D23; border-color:#4ade80; color:#8AFF9A; padding:18px; margin-top:20px; font-weight:bold;" onclick="finishOnboardingAndGoToBetaCheck()">Einstellungen übernehmen & Weiter ➔</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: BETA TEST-HINWEIS -->
+    <div id="betaNoticeScreen" class="screen">
+        <div class="start-container" style="text-align: left; padding-top: 20px;">
+            <div style="text-align:center; margin-bottom: 25px;">
+                <span style="font-size: 40px;">🧪</span>
+                <h2 style="font-size: 22px; font-weight: bold; color: #FFE066; margin-top: 10px;">Wichtiger Testversion-Hinweis</h2>
+            </div>
+            <div class="info-card" id="betaCardBody" style="border-color: #FFE066; background-color: rgba(250, 204, 21, 0.03);">
+                <p style="font-weight: 600; margin-bottom: 10px; color: #fff;">Hallo Test-User!</p>
+                <p style="line-height: 1.5; margin-bottom: 12px;">Dies ist eine **Testversion** unserer Pacing-App. Wir erproben hier Barrierefreiheit und Reizreduktion.</p>
+                <p style="line-height: 1.5; color: #8AFF9A; font-weight: 500;">💡 Wir freuen uns riesig über deine Verbesserungsvorschläge, Wünsche oder die Rückmeldung von vorhandenen Fehlern!</p>
+            </div>
+            <button id="betaManualContinueBtn" class="action-btn" style="background-color:#2A2A2A; padding:18px; font-weight:bold;" onclick="showScreen('startScreen')">Weiter zur App ➔</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: TAGESFORM-AMPEL -->
+    <div id="startScreen" class="screen">
+        <div class="start-container">
+            <div id="onboardingIntro" style="margin-bottom: 25px; color:#D6D6FF; font-size:15px; background-color: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #444;">
+                Bestimme deine heutige Energie für die automatische Filterung.
+            </div>
+            <div class="start-question">Wie geht es Dir gerade?</div>
+            <button class="ampel-btn btn-gut" onclick="handleStartChoice('gut')">Gut</button>
+            <button class="ampel-btn btn-gehtso" onclick="handleStartChoice('gehtso')">Geht so</button>
+            <button class="ampel-btn btn-naja" onclick="handleStartChoice('naja')">Naja</button>
+            <button class="ampel-btn btn-crash" onclick="handleStartChoice('crash')">Crash steht kurz bevor</button>
+            
+            <button class="menu-settings-btn" onclick="openNachtraeglichSetup()">⚙️ Ansicht & Einstellungen ändern</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 4: NAJA WARNING SCREEN -->
+    <div id="najaWarningScreen" class="screen">
+        <div class="start-container" style="text-align: left; padding-top:40px;">
+            <div class="start-question" style="text-align:center; color:#FFB077;">⚠️ Pacing-Hinweis</div>
+            <div class="info-card" style="border-color: #f97316; background-color: rgba(249, 115, 22, 0.05);">
+                <p style="font-size:18px; font-weight:600; color:#fff; margin-bottom:12px;">Momentan wäre Pacing besser für dich.</p>
+                <p style="line-height:1.5;">Vermeide jetzt jede unnötige Überanstrengung. Nur absolut kritische Fristen anzeigen?</p>
+            </div>
+            <div style="margin-top:40px; display:flex; flex-direction:column; gap:14px;">
+                <button class="action-btn" style="background-color:#1A1A1A; padding:18px;" onclick="goToMainMenu()">❌ Schließen</button>
+                <button class="action-btn" style="background-color:#2C2C2C; padding:18px;" onclick="activateNajaFilteredPlaner()">⏩ Nur dringende Fristen anzeigen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 5: IN-APP CONFIG INTERFACE -->
+    <div id="setupScreen" class="screen">
+        <div class="start-container" style="text-align: left;">
+            <div class="start-question" style="text-align:center; font-size: 22px; margin-bottom: 20px;">⚙️ Hauptmenü & Einstellungen</div>
+            
+            <div class="quad-grid">
+                <button class="quad-btn" onclick="toggleConfigLayer('layerNotfall')">
+                    <span class="icon">🚨</span>
+                    <span>Notfallkontakt</span>
+                </button>
+                <button class="quad-btn" onclick="toggleConfigLayer('layerVisuell')">
+                    <span class="icon">👁️</span>
+                    <span>Visuelle Ansicht</span>
+                </button>
+                <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
+                <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
+            </div>
+
+            <div id="layerNotfall" class="config-layer">
+                <h3 style="color:#FF8A8A; margin-bottom:12px; font-size:16px;">Signal-Eingabe: Notfallkontakte</h3>
+                <input type="tel" id="setupPhoneInput" class="setup-input" placeholder="Hauptkontakt (z.B. Familie)">
+                <input type="tel" id="setupPhoneInput2" class="setup-input" placeholder="Notfallkontakt 2 (z.B. Freunde)">
+                <input type="tel" id="setupPhoneInput3" class="setup-input" placeholder="Notfallkontakt 3 (z.B. Taxi)">
+                
+                <hr style="border-color:#333; margin:16px 0;">
+                
+                <label style="font-size:14px; font-weight:600; color:#D6D6FF;" id="sliderDisplayLabel">🫁 Atem-Rhythmus: 8 Sekunden</label>
+                <div class="slider-container">
+                    <input type="range" min="4" max="12" step="1" value="8" class="atem-slider" id="atemRangeInput" oninput="handleSliderChange(this.value)">
+                </div>
+                <div id="setupAtemPreview" class="preview-breathe-box">🧘 Live-Atem-Vorschau</div>
+            </div>
+
+            <div id="layerVisuell" class="config-layer">
+                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:16px;">Anzeige-Optimierung</h3>
+                <select id="scaleSelect" class="pacing-select" onchange="applyGlobalTextScale(this.value)">
+                    <option value="normal">Normal</option>
+                    <option value="groess">GROSS</option>
+                    <option value="sehrgroess">SEHR GROSS</option>
+                </select>
+                <select id="colorBlindSelect" class="pacing-select" onchange="applyColorProfile(this.value)">
+                    <option value="default">Standard (Reizarm Dunkel)</option>
+                    <option value="rotgruen">Rot-Grün-Schwäche</option>
+                    <option value="blaugelb">Blau-Gelb-Schwäche</option>
+                    <option value="monochrom">Monochrom</option>
+                </select>
+            </div>
+
+            <button class="action-btn" style="background-color:#2A2A2A; padding:18px; margin-top:20px;" onclick="finishSetupAndGoToGrid()">⏩ Speichern & Zurück zum Planer</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 6: KALENDERÜBERSICHT -->
+    <div id="listScreen" class="screen">
+        <!-- 🎯 FIX: „Layout-Umschalter“ jetzt mit starkem, profilsicherem Kontrast-Rand ausgestattet -->
+        <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:12px; border: 2px solid var(--color-blau); color: var(--color-blau); font-weight: bold;" onclick="goToMainMenu()">Layout-Umschalter ↩</button>
+        
+        <div class="grid-container">
+            <div class="section-title">Höchste Dringlichkeit</div>
+            
+            <!-- ROT 3 (3 PUNKTE) -->
+            <div class="field-row" id="row_rot3" onclick="checkAndShowTermine('rot3')">
+                <div class="dots-container">
+                    <span id="count_rot3" style="font-weight:bold;">(0)</span>&nbsp;
+                    <span class="dot dot-red pulse-fast"></span>
+                    <span class="dot dot-red pulse-fast"></span>
+                    <span class="dot dot-red pulse-fast"></span>
+                </div>
+                <div class="label-text">1 - 3 Tage (Kritische Fristen)</div>
+                <div class="chevron">&#10148;</div>
+            </div>
+
+            <!-- ROT 2 (2 PUNKTE) -->
+            <div class="field-row" id="row_rot2" onclick="checkAndShowTermine('rot2')">
+                <div class="dots-container">
+                    <span id="count_rot2" style="font-weight:bold;">(0)</span>&nbsp;
+                    <span class="dot dot-red pulse-med"></span>
+                    <span class="dot dot-red pulse-med"></span>
+                </div>
+                <div class="label-text">4 - 7 Tage</div>
+                <div class="chevron">&#10148;</div>
+            </div>
+
+            <!-- ROT 1 (1 PUNKT) -->
+            <div class="field-row" id="row_rot1" onclick="checkAndShowTermine('rot1')">
+                <div class="dots-container">
+                    <span id="count_rot1" style="font-weight:bold;">(0)</span>&nbsp;
+                    <span class="dot dot-red pulse-slow"></span>
+                </div>
+                <div class="label-text">8 - 10 Tage</div>
+                <div class="chevron">&#10148;</div>
+            </div>
+            
+            <!-- BLAU (2 PUNKTE) -->
+            <div class="section-title" id="titleBlau">Mittlere Dringlichkeit</div>
+            <div class="field-row main-header-row" id="rowBlau" style="--accent-color: var(--color-blau);" onclick="checkAndTogglePanel('bluePanel', this)">
+                <div class="dots-container">
+                    <span id="count_blauGroup" style="font-weight:bold;">(0)</span>&nbsp;
+                    <span class="dot dot-lavender"></span>
+                    <span class="dot dot-lavender"></span>
+                </div>
+                <div class="label-text">11 - 21 Tage</div>
+                <div class="chevron">&#9656;</div>
+            </div>
+            <div id="bluePanel" class="sub-panel">
+                <div class="field-row" id="row_blau3" onclick="checkAndShowTermine('blau3')">
+                    <div class="dots-container"><span id="count_blau3">(0)</span>&nbsp;<span class="dot dot-lavender"></span><span class="dot dot-lavender"></span><span class="dot dot-lavender"></span></div>
+                    <div class="label-text">11 - 14 Tage</div>
+                </div>
+                <div class="field-row" id="row_blau2" onclick="checkAndShowTermine('blau2')">
+                    <div class="dots-container"><span id="count_blau2">(0)</span>&nbsp;<span class="dot dot-lavender"></span><span class="dot dot-lavender"></span></div>
+                    <div class="label-text">15 - 18 Tage</div>
+                </div>
+                <div class="field-row" id="row_blau1" onclick="checkAndShowTermine('blau1')">
+                    <div class="dots-container"><span id="count_blau1">(0)</span>&nbsp;<span class="dot dot-lavender"></span></div>
+                    <div class="label-text">19 - 21 Tage</div>
+                </div>
+            </div>
+            
+            <!-- GRÜN (1 PUNKT) -->
+            <div class="section-title" id="titleGruen">Niedrige Dringlichkeit</div>
+            <div class="field-row main-header-row" id="rowGruen" style="--accent-color: var(--color-gruen);" onclick="checkAndTogglePanel('greenPanel', this)">
+                <div class="dots-container">
+                    <span id="count_gruenGroup" style="font-weight:bold;">(0)</span>&nbsp;
+                    <span class="dot dot-slate"></span>
+                </div>
+                <div class="label-text">Über 22 Tage</div>
+                <div class="chevron">&#9656;</div>
+            </div>
+            <div id="greenPanel" class="sub-panel">
+                <div class="field-row" id="row_gruen3" onclick="checkAndShowTermine('gruen3')">
+                    <div class="dots-container"><span id="count_gruen3">(0)</span>&nbsp;<span class="dot dot-slate"></span><span class="dot dot-slate"></span><span class="dot dot-slate"></span></div>
+                    <div class="label-text">22 - 28 Tage</div>
+                </div>
+                <div class="field-row" id="row_gruen2" onclick="checkAndShowTermine('gruen2')">
+                    <div class="dots-container"><span id="count_gruen2">(0)</span>&nbsp;<span class="dot dot-slate"></span><span class="dot dot-slate"></span></div>
+                    <div class="label-text">29 - 60 Tage</div>
+                </div>
+                <div class="field-row" id="row_gruen1" onclick="checkAndShowTermine('gruen1')">
+                    <div class="dots-container"><span id="count_gruen1">(0)</span>&nbsp;<span class="dot dot-slate"></span></div>
+                    <div class="label-text">Über 60 Tage</div>
+                </div>
+            </div>
+        </div>
+        <button class="action-btn" style="margin-top:40px; background-color:#1A1A1A;" onclick="openNachtraeglichSetup()">⚙️ Einstellungen ändern</button>
+    </div>
+
+    <!-- SCREEN 7: TERMINLISTE -->
+    <div id="appointmentsScreen" class="screen">
+        <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:15px;" onclick="goBack('listScreen')">&#11013; Zurück zur Übersicht</button>
+        <div id="appointmentsContent"></div>
+    </div>
+
+    <!-- SCREEN 8: DETAILANSICHT (INKLUSIVE UNTERLAGEN & KONTAKT) -->
+    <div id="detailScreen" class="screen">
+        <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:15px;" onclick="goBack('appointmentsScreen')">&#11013; Zurück zur Liste</button>
+        
+        <!-- 🎯 FIX: Benötigte Unterlagen-Sektion vollständig reaktiviert -->
+        <div class="docs-status-box" id="docsStatusSection">
+            <div style="font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+                <span>📋 Benötigte Unterlagen:</span>
+                <span id="docsBadge" class="badge-warning">OFFEN</span>
+            </div>
+            <div id="docsList" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
+            <div id="docsDepot" style="margin-top:14px; padding-top:10px; border-top:1px dashed #29384D; font-size:14px; color:#aaa;"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title" id="detTitle">Titel</div>
+            <div id="detTime" style="font-size:14px; color:#aaa; margin-bottom:8px;">Zeit</div>
+            <div class="az-box" id="detAz">Az</div>
+            
+            <!-- 🎯 FIX: Direkt anwählbarer Ansprechpartner & Telefonnummer über der Reizarm-Info -->
+            <div style="background-color:#161616; border:1px solid #2a2a2a; padding:12px; border-radius:10px; margin-bottom:12px; font-size:14px;">
+                <p style="color:#D6D6FF; margin-bottom:4px;">👤 Ansprechpartner: <strong id="detPartner" style="color:#fff;">Nicht genannt</strong></p>
+                <p style="color:#6B7A8F;">📞 Direktruf: <strong id="detPhone" style="color:#38bdf8; text-decoration:underline; cursor:pointer;">Keine Nummer</strong></p>
+            </div>
+
+            <div style="border-top:1px dashed #444; padding-top:12px; margin-top:10px; font-size:14px; line-height:1.4;">
+                <p style="color:#FFE066; font-weight:600; margin-bottom:4px;">📋 Reizarm-Info:</p>
+                <p id="detDescription" style="color:#ccc; margin-bottom:16px;"></p>
+            </div>
+
+            <div style="background-color:#121212; border:1px solid #333; padding:15px; border-radius:10px; margin-bottom:5px;">
+                <label style="font-size:13px; font-weight:600; color:var(--color-rot); display:block; margin-bottom:4px;">⏱️ Geschätzte Fahrzeit (Minuten):</label>
+                <input type="number" id="detFahrzeitInput" class="setup-input" style="margin-bottom:12px; margin-top:0;" value="20" onchange="recalculatePacingAlarm()">
+                
+                <label style="font-size:13px; font-weight:600; color:var(--color-blau); display:block; margin-bottom:4px;">🔔 Pacing-Rettungsanker (Puffer):</label>
+                <select id="pacingDropdown" class="pacing-select" style="margin-bottom:12px;" onchange="recalculatePacingAlarm()">
+                    <option value="15">15 Minuten</option>
+                    <option value="30">30 Minuten</option>
+                    <option value="45">45 Minuten</option>
+                    <option value="60">1 Stunde</option>
+                    <option value="75">1 Std. 15 Min.</option>
+                    <option value="90">1 Std. 30 Min.</option>
+                    <option value="105">1 Std. 45 Min.</option>
+                    <option value="120">2 Stunden (Maximale Vorruhe)</option>
+                </select>
+                <p id="calculatedAlarmTime" style="font-size:13px; color:#8AFF9A; font-weight:500; line-height:1.4;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 9: CRASH SCREEN -->
+    <div id="crashScreen" class="screen">
+        <div class="start-container" style="padding-top:40px;">
+            <div class="start-question" style="color:#FF8A8A; margin-bottom: 15px;">🚨 Akuter Crash-Schutz</div>
+            <p class="pulse-crash-field" style="font-size:16px; margin-bottom:30px; padding:12px; border-radius:8px; font-weight:500; line-height:1.4;">
+                Schließe deine Augen halb. Passe deinen Atem ganz ruhig dem pulsierenden Feld unten an. Aus... Ein...
+            </p>
+            
+            <div class="preview-breathe-box pulse-crash-field" style="padding:24px; font-weight:bold; font-size:16px; margin-bottom:30px;">
+                🧘 ATMUNG SYNCHRONISIEREN
+            </div>
+
+            <div class="notfall-box">
+                <div class="notfall-title">Direkter Notruf / Signal-Ausgabe</div>
+                <div class="notfall-grid">
+                    <button class="notfall-btn" onclick="callContact(1)">📞 Hauptkontakt ANRUFEN</button>
+                    <button class="notfall-btn" style="background-color:#1e293b; border-color:#d6d6ff; color:#fff;" onclick="callContact(2)">📞 Notfallkontakt 2 ANRUFEN</button>
+                </div>
+            </div>
+            
+            <button class="action-btn" style="margin-top:50px; background-color:#1a1a1a;" onclick="exitCrashMode()">← Zurück</button>
+        </div>
+    </div>
+
+    <script>
+        const mockDatabase = {
+            rot3: [
+                { id: 101, title: "Dr. Thilmann (Amtsarzt)", time: "10:30 Uhr (In 2 Tagen)", az: "AZ-2026-991A", partner: "Frau Meyer (Vorzimmer)", phone: "0123456789", desc: "Untersuchung Dienstfähigkeit. Nimm die gelbe Mappe vom Schreibtisch mit. Vorher 2 Stunden totale Reizpause einplanen!", needsDocs: true, docsComplete: false, docsItems: ["Aktueller Arztbericht (Kopie)", "Medikamentenplan"], depot: "Blauer Ordner 'Dienstunfall' auf dem Schreibtisch" },
+                { id: 102, title: "Widerspruchsfrist Krankenkasse", time: "Morgen um 23:59 Uhr", az: "KK-7762-V", partner: "Herr Richter (Abt. 4)", phone: "089554433", desc: "Letzter Tag zur Fristwahrung des Widerspruchs bezüglich Krankengeldstreichung.", needsDocs: false, docsItems: [], depot: "" }
+            ],
+            rot2: [
+                { id: 201, title: "Zahnarzt (Reizarme Prophylaxe)", time: "09:00 Uhr (In 4 Tagen)", az: "Praxis Kern", partner: "Dr. med. dent. Kern", phone: "0711445566", desc: "Behandlung ohne laute Geräusche vereinbart. Gehörschutz und dunkle Sonnenbrille mitbringen.", needsDocs: true, docsComplete: true, docsItems: ["Bonusheft"], depot: "In der Brieftasche an der Garderobe" },
+                { id: 202, title: "Befundberichte Versorgungsamt", time: "In 6 Tagen", az: "GdB-SGB-IX", partner: "Zentrale Einlaufstelle", phone: "030112233", desc: "Nachreichung der Berichte zur Feststellung des Merkzeichens G.", needsDocs: false, docsItems: [], depot: "" }
+            ],
+            rot1: [
+                { id: 301, title: "Lieferung Schwellenrampe", time: "10:00 Uhr (In 8 Tagen)", az: "Sanitätshaus Süd", partner: "Herr Wagner (Logistik)", phone: "040998877", desc: "Techniker kommt. Haustürklingel stummschalten – er klopft sanft an die Scheibe.", needsDocs: false, docsItems: [], depot: "" }
+            ], blau3: [], blau2: [], blau1: [], gruen3: [], gruen2: [], gruen1: []
+        };
+
+        let currentActiveScreen = 'accessibilitySetupScreen';
+        let currentEnergyStatus = 'gut';
+        let selectedAtemSekunden = 8;
+
+        applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default');
+        const savedScale = localStorage.getItem('pacing_text_scale') || 'normal';
+        if (savedScale !== 'normal') document.body.classList.add('text-' + savedScale);
+        document.getElementById('scaleSelect').value = savedScale;
+
+        if(localStorage.getItem('pacing_app_configured_v39')) {
+            document.getElementById('onboardingIntro').innerHTML = "⚙️ <strong>Tagesform-Check:</strong> Bitte wähle dein heutiges Energielevel:";
+            
+            document.addEventListener("DOMContentLoaded", () => {
+                showScreen('betaNoticeScreen');
+                document.getElementById('betaManualContinueBtn').style.display = 'none';
+                document.getElementById('betaCardBody').classList.add('fade-out-5s');
+                setTimeout(() => { showScreen('startScreen'); }, 5000);
+            });
+        }
+
+        function finishOnboardingAndGoToBetaCheck() {
+            localStorage.setItem('pacing_app_configured_v39', 'true');
+            document.getElementById('betaManualContinueBtn').style.display = 'block';
+            showScreen('betaNoticeScreen');
+        }
+
+        function handleSliderChange(val) {
+            selectedAtemSekunden = parseInt(val, 10);
+            localStorage.setItem('pacing_atem_freq', selectedAtemSekunden);
+            document.getElementById('sliderDisplayLabel').innerText = "𫆢 Atem-Rhythmus: " + selectedAtemSekunden + " Sekunden";
+            
+            let styleEl = document.getElementById('dynamic-pulse-style') || document.createElement('style');
+            styleEl.id = 'dynamic-pulse-style';
+            styleEl.innerHTML = `.pulse-crash-field, .preview-breathe-box { animation: crashWhiteBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
+            if(!styleEl.parentNode) document.head.appendChild(styleEl);
+        }
+
+        function handleStartChoice(choice) {
+            currentEnergyStatus = choice;
+            document.body.classList.remove('crash-darkness');
+            
+            if (choice === 'gut' || choice === 'gehtso') {
+                openFilteredPlanerScreen();
+            } else if (choice === 'naja') {
+                showScreen('najaWarningScreen');
+            } else if (choice === 'crash') {
+                document.body.classList.add('crash-darkness');
+                handleSliderChange(selectedAtemSekunden);
+                showScreen('crashScreen');
+            }
+        }
+
+        function openFilteredPlanerScreen() {
+            updateCounters();
+            const isGut = (currentEnergyStatus === 'gut');
+            const isGehtSo = (currentEnergyStatus === 'gehtso');
+            const isNaja = (currentEnergyStatus === 'naja');
+            
+            document.getElementById('titleGruen').style.display = isGut ? 'block' : 'none';
+            document.getElementById('rowGruen').style.display = isGut ? 'block' : 'none';
+            document.getElementById('titleBlau').style.display = (isGut || isGehtSo) ? 'block' : 'none';
+            document.getElementById('rowBlau').style.display = (isGut || isGehtSo) ? 'block' : 'none';
+
+            document.querySelectorAll('.field-row').forEach(row => row.classList.remove('disabled-row'));
+
+            if (isGehtSo) {
+                document.getElementById('row_gruen3')?.classList.add('disabled-row');
+                document.getElementById('row_gruen2')?.classList.add('disabled-row');
+                document.getElementById('row_gruen1')?.classList.add('disabled-row');
+            }
+            if (isNaja) {
+                document.getElementById('rowBlau')?.classList.add('disabled-row');
+            }
+            showScreen('listScreen');
+        }
+
+        function activateNajaFilteredPlaner() { currentEnergyStatus = 'naja'; openFilteredPlanerScreen(); }
+        function checkAndShowTermine(tierKey) { if (currentEnergyStatus === 'naja' && !tierKey.startsWith('rot')) return; if (currentEnergyStatus === 'gehtso' && tierKey.startsWith('gruen')) return; showTermine(tierKey); }
+        function checkAndTogglePanel(panelId, headerElement) { if (currentEnergyStatus === 'naja') return; if (currentEnergyStatus === 'gehtso' && panelId === 'greenPanel') return; const panel = document.getElementById(panelId); panel.classList.toggle('open-panel'); }
+
+        function showTermine(tierKey) {
+            const list = mockDatabase[tierKey] || [];
+            const container = document.getElementById('appointmentsContent');
+            if(list.length === 0) {
+                container.innerHTML = `<p style="padding:40px 20px; text-align:center; color:#888;">Keine Einträge vorhanden.</p>`;
+            } else {
+                let html = '<div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">';
+                list.forEach(t => {
+                    const safeJson = JSON.stringify(t).replace(/"/g, '&quot;');
+                    html += `<div class="field-row" onclick="showDetail(${safeJson})"><div class="label-text">${t.title}</div><div class="chevron">&#10148;</div></div>`;
+                });
+                html += '</div>'; container.innerHTML = html;
+            }
+            showScreen('appointmentsScreen');
+        }
+
+        function showDetail(termin) {
+            document.getElementById('detTitle').innerText = termin.title;
+            document.getElementById('detTime').innerText = termin.time;
+            document.getElementById('detAz').innerText = "Ident / Az: " + termin.az;
+            document.getElementById('detDescription').innerText = termin.desc;
+            
+            // 🎯 FIX: Zuweisung Ansprechpartner & Telefonnummer
+            document.getElementById('detPartner').innerText = termin.partner || "Nicht genannt";
+            const phoneEl = document.getElementById('detPhone');
+            phoneEl.innerText = termin.phone || "Keine Nummer";
+            phoneEl.onclick = () => { if(termin.phone) window.location.href = "tel:" + termin.phone; };
+
+            // 🎯 FIX: Dynamischer Wiederaufbau der benötigten Dokumente
+            const docsSection = document.getElementById('docsStatusSection');
+            if(termin.needsDocs) {
+                docsSection.style.display = "block";
+                const badge = document.getElementById('docsBadge');
+                badge.innerText = termin.docsComplete ? "VOLLSTÄNDIG" : "OFFEN";
+                badge.style.backgroundColor = termin.docsComplete ? "#1E3D23" : "#4A3319";
+                badge.style.color = termin.docsComplete ? "#8AFF9A" : "#FFA333";
+                
+                let listHtml = "";
+                termin.docsItems.forEach(item => {
+                    let checked = termin.docsComplete ? "checked" : "";
+                    listHtml += `<label style="display:flex; align-items:center; gap:12px; padding:4px 0;"><input type="checkbox" style="transform: scale(1.4);" ${checked} onclick="return false;"> <span>${item}</span></label>`;
+                });
+                document.getElementById('docsList').innerHTML = listHtml;
+                document.getElementById('docsDepot').innerHTML = `📍 <strong>Ablageort:</strong> ${termin.depot}`;
+            } else {
+                docsSection.style.display = "none";
+            }
+            
+            setTimeout(() => { recalculatePacingAlarm(); }, 50);
+            showScreen('detailScreen');
+        }
+
+        function recalculatePacingAlarm() {
+            const fahrtzeit = parseInt(document.getElementById('detFahrzeitInput').value, 10) || 0;
+            const puffer = parseInt(document.getElementById('pacingDropdown').value, 10) || 0;
+            let totalInMinutes = (10 * 60 + 30) - (fahrtzeit + puffer);
+            const pad = (num) => String(num).padStart(2, '0');
+            document.getElementById('calculatedAlarmTime').innerHTML = `🚗 Späteste Abfahrt: <strong>${pad(Math.floor(((10*60+30)-fahrtzeit)/60))}:${pad(((10*60+30)-fahrtzeit)%60)} Uhr</strong><br>🧘 Pacing-Anker schlägt an um: <strong style="color:var(--color-rot);">${pad(Math.floor(totalInMinutes/60))}:${pad(totalInMinutes%60)} Uhr</strong>`;
+        }
+
+        function updateCounters() {
+            const keys = ['rot3', 'rot2', 'rot1', 'blau3', 'blau2', 'blau1', 'gruen3', 'gruen2', 'gruen1'];
+            keys.forEach(key => {
+                const element = document.getElementById('count_' + key);
+                if(element) element.innerText = `(${mockDatabase[key].length})`;
+            });
+            const blauTotal = mockDatabase.blau3.length + mockDatabase.blau2.length + mockDatabase.blau1.length;
+            const gruenTotal = mockDatabase.gruen3.length + mockDatabase.gruen2.length + mockDatabase.gruen1.length;
+            document.getElementById('count_blauGroup').innerText = `(${blauTotal})`;
+            document.getElementById('count_gruenGroup').innerText = `(${gruenTotal})`;
+        }
+
+        function toggleConfigLayer(layerId) {
+            const currentLayer = document.getElementById(layerId);
+            const isOpen = currentLayer.classList.contains('open');
+            document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
+            if (!isOpen) currentLayer.classList.add('open');
+        }
+
+        function applyGlobalTextScaleNoJump(scale) {
+            localStorage.setItem('pacing_text_scale', scale);
+            document.body.className = document.body.className.replace(/\btext-\S+/g, '');
+            if (scale !== 'normal') document.body.classList.add('text-' + scale);
+            document.getElementById('scaleSelect').value = scale;
+        }
+
+        function applyGlobalTextScale(scale) { applyGlobalTextScaleNoJump(scale); }
+
+        function applyColorProfile(profile) {
+            localStorage.setItem('pacing_color_profile', profile);
+            document.body.classList.remove('cb-rotgruen', 'cb-blaugelb', 'cb-monochrom');
+            if(profile !== 'default') document.body.classList.add('cb-' + profile);
+            document.getElementById('colorBlindSelect').value = profile;
+            document.getElementById('onboardingColorBlindSelect').value = profile;
+        }
+
+        function openNachtraeglichSetup() { showScreen('setupScreen'); }
+        function finishSetupAndGoToGrid() { openFilteredPlanerScreen(); }
+        function exitCrashMode() { document.body.classList.remove('crash-darkness'); showScreen('startScreen'); }
+        function goToMainMenu() { document.body.classList.remove('crash-darkness'); showScreen('startScreen'); }
+        function goBack(id) { showScreen(id); }
+        function showScreen(screenId) { document.getElementById(currentActiveScreen).classList.remove('active'); document.getElementById(screenId).classList.add('active'); currentActiveScreen = screenId; }
+        
+        document.addEventListener("DOMContentLoaded", () => { updateCounters(); handleSliderChange(selectedAtemSekunden); });
+    </script>
+</body>
+</html>
