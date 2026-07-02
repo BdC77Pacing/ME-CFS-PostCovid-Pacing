@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v40</title>
+    <title>Pacing App v41 - Interaktiv</title>
     <style>
         * {
             box-sizing: border-box;
@@ -67,18 +67,6 @@
 
         body.crash-darkness { filter: brightness(0.4) contrast(0.9); }
 
-        body.text-groess { font-size: 20px !important; line-height: 1.6 !important; }
-        body.text-groess .start-question { font-size: 28px !important; }
-        body.text-groess .label-text { font-size: 21px !important; }
-        body.text-groess .section-title { font-size: 16px !important; }
-        body.text-groess .ampel-btn, body.text-groess .acc-huge-btn, body.text-groess .menu-settings-btn, body.text-groess .quad-btn { font-size: 22px !important; }
-
-        body.text-sehrgroess { font-size: 24px !important; line-height: 1.7 !important; }
-        body.text-sehrgroess .start-question { font-size: 32px !important; }
-        body.text-sehrgroess .label-text { font-size: 25px !important; }
-        body.text-sehrgroess .section-title { font-size: 19px !important; }
-        body.text-sehrgroess .ampel-btn, body.text-sehrgroess .acc-huge-btn, body.text-sehrgroess .menu-settings-btn, body.text-sehrgroess .quad-btn { font-size: 24px !important; }
-
         .screen { display: none; }
         .screen.active { display: block; }
         .start-container { text-align: center; padding: 10px 10px 20px 10px; }
@@ -101,12 +89,26 @@
             font-size: 18px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-color); color: var(--text-light); text-align: center;
         }
 
-        .btn-acc-select { background-color: rgba(214, 214, 255, 0.1); border-color: #D6D6FF; color: #D6D6FF; }
         .btn-gut { background-color: var(--bg-gruen-alpha); border-color: var(--color-gruen); color: var(--text-light); }
         .btn-gehtso { background-color: var(--bg-blau-alpha); border-color: var(--color-blau); color: var(--text-light); }
         .btn-naja { background-color: var(--bg-rot-alpha); border-color: var(--color-rot); color: var(--text-light); }
         .btn-crash { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #FF8A8A; margin-bottom: 25px; }
-        .menu-settings-btn { background-color: #1A1A1A; border-color: #333; color: #aaa; font-size: 16px; font-weight: 500; }
+
+        /* 🎨 CONTRAST FIX: Stark verbesserte Sichtbarkeit für sekundäre Funktionstasten */
+        .menu-settings-btn, .action-btn-secondary { 
+            background-color: #222222 !important; 
+            border: 2px solid var(--color-rot) !important; 
+            color: #FFFFFF !important; 
+            font-size: 16px; 
+            font-weight: bold; 
+        }
+
+        .action-btn-contrast {
+            background-color: #1A1A1A !important;
+            border: 2px solid var(--color-blau) !important;
+            color: var(--color-blau) !important;
+            font-weight: bold !important;
+        }
 
         .setup-input { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 16px; margin-bottom: 14px; margin-top: 6px; }
         .pacing-select { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #D6D6FF; font-size: 16px; font-weight: 600; margin-top: 6px; margin-bottom: 16px; outline: none; }
@@ -114,7 +116,6 @@
         .slider-container { margin-top: 14px; padding: 4px 0; }
         .atem-slider { -webkit-appearance: none; width: 100%; height: 12px; border-radius: 6px; background: #333; outline: none; margin-top: 10px; }
         .atem-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #D6D6FF; cursor: pointer; border: 2px solid #121212; }
-        .slider-labels { display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-top: 6px; font-weight: 500; }
 
         .preview-breathe-box { margin-top: 15px; padding: 15px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.15); background-color: rgba(255, 255, 255, 0.03); text-align: center; font-size: 13px; color: rgba(255, 255, 255, 0.6); }
 
@@ -123,8 +124,9 @@
         
         .field-row { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 24px; display: flex; align-items: center; gap: 20px; cursor: pointer; }
         
-        /* 🎨 REIZARM GEGRAUT: Für gesperrte Felder */
-        .field-row.disabled-row { opacity: 0.25; filter: grayscale(1); cursor: not-allowed !important; }
+        /* Visuelles Ausgrauen gesperrter Blöcke */
+        .field-row.disabled-row { opacity: 0.18; filter: grayscale(1); cursor: not-allowed !important; }
+        
         .main-header-row { border-left: 4px solid var(--accent-color); }
         .dots-container { display: flex; gap: 4px; min-width: 115px; font-family: monospace; font-size: 14px; color: #aaa; align-items: center; }
         
@@ -232,6 +234,7 @@
 
     <div id="startScreen" class="screen">
         <div class="start-container">
+            <div style="text-align: right; margin-bottom: 10px; font-size: 20px;" id="ampelAlarmIndicator">🔔 🔊</div>
             <div id="onboardingIntro" style="margin-bottom: 25px; color:#D6D6FF; font-size:15px; background-color: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #444;">
                 Bestimme deine heutige Energie für die automatische Filterung.
             </div>
@@ -304,6 +307,13 @@
                     <option value="blaugelb">Blau-Gelb-Schwäche</option>
                     <option value="monochrom">Monochrom</option>
                 </select>
+                
+                <hr style="border-color:#333; margin:16px 0;">
+                <h3 style="color:#D6D6FF; margin-bottom:8px; font-size:14px;">🔔 Signal-Modus für Wecker:</h3>
+                <select id="pacingAlarmSoundMode" class="pacing-select" style="margin-bottom:0;" onchange="localStorage.setItem('pacing_sound_mode', this.value)">
+                    <option value="visual">Nur visuelles Blinken (Reizarm)</option>
+                    <option value="sound">Sanfter Gong + Visuell</option>
+                </select>
             </div>
 
             <button class="action-btn" style="background-color:#2A2A2A; padding:18px; margin-top:20px;" onclick="finishSetupAndGoToGrid()">⏩ Speichern & Zurück zum Planer</button>
@@ -311,17 +321,15 @@
     </div>
 
     <div id="listScreen" class="screen">
-        <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:12px; border: 2px solid var(--color-blau); color: var(--color-blau); font-weight: bold;" onclick="goToMainMenu()">Layout-Umschalter ↩</button>
+        <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:18px; border: 2px solid var(--color-blau); color: var(--color-blau); font-weight: bold; letter-spacing: 0.03em;" onclick="goToMainMenu()">Layout-Umschalter ↩</button>
         
         <div class="grid-container">
-            <div class="section-title">Höchste Dringlichkeit</div>
+            <div class="section-title" id="titleRot">Höchste Dringlichkeit</div>
             
             <div class="field-row" id="row_rot3" onclick="checkAndShowTermine('rot3')">
                 <div class="dots-container">
                     <span id="count_rot3" style="font-weight:bold;">(0)</span>&nbsp;
-                    <span class="dot dot-red pulse-fast"></span>
-                    <span class="dot dot-red pulse-fast"></span>
-                    <span class="dot dot-red pulse-fast"></span>
+                    <span class="dot dot-red pulse-fast"></span><span class="dot dot-red pulse-fast"></span><span class="dot dot-red pulse-fast"></span>
                 </div>
                 <div class="label-text">1 - 3 Tage (Kritische Fristen)</div>
                 <div class="chevron">&#10148;</div>
@@ -330,8 +338,7 @@
             <div class="field-row" id="row_rot2" onclick="checkAndShowTermine('rot2')">
                 <div class="dots-container">
                     <span id="count_rot2" style="font-weight:bold;">(0)</span>&nbsp;
-                    <span class="dot dot-red pulse-med"></span>
-                    <span class="dot dot-red pulse-med"></span>
+                    <span class="dot dot-red pulse-med"></span><span class="dot dot-red pulse-med"></span>
                 </div>
                 <div class="label-text">4 - 7 Tage</div>
                 <div class="chevron">&#10148;</div>
@@ -350,8 +357,7 @@
             <div class="field-row main-header-row" id="rowBlau" style="--accent-color: var(--color-blau);" onclick="checkAndTogglePanel('bluePanel', this)">
                 <div class="dots-container">
                     <span id="count_blauGroup" style="font-weight:bold;">(0)</span>&nbsp;
-                    <span class="dot dot-lavender"></span>
-                    <span class="dot dot-lavender"></span>
+                    <span class="dot dot-lavender"></span><span class="dot dot-lavender"></span>
                 </div>
                 <div class="label-text">11 - 21 Tage</div>
                 <div class="chevron">&#9656;</div>
@@ -395,16 +401,16 @@
                 </div>
             </div>
         </div>
-        <button class="action-btn" style="margin-top:40px; background-color:#1A1A1A;" onclick="openNachtraeglichSetup()">⚙️ Einstellungen ändern</button>
+        <button class="menu-settings-btn" style="margin-top:40px;" onclick="openNachtraeglichSetup()">⚙️ Einstellungen ändern</button>
     </div>
 
     <div id="appointmentsScreen" class="screen">
-        <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:15px;" onclick="goBack('listScreen')">&#11013; Zurück zur Übersicht</button>
+        <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('listScreen')">&#11013; Zurück zur Übersicht</button>
         <div id="appointmentsContent"></div>
     </div>
 
     <div id="detailScreen" class="screen">
-        <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:15px;" onclick="goBack('appointmentsScreen')">&#11013; Zurück zur Liste</button>
+        <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('appointmentsScreen')">&#11013; Zurück zur Liste</button>
         
         <div class="docs-status-box" id="docsStatusSection">
             <div style="font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
@@ -412,7 +418,11 @@
                 <span id="docsBadge" class="badge-warning">OFFEN</span>
             </div>
             <div id="docsList" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
-            <div id="docsDepot" style="margin-top:14px; padding-top:10px; border-top:1px dashed #29384D; font-size:14px; color:#aaa;"></div>
+            
+            <div style="margin-top:14px; padding-top:12px; border-top:1px dashed #29384D;">
+                <label style="font-size:13px; color:#aaa; font-weight:600; display:block; margin-bottom:4px;">📍 Physischer Ablageort im Raum:</label>
+                <input type="text" id="detDepotInput" class="setup-input" style="margin-bottom:0; background-color:#121212; border-color:#29384D;" placeholder="z.B. Blauer Ordner Schreibtisch..." oninput="handleDepotLiveEdit(this.value)">
+            </div>
         </div>
 
         <div class="card">
@@ -440,9 +450,6 @@
                     <option value="30">30 Minuten</option>
                     <option value="45">45 Minuten</option>
                     <option value="60">1 Stunde</option>
-                    <option value="75">1 Std. 15 Min.</option>
-                    <option value="90">1 Std. 30 Min.</option>
-                    <option value="105">1 Std. 45 Min.</option>
                     <option value="120">2 Stunden (Maximale Vorruhe)</option>
                 </select>
                 <p id="calculatedAlarmTime" style="font-size:13px; color:#8AFF9A; font-weight:500; line-height:1.4;"></p>
@@ -456,53 +463,39 @@
             <p class="pulse-crash-field" style="font-size:16px; margin-bottom:30px; padding:12px; border-radius:8px; font-weight:500; line-height:1.4;">
                 Schließe deine Augen halb. Passe deinen Atem ganz ruhig dem pulsierenden Feld unten an. Aus... Ein...
             </p>
-            
-            <div class="preview-breathe-box pulse-crash-field" style="padding:24px; font-weight:bold; font-size:16px; margin-bottom:30px;">
-                🧘 ATMUNG SYNCHRONISIEREN
-            </div>
-
-            <div class="notfall-box">
-                <div class="notfall-title">Direkter Notruf / Signal-Ausgabe</div>
-                <div class="notfall-grid">
-                    <button class="notfall-btn" onclick="callContact(1)">📞 Hauptkontakt ANRUFEN</button>
-                    <button class="notfall-btn" style="background-color:#1e293b; border-color:#d6d6ff; color:#fff;" onclick="callContact(2)">📞 Notfallkontakt 2 ANRUFEN</button>
-                </div>
-            </div>
-            
-            <button class="action-btn" style="margin-top:50px; background-color:#1a1a1a;" onclick="exitCrashMode()">← Zurück</button>
+            <div class="preview-breathe-box pulse-crash-field" style="padding:24px; font-weight:bold; font-size:16px; margin-bottom:30px;">🧘 ATMUNG SYNCHRONISIEREN</div>
+            <button class="action-btn action-btn-contrast" style="width:100%; padding:18px;" onclick="exitCrashMode()">← Zurück</button>
         </div>
     </div>
 
     <script>
-        const mockDatabase = {
+        // Datenbank wird im Speicher gehalten, um Interaktivität (Abhaken, Depot-Edit) zu ermöglichen
+        let mockDatabase = {
             rot3: [
-                { id: 101, title: "Dr. Thilmann (Amtsarzt)", time: "10:30 Uhr (In 2 Tagen)", az: "AZ-2026-991A", partner: "Frau Meyer (Vorzimmer)", phone: "0123456789", desc: "Untersuchung Dienstfähigkeit. Nimm die gelbe Mappe vom Schreibtisch mit. Vorher 2 Stunden totale Reizpause einplanen!", needsDocs: true, docsComplete: false, docsItems: ["Aktueller Arztbericht (Kopie)", "Medikamentenplan"], depot: "Blauer Ordner 'Dienstunfall' auf dem Schreibtisch" },
+                { id: 101, title: "Dr. Thilmann (Amtsarzt)", time: "10:30 Uhr (In 2 Tagen)", az: "AZ-2026-991A", partner: "Frau Meyer (Vorzimmer)", phone: "0123456789", desc: "Untersuchung Dienstfähigkeit. Nimm die gelbe Mappe vom Schreibtisch mit. Vorher 2 Stunden totale Reizpause einplanen!", needsDocs: true, docsComplete: false, docsItems: [{name: "Aktueller Arztbericht (Kopie)", done: false}, {name: "Medikamentenplan", done: false}], depot: "Blauer Ordner 'Dienstunfall' auf dem Schreibtisch" },
                 { id: 102, title: "Widerspruchsfrist Krankenkasse", time: "Morgen um 23:59 Uhr", az: "KK-7762-V", partner: "Herr Richter (Abt. 4)", phone: "089554433", desc: "Letzter Tag zur Fristwahrung des Widerspruchs bezüglich Krankengeldstreichung.", needsDocs: false, docsItems: [], depot: "" }
             ],
             rot2: [
-                { id: 201, title: "Zahnarzt (Reizarme Prophylaxe)", time: "09:00 Uhr (In 4 Tagen)", az: "Praxis Kern", partner: "Dr. Kern", phone: "0711445566", desc: "Behandlung ohne laute Geräusche vereinbart. Gehörschutz und dunkle Sonnenbrille mitbringen.", needsDocs: true, docsComplete: true, docsItems: ["Bonusheft"], depot: "In der Brieftasche an der Garderobe" },
+                { id: 201, title: "Zahnarzt (Reizarme Prophylaxe)", time: "09:00 Uhr (In 4 Tagen)", az: "Praxis Kern", partner: "Dr. Kern", phone: "0711445566", desc: "Behandlung ohne laute Geräusche vereinbart. Gehörschutz und dunkle Sonnenbrille mitbringen.", needsDocs: true, docsComplete: true, docsItems: [{name: "Bonusheft", done: true}], depot: "In der Brieftasche an der Garderobe" },
                 { id: 202, title: "Befundberichte Versorgungsamt", time: "In 6 Tagen", az: "GdB-SGB-IX", partner: "Zentrale Einlaufstelle", phone: "030112233", desc: "Nachreichung der Berichte zur Feststellung des Merkzeichens G.", needsDocs: false, docsItems: [], depot: "" }
             ],
-            rot1: [
-                { id: 301, title: "Lieferung Schwellenrampe", time: "10:00 Uhr (In 8 Tagen)", az: "Sanitätshaus Süd", partner: "Herr Wagner (Logistik)", phone: "040998877", desc: "Techniker kommt. Haustürklingel stummschalten – er klopft sanft an die Scheibe.", needsDocs: false, docsItems: [], depot: "" }
-            ],
-            blau3: [
-                { id: 401, title: "LDN Rezepttelefon Hausarzt", time: "In 11 Tagen", az: "Dr. Becker", partner: "Rezeptions-Team", phone: "0711889900", desc: "Low Dose Naltrexon Rezept telefonisch anfordern.", needsDocs: false, docsItems: [], depot: "" }
-            ], blau2: [], blau1: [], gruen3: [], gruen2: [], gruen1: []
+            rot1: [{ id: 301, title: "Lieferung Schwellenrampe", time: "10:00 Uhr (In 8 Tagen)", az: "Sanitätshaus Süd", partner: "Herr Wagner (Logistik)", phone: "040998877", desc: "Techniker kommt. Haustürklingel stummschalten – er klopft sanft an die Scheibe.", needsDocs: false, docsItems: [], depot: "" }],
+            blau3: [{ id: 401, title: "LDN Rezepttelefon Hausarzt", time: "In 11 Tagen", az: "Dr. Becker", partner: "Rezeptions-Team", phone: "0711889900", desc: "Low Dose Naltrexon Rezept telefonisch anfordern.", needsDocs: false, docsItems: [], depot: "" }],
+            blau2: [], blau1: [], gruen3: [], gruen2: [], gruen1: []
         };
 
         let currentActiveScreen = 'accessibilitySetupScreen';
         let currentEnergyStatus = 'gut';
         let selectedAtemSekunden = 8;
+        let activeOpenedTerminRef = null;
 
         applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default');
         const savedScale = localStorage.getItem('pacing_text_scale') || 'normal';
         if (savedScale !== 'normal') document.body.classList.add('text-' + savedScale);
         document.getElementById('scaleSelect').value = savedScale;
 
-        if(localStorage.getItem('pacing_app_configured_v39')) {
+        if(localStorage.getItem('pacing_app_configured_v41')) {
             document.getElementById('onboardingIntro').innerHTML = "⚙️ <strong>Tagesform-Check:</strong> Bitte wähle dein heutiges Energielevel:";
-            
             document.addEventListener("DOMContentLoaded", () => {
                 showScreen('betaNoticeScreen');
                 document.getElementById('betaManualContinueBtn').style.display = 'none';
@@ -512,7 +505,7 @@
         }
 
         function finishOnboardingAndGoToBetaCheck() {
-            localStorage.setItem('pacing_app_configured_v39', 'true');
+            localStorage.setItem('pacing_app_configured_v41', 'true');
             document.getElementById('betaManualContinueBtn').style.display = 'block';
             showScreen('betaNoticeScreen');
         }
@@ -521,7 +514,6 @@
             selectedAtemSekunden = parseInt(val, 10);
             localStorage.setItem('pacing_atem_freq', selectedAtemSekunden);
             document.getElementById('sliderDisplayLabel').innerText = "𫆢 Atem-Rhythmus: " + selectedAtemSekunden + " Sekunden";
-            
             let styleEl = document.getElementById('dynamic-pulse-style') || document.createElement('style');
             styleEl.id = 'dynamic-pulse-style';
             styleEl.innerHTML = `.pulse-crash-field, .preview-breathe-box { animation: crashWhiteBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
@@ -531,7 +523,6 @@
         function handleStartChoice(choice) {
             currentEnergyStatus = choice;
             document.body.classList.remove('crash-darkness');
-            
             if (choice === 'gut' || choice === 'gehtso') {
                 openFilteredPlanerScreen();
             } else if (choice === 'naja') {
@@ -543,33 +534,51 @@
             }
         }
 
+        // 🧠 DEIN FILTER-WUNSCH: Radikale Reiz-Sperrung auf Sektionsebene umgesetzt
         function openFilteredPlanerScreen() {
             updateCounters();
+            
             const isGut = (currentEnergyStatus === 'gut');
             const isGehtSo = (currentEnergyStatus === 'gehtso');
             const isNaja = (currentEnergyStatus === 'naja');
             
+            // 🌤️ Geht So & Naja: Verstecke die grüne Haupt-Sektion komplett aus dem Sichtfeld
             document.getElementById('titleGruen').style.display = isGut ? 'block' : 'none';
             document.getElementById('rowGruen').style.display = isGut ? 'block' : 'none';
+
+            // ⚠️ Naja: Verstecke ZUSÄTZLICH auch die blaue Haupt-Sektion komplett
             document.getElementById('titleBlau').style.display = (isGut || isGehtSo) ? 'block' : 'none';
             document.getElementById('rowBlau').style.display = (isGut || isGehtSo) ? 'block' : 'none';
 
+            // Alle Sperr-Klassen vorher säubern
             document.querySelectorAll('.field-row').forEach(row => row.classList.remove('disabled-row'));
 
+            // Sollten Blöcke im Grenzbereich sichtbar sein, grau überlagern
             if (isGehtSo) {
-                document.getElementById('row_gruen3')?.classList.add('disabled-row');
-                document.getElementById('row_gruen2')?.classList.add('disabled-row');
-                document.getElementById('row_gruen1')?.classList.add('disabled-row');
+                document.getElementById('rowGruen')?.classList.add('disabled-row');
             }
             if (isNaja) {
                 document.getElementById('rowBlau')?.classList.add('disabled-row');
+                document.getElementById('rowGruen')?.classList.add('disabled-row');
             }
             showScreen('listScreen');
         }
 
         function activateNajaFilteredPlaner() { currentEnergyStatus = 'naja'; openFilteredPlanerScreen(); }
-        function checkAndShowTermine(tierKey) { if (currentEnergyStatus === 'naja' && !tierKey.startsWith('rot')) return; if (currentEnergyStatus === 'gehtso' && tierKey.startsWith('gruen')) return; showTermine(tierKey); }
-        function checkAndTogglePanel(panelId, headerElement) { if (currentEnergyStatus === 'naja') return; if (currentEnergyStatus === 'gehtso' && panelId === 'greenPanel') return; const panel = document.getElementById(panelId); panel.classList.toggle('open-panel'); }
+        
+        function checkAndShowTermine(tierKey) { 
+            if (currentEnergyStatus === 'naja' && !tierKey.startsWith('rot')) return;
+            if (currentEnergyStatus === 'gehtso' && tierKey.startsWith('gruen')) return;
+            showTermine(tierKey); 
+        }
+
+        function checkAndTogglePanel(panelId, headerElement) {
+            if (currentEnergyStatus === 'naja') return;
+            if (currentEnergyStatus === 'gehtso' && panelId === 'greenPanel') return;
+            const panel = document.getElementById(panelId);
+            panel.classList.toggle('open-panel');
+            headerElement.querySelector('.chevron').innerHTML = panel.classList.contains('open-panel') ? "&#9662;" : "&#9656;";
+        }
 
         function showTermine(tierKey) {
             const list = mockDatabase[tierKey] || [];
@@ -579,100 +588,82 @@
             } else {
                 let html = '<div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">';
                 list.forEach(t => {
-                    const safeJson = JSON.stringify(t).replace(/"/g, '&quot;');
-                    html += `<div class="field-row" onclick="showDetail(${safeJson})"><div class="label-text">${t.title}</div><div class="chevron">&#10148;</div></div>`;
+                    html += `<div class="field-row" onclick="loadAndShowDetail('${tierKey}', ${t.id})"><div class="label-text">${t.title}</div><div class="chevron">&#10148;</div></div>`;
                 });
-                html += '</div>'; container.innerHTML = html;
+                html += '</div>'; 
+                container.innerHTML = html;
             }
             showScreen('appointmentsScreen');
         }
 
-        function showDetail(termin) {
+        // Sauberes Laden über ID-Referenz zur Laufzeit (Verhindert Stringify-Abstürze)
+        function loadAndShowDetail(tierKey, id) {
+            const list = mockDatabase[tierKey] || [];
+            const termin = list.find(item => item.id === id);
+            if(!termin) return;
+            
+            activeOpenedTerminRef = termin; // Referenz für interaktive Änderungen speichern
+            
             document.getElementById('detTitle').innerText = termin.title;
             document.getElementById('detTime').innerText = termin.time;
             document.getElementById('detAz').innerText = "Ident / Az: " + termin.az;
             document.getElementById('detDescription').innerText = termin.desc;
-            
             document.getElementById('detPartner').innerText = termin.partner || "Nicht genannt";
+            
             const phoneEl = document.getElementById('detPhone');
             phoneEl.innerText = termin.phone || "Keine Nummer";
             phoneEl.onclick = () => { if(termin.phone) window.location.href = "tel:" + termin.phone; };
 
+            // Ablageort Textfeld befüllen
+            document.getElementById('detDepotInput').value = termin.depot || "";
+
+            renderDocsChecklist();
+            setTimeout(() => { recalculatePacingAlarm(); }, 50);
+            showScreen('detailScreen');
+        }
+
+        // 🛠️ INTERAKTIVES INTERFACE: Checkboxen dynamisch rendern und im RAM umschalten
+        function renderDocsChecklist() {
             const docsSection = document.getElementById('docsStatusSection');
-            if(termin.needsDocs) {
+            if(activeOpenedTerminRef && activeOpenedTerminRef.needsDocs) {
                 docsSection.style.display = "block";
-                const badge = document.getElementById('docsBadge');
-                badge.innerText = termin.docsComplete ? "VOLLSTÄNDIG" : "OFFEN";
-                badge.style.backgroundColor = termin.docsComplete ? "#1E3D23" : "#4A3319";
-                badge.style.color = termin.docsComplete ? "#8AFF9A" : "#FFA333";
                 
+                // Prüfen ob alle Haken gesetzt sind
+                const allDone = activeOpenedTerminRef.docsItems.every(i => i.done);
+                const badge = document.getElementById('docsBadge');
+                badge.innerText = allDone ? "VOLLSTÄNDIG" : "OFFEN";
+                badge.style.backgroundColor = allDone ? "#1E3D23" : "#4A3319";
+                badge.style.color = allDone ? "#8AFF9A" : "#FFA333";
+
                 let listHtml = "";
-                termin.docsItems.forEach(item => {
-                    let checked = termin.docsComplete ? "checked" : "";
-                    listHtml += `<label style="display:flex; align-items:center; gap:12px; padding:4px 0;"><input type="checkbox" style="transform: scale(1.4);" ${checked} onclick="return false;"> <span>${item}</span></label>`;
+                activeOpenedTerminRef.docsItems.forEach((item, index) => {
+                    let checked = item.done ? "checked" : "";
+                    listHtml += `
+                        <label style="display:flex; align-items:center; gap:14px; padding:6px 0; cursor:pointer;">
+                            <input type="checkbox" style="transform: scale(1.5); cursor:pointer;" ${checked} onchange="handleDocCheckboxToggle(${index}, this.checked)"> 
+                            <span style="color: ${item.done ? '#888' : '#fff'}; text-decoration: ${item.done ? 'line-through' : 'none'};">${item.name}</span>
+                        </label>`;
                 });
                 document.getElementById('docsList').innerHTML = listHtml;
-                document.getElementById('docsDepot').innerHTML = `📍 <strong>Ablageort:</strong> ${termin.depot}`;
             } else {
                 docsSection.style.display = "none";
             }
-            
-            setTimeout(() => { recalculatePacingAlarm(); }, 50);
-            showScreen('detailScreen');
+        }
+
+        function handleDocCheckboxToggle(index, isChecked) {
+            if(activeOpenedTerminRef) {
+                activeOpenedTerminRef.docsItems[index].done = isChecked;
+                renderDocsChecklist(); // Visuelles Update sofort anstoßen
+            }
+        }
+
+        function handleDepotLiveEdit(val) {
+            if(activeOpenedTerminRef) {
+                activeOpenedTerminRef.depot = val; // Im Speicher verankern
+            }
         }
 
         function recalculatePacingAlarm() {
             const fahrtzeit = parseInt(document.getElementById('detFahrzeitInput').value, 10) || 0;
             const puffer = parseInt(document.getElementById('pacingDropdown').value, 10) || 0;
             let totalInMinutes = (10 * 60 + 30) - (fahrtzeit + puffer);
-            const pad = (num) => String(num).padStart(2, '0');
-            document.getElementById('calculatedAlarmTime').innerHTML = `🚗 Späteste Abfahrt: <strong>${pad(Math.floor(((10*60+30)-fahrtzeit)/60))}:${pad(((10*60+30)-fahrtzeit)%60)} Uhr</strong><br>🧘 Pacing-Anker schlägt an um: <strong style="color:var(--color-rot);">${pad(Math.floor(totalInMinutes/60))}:${pad(totalInMinutes%60)} Uhr</strong>`;
-        }
-
-        function updateCounters() {
-            const keys = ['rot3', 'rot2', 'rot1', 'blau3', 'blau2', 'blau1', 'gruen3', 'gruen2', 'gruen1'];
-            keys.forEach(key => {
-                const element = document.getElementById('count_' + key);
-                if(element) element.innerText = `(${mockDatabase[key].length})`;
-            });
-            const blauTotal = mockDatabase.blau3.length + mockDatabase.blau2.length + mockDatabase.blau1.length;
-            const gruenTotal = mockDatabase.gruen3.length + mockDatabase.gruen2.length + mockDatabase.gruen1.length;
-            document.getElementById('count_blauGroup').innerText = `(${blauTotal})`;
-            document.getElementById('count_gruenGroup').innerText = `(${gruenTotal})`;
-        }
-
-        function toggleConfigLayer(layerId) {
-            const currentLayer = document.getElementById(layerId);
-            const isOpen = currentLayer.classList.contains('open');
-            document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
-            if (!isOpen) currentLayer.classList.add('open');
-        }
-
-        function applyGlobalTextScaleNoJump(scale) {
-            localStorage.setItem('pacing_text_scale', scale);
-            document.body.className = document.body.className.replace(/\btext-\S+/g, '');
-            if (scale !== 'normal') document.body.classList.add('text-' + scale);
-            document.getElementById('scaleSelect').value = scale;
-        }
-
-        function applyGlobalTextScale(scale) { applyGlobalTextScaleNoJump(scale); }
-
-        function applyColorProfile(profile) {
-            localStorage.setItem('pacing_color_profile', profile);
-            document.body.classList.remove('cb-rotgruen', 'cb-blaugelb', 'cb-monochrom');
-            if(profile !== 'default') document.body.classList.add('cb-' + profile);
-            document.getElementById('colorBlindSelect').value = profile;
-            document.getElementById('onboardingColorBlindSelect').value = profile;
-        }
-
-        function openNachtraeglichSetup() { showScreen('setupScreen'); }
-        function finishSetupAndGoToGrid() { openFilteredPlanerScreen(); }
-        function exitCrashMode() { document.body.classList.remove('crash-darkness'); showScreen('startScreen'); }
-        function goToMainMenu() { document.body.classList.remove('crash-darkness'); showScreen('startScreen'); }
-        function goBack(id) { showScreen(id); }
-        function showScreen(screenId) { document.getElementById(currentActiveScreen).classList.remove('active'); document.getElementById(screenId).classList.add('active'); currentActiveScreen = screenId; }
-        
-        document.addEventListener("DOMContentLoaded", () => { updateCounters(); handleSliderChange(selectedAtemSekunden); });
-    </script>
-</body>
-</html>
