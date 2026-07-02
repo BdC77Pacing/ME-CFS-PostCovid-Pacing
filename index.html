@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v39</title>
+    <title>Pacing App v40</title>
     <style>
         * {
             box-sizing: border-box;
@@ -123,6 +123,7 @@
         
         .field-row { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 24px; display: flex; align-items: center; gap: 20px; cursor: pointer; }
         
+        /* 🎨 REIZARM GEGRAUT: Für gesperrte Felder */
         .field-row.disabled-row { opacity: 0.25; filter: grayscale(1); cursor: not-allowed !important; }
         .main-header-row { border-left: 4px solid var(--accent-color); }
         .dots-container { display: flex; gap: 4px; min-width: 115px; font-family: monospace; font-size: 14px; color: #aaa; align-items: center; }
@@ -172,7 +173,6 @@
 </head>
 <body>
 
-    <!-- SCREEN 1: ACCESSIBILITY SETUP (ONBOARDING) -->
     <div id="accessibilitySetupScreen" class="screen active">
         <div class="start-container" style="text-align: left;">
             <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; padding-top: 10px;">
@@ -215,7 +215,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 2: BETA TEST-HINWEIS -->
     <div id="betaNoticeScreen" class="screen">
         <div class="start-container" style="text-align: left; padding-top: 20px;">
             <div style="text-align:center; margin-bottom: 25px;">
@@ -231,7 +230,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 3: TAGESFORM-AMPEL -->
     <div id="startScreen" class="screen">
         <div class="start-container">
             <div id="onboardingIntro" style="margin-bottom: 25px; color:#D6D6FF; font-size:15px; background-color: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #444;">
@@ -247,7 +245,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 4: NAJA WARNING SCREEN -->
     <div id="najaWarningScreen" class="screen">
         <div class="start-container" style="text-align: left; padding-top:40px;">
             <div class="start-question" style="text-align:center; color:#FFB077;">⚠️ Pacing-Hinweis</div>
@@ -262,7 +259,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 5: IN-APP CONFIG INTERFACE -->
     <div id="setupScreen" class="screen">
         <div class="start-container" style="text-align: left;">
             <div class="start-question" style="text-align:center; font-size: 22px; margin-bottom: 20px;">⚙️ Hauptmenü & Einstellungen</div>
@@ -314,15 +310,12 @@
         </div>
     </div>
 
-    <!-- SCREEN 6: KALENDERÜBERSICHT -->
     <div id="listScreen" class="screen">
-        <!-- 🎯 FIX: „Layout-Umschalter“ jetzt mit starkem, profilsicherem Kontrast-Rand ausgestattet -->
         <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:12px; border: 2px solid var(--color-blau); color: var(--color-blau); font-weight: bold;" onclick="goToMainMenu()">Layout-Umschalter ↩</button>
         
         <div class="grid-container">
             <div class="section-title">Höchste Dringlichkeit</div>
             
-            <!-- ROT 3 (3 PUNKTE) -->
             <div class="field-row" id="row_rot3" onclick="checkAndShowTermine('rot3')">
                 <div class="dots-container">
                     <span id="count_rot3" style="font-weight:bold;">(0)</span>&nbsp;
@@ -334,7 +327,6 @@
                 <div class="chevron">&#10148;</div>
             </div>
 
-            <!-- ROT 2 (2 PUNKTE) -->
             <div class="field-row" id="row_rot2" onclick="checkAndShowTermine('rot2')">
                 <div class="dots-container">
                     <span id="count_rot2" style="font-weight:bold;">(0)</span>&nbsp;
@@ -345,7 +337,6 @@
                 <div class="chevron">&#10148;</div>
             </div>
 
-            <!-- ROT 1 (1 PUNKT) -->
             <div class="field-row" id="row_rot1" onclick="checkAndShowTermine('rot1')">
                 <div class="dots-container">
                     <span id="count_rot1" style="font-weight:bold;">(0)</span>&nbsp;
@@ -355,7 +346,6 @@
                 <div class="chevron">&#10148;</div>
             </div>
             
-            <!-- BLAU (2 PUNKTE) -->
             <div class="section-title" id="titleBlau">Mittlere Dringlichkeit</div>
             <div class="field-row main-header-row" id="rowBlau" style="--accent-color: var(--color-blau);" onclick="checkAndTogglePanel('bluePanel', this)">
                 <div class="dots-container">
@@ -381,7 +371,6 @@
                 </div>
             </div>
             
-            <!-- GRÜN (1 PUNKT) -->
             <div class="section-title" id="titleGruen">Niedrige Dringlichkeit</div>
             <div class="field-row main-header-row" id="rowGruen" style="--accent-color: var(--color-gruen);" onclick="checkAndTogglePanel('greenPanel', this)">
                 <div class="dots-container">
@@ -409,17 +398,14 @@
         <button class="action-btn" style="margin-top:40px; background-color:#1A1A1A;" onclick="openNachtraeglichSetup()">⚙️ Einstellungen ändern</button>
     </div>
 
-    <!-- SCREEN 7: TERMINLISTE -->
     <div id="appointmentsScreen" class="screen">
         <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:15px;" onclick="goBack('listScreen')">&#11013; Zurück zur Übersicht</button>
         <div id="appointmentsContent"></div>
     </div>
 
-    <!-- SCREEN 8: DETAILANSICHT (INKLUSIVE UNTERLAGEN & KONTAKT) -->
     <div id="detailScreen" class="screen">
         <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:15px;" onclick="goBack('appointmentsScreen')">&#11013; Zurück zur Liste</button>
         
-        <!-- 🎯 FIX: Benötigte Unterlagen-Sektion vollständig reaktiviert -->
         <div class="docs-status-box" id="docsStatusSection">
             <div style="font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
                 <span>📋 Benötigte Unterlagen:</span>
@@ -434,7 +420,6 @@
             <div id="detTime" style="font-size:14px; color:#aaa; margin-bottom:8px;">Zeit</div>
             <div class="az-box" id="detAz">Az</div>
             
-            <!-- 🎯 FIX: Direkt anwählbarer Ansprechpartner & Telefonnummer über der Reizarm-Info -->
             <div style="background-color:#161616; border:1px solid #2a2a2a; padding:12px; border-radius:10px; margin-bottom:12px; font-size:14px;">
                 <p style="color:#D6D6FF; margin-bottom:4px;">👤 Ansprechpartner: <strong id="detPartner" style="color:#fff;">Nicht genannt</strong></p>
                 <p style="color:#6B7A8F;">📞 Direktruf: <strong id="detPhone" style="color:#38bdf8; text-decoration:underline; cursor:pointer;">Keine Nummer</strong></p>
@@ -465,7 +450,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 9: CRASH SCREEN -->
     <div id="crashScreen" class="screen">
         <div class="start-container" style="padding-top:40px;">
             <div class="start-question" style="color:#FF8A8A; margin-bottom: 15px;">🚨 Akuter Crash-Schutz</div>
@@ -496,12 +480,15 @@
                 { id: 102, title: "Widerspruchsfrist Krankenkasse", time: "Morgen um 23:59 Uhr", az: "KK-7762-V", partner: "Herr Richter (Abt. 4)", phone: "089554433", desc: "Letzter Tag zur Fristwahrung des Widerspruchs bezüglich Krankengeldstreichung.", needsDocs: false, docsItems: [], depot: "" }
             ],
             rot2: [
-                { id: 201, title: "Zahnarzt (Reizarme Prophylaxe)", time: "09:00 Uhr (In 4 Tagen)", az: "Praxis Kern", partner: "Dr. med. dent. Kern", phone: "0711445566", desc: "Behandlung ohne laute Geräusche vereinbart. Gehörschutz und dunkle Sonnenbrille mitbringen.", needsDocs: true, docsComplete: true, docsItems: ["Bonusheft"], depot: "In der Brieftasche an der Garderobe" },
+                { id: 201, title: "Zahnarzt (Reizarme Prophylaxe)", time: "09:00 Uhr (In 4 Tagen)", az: "Praxis Kern", partner: "Dr. Kern", phone: "0711445566", desc: "Behandlung ohne laute Geräusche vereinbart. Gehörschutz und dunkle Sonnenbrille mitbringen.", needsDocs: true, docsComplete: true, docsItems: ["Bonusheft"], depot: "In der Brieftasche an der Garderobe" },
                 { id: 202, title: "Befundberichte Versorgungsamt", time: "In 6 Tagen", az: "GdB-SGB-IX", partner: "Zentrale Einlaufstelle", phone: "030112233", desc: "Nachreichung der Berichte zur Feststellung des Merkzeichens G.", needsDocs: false, docsItems: [], depot: "" }
             ],
             rot1: [
                 { id: 301, title: "Lieferung Schwellenrampe", time: "10:00 Uhr (In 8 Tagen)", az: "Sanitätshaus Süd", partner: "Herr Wagner (Logistik)", phone: "040998877", desc: "Techniker kommt. Haustürklingel stummschalten – er klopft sanft an die Scheibe.", needsDocs: false, docsItems: [], depot: "" }
-            ], blau3: [], blau2: [], blau1: [], gruen3: [], gruen2: [], gruen1: []
+            ],
+            blau3: [
+                { id: 401, title: "LDN Rezepttelefon Hausarzt", time: "In 11 Tagen", az: "Dr. Becker", partner: "Rezeptions-Team", phone: "0711889900", desc: "Low Dose Naltrexon Rezept telefonisch anfordern.", needsDocs: false, docsItems: [], depot: "" }
+            ], blau2: [], blau1: [], gruen3: [], gruen2: [], gruen1: []
         };
 
         let currentActiveScreen = 'accessibilitySetupScreen';
@@ -606,13 +593,11 @@
             document.getElementById('detAz').innerText = "Ident / Az: " + termin.az;
             document.getElementById('detDescription').innerText = termin.desc;
             
-            // 🎯 FIX: Zuweisung Ansprechpartner & Telefonnummer
             document.getElementById('detPartner').innerText = termin.partner || "Nicht genannt";
             const phoneEl = document.getElementById('detPhone');
             phoneEl.innerText = termin.phone || "Keine Nummer";
             phoneEl.onclick = () => { if(termin.phone) window.location.href = "tel:" + termin.phone; };
 
-            // 🎯 FIX: Dynamischer Wiederaufbau der benötigten Dokumente
             const docsSection = document.getElementById('docsStatusSection');
             if(termin.needsDocs) {
                 docsSection.style.display = "block";
