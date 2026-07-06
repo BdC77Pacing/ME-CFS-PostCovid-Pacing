@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="de" id="html-root"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v54</title>
+    <title>Pacing App v55</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -56,14 +56,16 @@
         .screen { display: none; } 
         .screen.active { display: block; }
         
-        /* Absolute Zentrierung und Bündigkeit für den Crash-Screen ohne Rechtsversatz */
+        /* FIX: Absolute Zentrierung ohne Rechtsversatz durch left/right null und margin auto */
         #crashScreen { 
             position: fixed; 
             top: 0; 
             left: 0; 
+            right: 0;
+            margin: 0 auto;
             width: 100vw !important; 
             height: 100vh; 
-            max-width: 100vw !important; 
+            max-width: 100% !important; 
             z-index: 99999; 
             padding: 2rem 1rem; 
             overflow-y: auto; 
@@ -162,18 +164,21 @@
         .action-btn { display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border: 1px solid #444; color: #fff; background-color: #222; text-align: center; }
         
         .crash-phone-btn { background-color: #4A1A1A; border: 2px solid #FF8A8A; border-radius: 12px; padding: 16px; color: #fff; font-size: 1rem; font-weight: bold; text-align: left; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; text-decoration: none; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto; }
-        
+        .sos-btn { background-color: #8b0000 !important; border: 2px solid #ff0000 !important; }
+
         .lang-switch-box { display: flex; gap: 6px; }
         .lang-tab-btn { background-color: #222; border: 1px solid #444; color: #888; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; gap: 4px; }
         .lang-tab-btn.active-lang { border-color: var(--color-blau); color: #fff; background-color: #333; }
         .flag-icon { width: 16px; height: 11px; display: inline-block; border-radius: 1px; }
     </style></head><body>
 
+    <!-- Globaler, permanenter Header über allen App-Ansichten -->
     <header class="global-app-header">
         <div class="global-app-title">PACING APP</div>
         <div class="lang-switch-box">
+            <!-- FIX: Deutschland-Fahne Farbreihenfolge korrigiert auf Schwarz-Rot-Gold -->
             <button class="lang-tab-btn active-lang" id="btnLangDE" onclick="switchLanguage('de')">
-                <svg class="flag-icon" viewBox="0 0 5 3"><rect width="5" height="3" fill="#000"/><rect width="5" height="2" fill="#dd0000"/><rect width="5" height="1" fill="#ffce00"/></svg>DE
+                <svg class="flag-icon" viewBox="0 0 5 3"><rect width="5" height="1" fill="#000"/><rect width="5" height="2" fill="#dd0000"/><rect width="5" height="3" fill="#ffce00"/></svg>DE
             </button>
             <button class="lang-tab-btn" id="btnLangEN" onclick="switchLanguage('en')">
                 <svg class="flag-icon" viewBox="0 0 60 30"><clipPath id="s_uk"><path d="M0,0 v30 h60 v-30 z"/></clipPath><path d="M0,0 v30 h60 v-30 z" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></svg>EN
@@ -181,7 +186,7 @@
         </div>
     </header>
 
-    <div id="accessibilitySetupScreen" class="screen active">
+    <div id="accessibilitySetupScreen" class="screen">
         <div class="start-container" style="text-align: left;">
             <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; padding-top: 5px;">
                 <span style="font-size: 32px;">♿</span>
@@ -260,7 +265,8 @@
         </div>
     </div>
 
-    <div id="startScreen" class="screen">
+    <!-- FIX: App startet standardmäßig immer mit diesem StartScreen (Zustandserfassung & Setup-Einstieg) -->
+    <div id="startScreen" class="screen active">
         <div class="start-container">
             <div id="onboardingIntro" style="margin-bottom: 25px; color:#D6D6FF; font-size:0.95rem; background-color: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #444; text-align: center;" data-txt="intro_pacing">
                 Bestimme deine heutige Energie für die automatische Filterung.
@@ -509,6 +515,10 @@
             <div class="filled-breathe-block" id="fullscreenBreatheVisual" data-txt="crash_breathe_box">🧘 MITATMEN (FARBTAKT)</div>
             
             <h3 style="color: #fff; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; text-align: left; width: 100%;" data-txt="crash_speeddial">📞 Sofort-Anruf Kontakte:</h3>
+            
+            <!-- FIX: Übergeordnetes SOS-Feld "Notruf 112" fest integriert -->
+            <a href="tel:112" class="crash-phone-btn sos-btn"><span>🚨 NOTRUF: 112</span><span>➔</span></a>
+            
             <div id="crashContactsContainer" style="margin-bottom: 30px; width: 100%;"></div>
 
             <button class="action-btn action-btn-contrast" style="width:100%; padding: 18px; font-weight: bold;" onclick="exitCrashMode()" data-txt="btn_exit_crash">← Modus beenden</button>
@@ -591,7 +601,7 @@
             blau2: [], blau1: [], gruen3: [], gruen2: [], gruen1: []
         };
 
-        let currentActiveScreen = 'accessibilitySetupScreen';
+        let currentActiveScreen = 'startScreen';
         let currentEnergyStatus = 'gut';
         let selectedAtemSekunden = 8;
         let activeOpenedTerminRef = null;
@@ -609,14 +619,8 @@
             syncAlarmSoundMode(localStorage.getItem('pacing_sound_mode') || 'visual');
             switchLanguage(currentLang);
             
-            if(localStorage.getItem('pacing_app_configured_v51')) {
-                showScreen('betaNoticeScreen');
-                document.getElementById('betaManualContinueBtn').style.display = 'none';
-                document.getElementById('betaCardBody').classList.add('fade-out-5s');
-                setTimeout(() => { showScreen('startScreen'); }, 5000);
-            } else {
-                showScreen('accessibilitySetupScreen');
-            }
+            // FIX: Erzwungener Start immer auf der Startseite (Zustandserfassung/Setup-Änderung)
+            showScreen('startScreen');
         });
 
         function finishOnboardingAndGoToBetaCheck() {
