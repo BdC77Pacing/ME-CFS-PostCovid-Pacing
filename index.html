@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v43</title>
+    <title>Pacing App v44</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -11,7 +11,6 @@
             --bg-main: #121212; --bg-card: #1E1E1E; --border-color: #2C2C2C; --text-main: #E0E0E0; --text-light: #FFFFFF;
             --color-rot: #FF8A8A; --color-blau: #D6D6FF; --color-gruen: #6B7A8F;
             --bg-rot-alpha: rgba(239, 68, 68, 0.2); --bg-blau-alpha: rgba(214, 214, 255, 0.1); --bg-gruen-alpha: rgba(107, 122, 143, 0.1);
-            --global-brightness: 1.0;
         }
         
         body.cb-rotgruen {
@@ -27,15 +26,7 @@
             --bg-rot-alpha: rgba(255, 255, 255, 0.15); --bg-blau-alpha: rgba(163, 163, 163, 0.1); --bg-gruen-alpha: rgba(82, 82, 82, 0.08);
         }
 
-        body.text-normal { font-size: 16px; }
-        body.text-groess { font-size: 20px; }
-        body.text-sehrgroess { font-size: 24px; }
-        
-        body.text-groess .start-question { font-size: 28px; }
-        body.text-sehrgroess .start-question { font-size: 32px; }
-        body.text-groess .label-text { font-size: 19px; }
-        body.text-sehrgroess .label-text { font-size: 22px; }
-
+        /* Dynamische Basis-Schriftgröße gekoppelt an den Schieberegler */
         body { 
             background-color: var(--bg-main); 
             color: var(--text-main); 
@@ -44,51 +35,57 @@
             max-width: 500px; 
             margin: 0 auto; 
             transition: filter 0.1s ease;
+            font-size: 16px; /* Wird via JS live überschrieben */
         }
 
         .screen { display: none; } 
         .screen.active { display: block; }
-        .start-container { text-align: center; padding: 10px; }
-        .start-question { font-size: 24px; font-weight: 500; color: var(--text-light); margin-bottom: 35px; line-height: 1.4; }
+        .start-container { padding: 10px; }
+        .start-question { font-size: 1.5rem; font-weight: 500; color: var(--text-light); margin-bottom: 35px; line-height: 1.4; text-align: center; }
         
         .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
         .quad-btn {
             background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px 12px; color: var(--text-light);
-            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; font-size: 15px; font-weight: 600;
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; font-size: 0.95rem; font-weight: 600; text-align: center;
         }
         .quad-btn.placeholder { opacity: 0.4; cursor: not-allowed; border-style: dashed; }
         
         .config-layer { display: none; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: left; }
         .config-layer.open { display: block; }
         
-        .ampel-btn, .acc-huge-btn, .menu-settings-btn {
+        .ampel-btn, .menu-settings-btn {
             display: block; width: 100%; padding: 20px; margin-bottom: 14px; border-radius: 16px;
-            font-size: 18px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-color); color: var(--text-light); text-align: center;
+            font-size: 1.15rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border-color); color: var(--text-light); text-align: center;
         }
         .btn-gut { background-color: var(--bg-gruen-alpha); border-color: var(--color-gruen); }
         .btn-gehtso { background-color: var(--bg-blau-alpha); border-color: var(--color-blau); }
         .btn-naja { background-color: var(--bg-rot-alpha); border-color: var(--color-rot); }
         .btn-crash { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #FF8A8A; margin-bottom: 25px; }
         
-        .menu-settings-btn { background-color: #222222 !important; border: 2px solid var(--color-rot) !important; color: #FFFFFF !important; font-size: 16px; font-weight: bold; }
+        .menu-settings-btn { background-color: #222222 !important; border: 2px solid var(--color-rot) !important; color: #FFFFFF !important; font-size: 1rem; font-weight: bold; }
         .action-btn-contrast { background-color: #1A1A1A !important; border: 2px solid var(--color-blau) !important; color: var(--color-blau) !important; font-weight: bold !important; }
         
-        .setup-input { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 16px; margin-bottom: 14px; margin-top: 6px; }
-        .pacing-select { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #D6D6FF; font-size: 16px; font-weight: 600; margin-top: 6px; margin-bottom: 16px; outline: none; }
+        .setup-input { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 1rem; margin-bottom: 14px; margin-top: 6px; }
+        .pacing-select { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #D6D6FF; font-size: 1rem; font-weight: 600; margin-top: 6px; margin-bottom: 16px; outline: none; }
         
-        .slider-container { margin-top: 14px; padding: 4px 0; }
-        .atem-slider { -webkit-appearance: none; width: 100%; height: 12px; border-radius: 6px; background: #333; outline: none; margin-top: 10px; }
+        .slider-container { margin-top: 10px; padding: 4px 0; margin-bottom: 12px; }
+        .atem-slider { -webkit-appearance: none; width: 100%; height: 12px; border-radius: 6px; background: #333; outline: none; margin-top: 8px; }
         .atem-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #D6D6FF; cursor: pointer; border: 2px solid #121212; }
         
-        .preview-breathe-box { margin-top: 15px; padding: 15px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.15); background-color: rgba(255, 255, 255, 0.03); text-align: center; font-size: 13px; color: rgba(255, 255, 255, 0.6); }
+        .preview-breathe-box { margin-top: 15px; padding: 15px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.15); background-color: rgba(255, 255, 255, 0.03); text-align: center; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); }
+        
+        /* 🎨 NEU: Integrierte Vorschau-Box für die Farbpunkte innerhalb der Einstellungen */
+        .color-preview-box { display: flex; align-items: center; justify-content: space-around; background-color: #121212; border: 1px dashed #444; padding: 14px; border-radius: 10px; margin-top: 10px; }
+        .color-preview-dot { width: 20px; height: 20px; border-radius: 50%; display: inline-block; }
+        
         .grid-container { display: flex; flex-direction: column; gap: 12px; }
-        .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #888888; margin-top: 8px; margin-bottom: 4px; }
+        .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #888888; margin-top: 8px; margin-bottom: 4px; }
         
         .field-row { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 24px; display: flex; align-items: center; gap: 20px; cursor: pointer; }
         .field-row.disabled-row { opacity: 0.18; filter: grayscale(1); cursor: not-allowed !important; }
         .main-header-row { border-left: 4px solid var(--accent-color); }
         
-        .dots-container { display: flex; gap: 4px; min-width: 115px; font-family: monospace; font-size: 14px; color: #aaa; align-items: center; }
+        .dots-container { display: flex; gap: 4px; min-width: 115px; font-family: monospace; font-size: 0.9rem; color: #aaa; align-items: center; }
         .dot { width: 14px; height: 16px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
         .dot-red { background-color: var(--color-rot); }
         .dot-lavender { background-color: var(--color-blau); }
@@ -104,31 +101,30 @@
         .fade-out-5s { animation: fadeToTransparent 5s forwards linear; }
         @keyframes fadeToTransparent { 0% { opacity: 1; } 100% { opacity: 0; } }
         
-        .label-text { font-size: 16px; font-weight: 500; color: var(--text-main); flex-grow: 1; }
+        .label-text { font-size: 1rem; font-weight: 500; color: var(--text-main); flex-grow: 1; }
         .sub-panel { display: none; flex-direction: column; gap: 10px; padding-left: 12px; margin-top: -4px; margin-bottom: 8px; }
         .sub-panel.open-panel { display: flex !important; }
-        .chevron { font-size: 14px; color: #666666; }
+        .chevron { font-size: 0.85rem; color: #666666; }
         
         .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
-        .card-title { font-size: 18px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
-        .az-box { font-family: monospace; background-color: var(--bg-main); padding: 8px 12px; border-radius: 6px; font-size: 13px; color: #D6D6FF; display: inline-block; margin-bottom: 16px; }
+        .card-title { font-size: 1.15rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
+        .az-box { font-family: monospace; background-color: var(--bg-main); padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; color: #D6D6FF; display: inline-block; margin-bottom: 16px; }
         .docs-status-box { background-color: #1A222D; border: 1px solid #29384D; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
-        .badge-warning { background-color: #4A3319; color: #FFA333; border: 1px solid #7A5223; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
-        .action-btn { display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; border: 1px solid #444; color: #fff; background-color: #222; text-align: center; }
+        .badge-warning { background-color: #4A3319; color: #FFA333; border: 1px solid #7A5223; font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
+        .action-btn { display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border: 1px solid #444; color: #fff; background-color: #222; text-align: center; }
         
-        .crash-phone-btn { background-color: #4A1A1A; border: 2px solid #FF8A8A; border-radius: 12px; padding: 16px; color: #fff; font-size: 16px; font-weight: bold; text-align: left; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; text-decoration: none; }
+        .crash-phone-btn { background-color: #4A1A1A; border: 2px solid #FF8A8A; border-radius: 12px; padding: 16px; color: #fff; font-size: 1rem; font-weight: bold; text-align: left; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; text-decoration: none; }
     </style>
 </head>
-<body class="text-normal">
+<body>
 
-    <!-- SCREEN 1: ONBOARDING ACCESSIBILITY -->
     <div id="accessibilitySetupScreen" class="screen active">
         <div class="start-container" style="text-align: left;">
             <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; padding-top: 10px;">
                 <span style="font-size: 32px;">♿</span>
-                <h2 style="font-size: 24px; font-weight: 600; color: var(--text-light);">Einstellungen</h2>
+                <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--text-light);">Einstellungen</h2>
             </div>
-            <p style="font-size:14px; color:#aaa; text-align:center; margin-bottom:30px; line-height:1.4;">Wähle die für dich angenehmsten Einstellungen aus:</p>
+            <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:30px; line-height:1.4;">Wähle die für dich angenehmsten Einstellungen aus:</p>
 
             <div class="quad-grid">
                 <button class="quad-btn" onclick="toggleConfigLayer('layerOnboardingSchrift')">
@@ -144,14 +140,14 @@
             </div>
 
             <div id="layerOnboardingSchrift" class="config-layer">
-                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:15px;">Gewünschte Skalierung wählen:</h3>
-                <button class="acc-huge-btn btn-acc-select" style="padding:14px;" onclick="applyGlobalTextScaleNoJump('normal')">🔎 Schrift: Normal</button>
-                <button class="acc-huge-btn btn-acc-select" style="padding:14px;" onclick="applyGlobalTextScaleNoJump('groess')">🔎 Schrift: GROSS</button>
-                <button class="acc-huge-btn btn-acc-select" style="padding:14px; font-weight: bold;" onclick="applyGlobalTextScaleNoJump('sehrgroess')">🔎 Schrift: SEHR GROSS</button>
+                <h3 style="color:#D6D6FF; font-size:0.95rem;" id="onboardingScaleLabel">🔎 Textgröße: 16px (Normal)</h3>
+                <div class="slider-container">
+                    <input type="range" min="14" max="26" step="1" value="16" class="atem-slider" id="onboardingScaleInput" oninput="applyGlobalTextScale(this.value)">
+                </div>
             </div>
 
             <div id="layerOnboardingVisuell" class="config-layer">
-                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:15px;">Farbschwächen & Reizreduktion:</h3>
+                <h3 style="color:#D6D6FF; font-size:0.95rem;">Farbschwächen & Reizreduktion:</h3>
                 <select id="onboardingColorBlindSelect" class="pacing-select" onchange="applyColorProfile(this.value)">
                     <option value="default">Standard (Reizarm Dunkel)</option>
                     <option value="rotgruen">Rot-Grün-Schwäche</option>
@@ -159,7 +155,13 @@
                     <option value="monochrom">Monochrom (100% Graustufen)</option>
                 </select>
                 
-                <label style="font-size:14px; font-weight:600; color:#D6D6FF; margin-top:10px; display:block;">🖥️ Bildschirm-Helligkeit drosseln:</label>
+                <div class="color-preview-box">
+                    <span class="color-preview-dot" style="background-color: var(--color-rot);"></span>
+                    <span class="color-preview-dot" style="background-color: var(--color-blau);"></span>
+                    <span class="color-preview-dot" style="background-color: var(--color-gruen);"></span>
+                </div>
+                
+                <label style="font-size:0.85rem; font-weight:600; color:#D6D6FF; margin-top:16px; display:block;">🖥️ Bildschirm-Helligkeit drosseln:</label>
                 <div class="slider-container">
                     <input type="range" min="20" max="100" step="5" value="100" class="atem-slider" oninput="applyScreenBrightness(this.value)">
                 </div>
@@ -169,12 +171,11 @@
         </div>
     </div>
 
-    <!-- SCREEN 2: BETA NOTICE -->
     <div id="betaNoticeScreen" class="screen">
         <div class="start-container" style="text-align: left; padding-top: 20px;">
             <div style="text-align:center; margin-bottom: 25px;">
                 <span style="font-size: 40px;">🧪</span>
-                <h2 style="font-size: 22px; font-weight: bold; color: #FFE066; margin-top: 10px;">Wichtiger Testversion-Hinweis</h2>
+                <h2 style="font-size: 1.35rem; font-weight: bold; color: #FFE066; margin-top: 10px;">Wichtiger Testversion-Hinweis</h2>
             </div>
             <div class="card" id="betaCardBody" style="border-color: #FFE066; background-color: rgba(250, 204, 21, 0.03);">
                 <p style="font-weight: 600; margin-bottom: 10px; color: #fff;">Hallo Test-User!</p>
@@ -185,11 +186,10 @@
         </div>
     </div>
 
-    <!-- SCREEN 3: TAGESFORM-AMPEL -->
     <div id="startScreen" class="screen">
         <div class="start-container">
             <div style="text-align: right; margin-bottom: 10px; font-size: 20px;" id="ampelAlarmIndicator">🔔 🔊</div>
-            <div id="onboardingIntro" style="margin-bottom: 25px; color:#D6D6FF; font-size:15px; background-color: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #444;">
+            <div id="onboardingIntro" style="margin-bottom: 25px; color:#D6D6FF; font-size:0.95rem; background-color: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #444; text-align: center;">
                 Bestimme deine heutige Energie für die automatische Filterung.
             </div>
             <div class="start-question">Wie geht es Dir gerade?</div>
@@ -202,12 +202,11 @@
         </div>
     </div>
 
-    <!-- SCREEN 4: NAJA WARNING SCREEN -->
     <div id="najaWarningScreen" class="screen">
         <div class="start-container" style="text-align: left; padding-top:40px;">
             <div class="start-question" style="text-align:center; color:#FFB077;">⚠️ Pacing-Hinweis</div>
             <div class="card" style="border-color: #f97316; background-color: rgba(249, 115, 22, 0.05);">
-                <p style="font-size:18px; font-weight:600; color:#fff; margin-bottom:12px;">Momentan wäre Pacing besser für dich.</p>
+                <p style="font-size:1.15rem; font-weight:600; color:#fff; margin-bottom:12px;">Momentan wäre Pacing besser für dich.</p>
                 <p style="line-height:1.5;">Vermeide jetzt jede unnötige Überanstrengung. Nur absolut kritische Fristen anzeigen?</p>
             </div>
             <div style="margin-top:40px; display:flex; flex-direction:column; gap:14px;">
@@ -217,10 +216,9 @@
         </div>
     </div>
 
-    <!-- SCREEN 5: IN-APP CONFIG INTERFACE -->
     <div id="setupScreen" class="screen">
         <div class="start-container" style="text-align: left;">
-            <div class="start-question" style="text-align:center; font-size: 22px; margin-bottom: 20px;">⚙️ Hauptmenü & Einstellungen</div>
+            <div class="start-question" style="text-align:center; font-size: 1.35rem; margin-bottom: 20px;">⚙️ Hauptmenü & Einstellungen</div>
             
             <div class="quad-grid">
                 <button class="quad-btn" onclick="toggleConfigLayer('layerNotfall')">
@@ -239,14 +237,14 @@
             </div>
 
             <div id="layerNotfall" class="config-layer">
-                <h3 style="color:#FF8A8A; margin-bottom:12px; font-size:16px;">Signal-Eingabe: Notfallkontakte</h3>
+                <h3 style="color:#FF8A8A; margin-bottom:12px; font-size:0.95rem;">Signal-Eingabe: Notfallkontakte</h3>
                 <input type="tel" id="setupPhoneInput" class="setup-input" placeholder="Hauptkontakt (z.B. Familie)" oninput="saveContactsToRam()">
                 <input type="tel" id="setupPhoneInput2" class="setup-input" placeholder="Notfallkontakt 2 (z.B. Freunde)" oninput="saveContactsToRam()">
                 <input type="tel" id="setupPhoneInput3" class="setup-input" placeholder="Notfallkontakt 3 (z.B. Taxi)" oninput="saveContactsToRam()">
                 
                 <hr style="border-color:#333; margin: 15px 0;">
                 
-                <label style="font-size:14px; font-weight:600; color:#D6D6FF;" id="sliderDisplayLabel">𫆢 Atem-Rhythmus: 8 Sekunden</label>
+                <label style="font-size:0.85rem; font-weight:600; color:#D6D6FF;" id="sliderDisplayLabel">𫆢 Atem-Rhythmus: 8 Sekunden</label>
                 <div class="slider-container">
                     <input type="range" min="4" max="12" step="1" value="8" class="atem-slider" id="atemRangeInput" oninput="handleSliderChange(this.value)">
                 </div>
@@ -254,12 +252,14 @@
             </div>
 
             <div id="layerVisuell" class="config-layer">
-                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:16px;">Anzeige-Optimierung</h3>
-                <select id="scaleSelect" class="pacing-select" onchange="applyGlobalTextScale(this.value)">
-                    <option value="normal">Normal</option>
-                    <option value="groess">GROSS</option>
-                    <option value="sehrgroess">SEHR GROSS</option>
-                </select>
+                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:0.95rem;" id="inappScaleLabel">🔎 Textgröße: 16px</h3>
+                <div class="slider-container">
+                    <input type="range" min="14" max="26" step="1" value="16" class="atem-slider" id="inappScaleInput" oninput="applyGlobalTextScale(this.value)">
+                </div>
+                
+                <hr style="border-color:#333; margin:16px 0;">
+                
+                <h3 style="color:#D6D6FF; font-size:0.95rem;">Farbschwächen-Korrektur:</h3>
                 <select id="colorBlindSelect" class="pacing-select" onchange="applyColorProfile(this.value)">
                     <option value="default">Standard (Reizarm Dunkel)</option>
                     <option value="rotgruen">Rot-Grün-Schwäche</option>
@@ -267,15 +267,21 @@
                     <option value="monochrom">Monochrom</option>
                 </select>
                 
+                <div class="color-preview-box">
+                    <span class="color-preview-dot" style="background-color: var(--color-rot);"></span>
+                    <span class="color-preview-dot" style="background-color: var(--color-blau);"></span>
+                    <span class="color-preview-dot" style="background-color: var(--color-gruen);"></span>
+                </div>
+                
                 <hr style="border-color:#333; margin:16px 0;">
-                <label style="font-size:14px; font-weight:600; color:#D6D6FF; display:block;">🖥️ Bildschirm-Helligkeit drosseln:</label>
+                <label style="font-size:0.85rem; font-weight:600; color:#D6D6FF; display:block;">🖥️ Bildschirm-Helligkeit drosseln:</label>
                 <div class="slider-container">
                     <input type="range" min="20" max="100" step="5" value="100" class="atem-slider" id="brightnessRangeInput" oninput="applyScreenBrightness(this.value)">
                 </div>
             </div>
 
             <div id="layerAuditiv" class="config-layer">
-                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:16px;">Wecker- & Signal-Modus</h3>
+                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:0.95rem;">Wecker- & Signal-Modus</h3>
                 <select id="pacingAlarmSoundMode" class="pacing-select" style="margin-bottom:0;" onchange="localStorage.setItem('pacing_sound_mode', this.value)">
                     <option value="visual">Nur visuelles Blinken (Reizarm)</option>
                     <option value="sound">Sanfter Gong + Visuell</option>
@@ -286,7 +292,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 6: KALENDERÜBERSICHT -->
     <div id="listScreen" class="screen">
         <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:18px; border: 2px solid var(--color-blau); color: var(--color-blau); font-weight: bold; letter-spacing: 0.03em;" onclick="goToMainMenu()">Layout-Umschalter ↩</button>
         
@@ -371,13 +376,11 @@
         <button class="menu-settings-btn" style="margin-top:40px;" onclick="openNachtraeglichSetup()">⚙️ Einstellungen ändern</button>
     </div>
 
-    <!-- SCREEN 7: TERMINLISTE -->
     <div id="appointmentsScreen" class="screen">
         <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('listScreen')">&#11013; Zurück zur Übersicht</button>
         <div id="appointmentsContent"></div>
     </div>
 
-    <!-- SCREEN 8: DETAILANSICHT -->
     <div id="detailScreen" class="screen">
         <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('appointmentsScreen')">&#11013; Zurück zur Liste</button>
         
@@ -389,31 +392,31 @@
             <div id="docsList" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
             
             <div style="margin-top:14px; padding-top:12px; border-top:1px dashed #29384D;">
-                <label style="font-size:13px; color:#aaa; font-weight:600; display:block; margin-bottom:4px;">📍 Physischer Ablageort im Raum:</label>
+                <label style="font-size:0.85rem; color:#aaa; font-weight:600; display:block; margin-bottom:4px;">📍 Physischer Ablageort im Raum:</label>
                 <input type="text" id="detDepotInput" class="setup-input" style="margin-bottom:0; background-color:#121212; border-color:#29384D;" placeholder="z.B. Blauer Ordner Schreibtisch..." oninput="handleDepotLiveEdit(this.value)">
             </div>
         </div>
 
         <div class="card">
             <div class="card-title" id="detTitle">Titel</div>
-            <div id="detTime" style="font-size:14px; color:#aaa; margin-bottom:8px;">Zeit</div>
+            <div id="detTime" style="font-size:0.85rem; color:#aaa; margin-bottom:8px;">Zeit</div>
             <div class="az-box" id="detAz">Az</div>
             
-            <div style="background-color:#161616; border:1px solid #2a2a2a; padding:12px; border-radius:10px; margin-bottom:12px; font-size:14px;">
+            <div style="background-color:#161616; border:1px solid #2a2a2a; padding:12px; border-radius:10px; margin-bottom:12px; font-size:0.85rem;">
                 <p style="color:#D6D6FF; margin-bottom:4px;">👤 Ansprechpartner: <strong id="detPartner" style="color:#fff;">Nicht genannt</strong></p>
                 <p style="color:#6B7A8F;">📞 Direktruf: <strong id="detPhone" style="color:#38bdf8; text-decoration:underline; cursor:pointer;">Keine Nummer</strong></p>
             </div>
 
-            <div style="border-top:1px dashed #444; padding-top:12px; margin-top:10px; font-size:14px; line-height:1.4;">
+            <div style="border-top:1px dashed #444; padding-top:12px; margin-top:10px; font-size:0.85rem; line-height:1.4;">
                 <p style="color:#FFE066; font-weight:600; margin-bottom:4px;">📋 Reizarm-Info:</p>
                 <p id="detDescription" style="color:#ccc; margin-bottom:16px;"></p>
             </div>
 
             <div style="background-color:#121212; border:1px solid #333; padding:15px; border-radius:10px; margin-bottom:5px;">
-                <label style="font-size:13px; font-weight:600; color:var(--color-rot); display:block; margin-bottom:4px;">⏱️ Geschätzte Fahrzeit (Minuten):</label>
+                <label style="font-size:0.85rem; font-weight:600; color:var(--color-rot); display:block; margin-bottom:4px;">⏱️ Geschätzte Fahrzeit (Minuten):</label>
                 <input type="number" id="detFahrzeitInput" class="setup-input" style="margin-bottom:12px; margin-top:0;" value="20" oninput="recalculatePacingAlarm()">
                 
-                <label style="font-size:13px; font-weight:600; color:var(--color-blau); display:block; margin-bottom:4px;">🔔 Pacing-Rettungsanker (Puffer):</label>
+                <label style="font-size:0.85rem; font-weight:600; color:var(--color-blau); display:block; margin-bottom:4px;">🔔 Pacing-Rettungsanker (Puffer):</label>
                 <select id="pacingDropdown" class="pacing-select" style="margin-bottom:12px;" onchange="recalculatePacingAlarm()">
                     <option value="15">15 Minuten</option>
                     <option value="30">30 Minuten</option>
@@ -421,26 +424,23 @@
                     <option value="60">1 Stunde</option>
                     <option value="120">2 Stunden (Maximale Vorruhe)</option>
                 </select>
-                <p id="calculatedAlarmTime" style="font-size:13px; color:#8AFF9A; font-weight:500; line-height:1.4;"></p>
+                <p id="calculatedAlarmTime" style="font-size:0.85rem; color:#8AFF9A; font-weight:500; line-height:1.4;"></p>
             </div>
         </div>
     </div>
 
-    <!-- SCREEN 9: CRASH SCREEN -->
     <div id="crashScreen" class="screen">
         <div class="start-container" style="padding-top:20px; text-align: left;">
             <div class="start-question" style="color:#FF8A8A; margin-bottom: 15px; text-align: center;">🚨 Akuter Crash-Schutz</div>
             
-            <p class="pulse-crash-field" style="font-size:16px; margin-bottom:20px; padding:12px; border-radius:8px; font-weight:500; line-height:1.4; text-align: center;">
+            <p class="pulse-crash-field" style="font-size:1rem; margin-bottom:20px; padding:12px; border-radius:8px; font-weight:500; line-height:1.4; text-align: center;">
                 Schließe deine Augen halb. Passe deinen Atem ganz ruhig dem pulsierenden Feld unten an.
             </p>
             
-            <div class="preview-breathe-box pulse-crash-field" style="padding:24px; font-weight:bold; font-size:16px; margin-bottom:30px; text-align: center;">🧘 ATMUNG SYNCHRONISIEREN</div>
+            <div class="preview-breathe-box pulse-crash-field" style="padding:24px; font-weight:bold; font-size:1rem; margin-bottom:30px; text-align: center;">🧘 ATMUNG SYNCHRONISIEREN</div>
             
-            <h3 style="color: #fff; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">📞 Schnellanruf Kontakte:</h3>
-            <div id="crashContactsContainer" style="margin-bottom: 30px;">
-                <p style="color: #888; font-size: 14px; font-style: italic;">Keine Nummern eingetragen. Füge Kontakte in den Einstellungen hinzu.</p>
-            </div>
+            <h3 style="color: #fff; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">📞 Schnellanruf Kontakte:</h3>
+            <div id="crashContactsContainer" style="margin-bottom: 30px;"></div>
 
             <button class="action-btn action-btn-contrast" style="width:100%; padding:18px;" onclick="exitCrashMode()">← Zurück</button>
         </div>
@@ -466,9 +466,10 @@
         let selectedAtemSekunden = 8;
         let activeOpenedTerminRef = null;
 
+        // Start-Konfiguration laden
         applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default');
-        const savedScale = localStorage.getItem('pacing_text_scale') || 'normal';
-        applyGlobalTextScaleNoJump(savedScale);
+        const savedScale = localStorage.getItem('pacing_text_scale') || '16';
+        applyGlobalTextScale(savedScale);
         
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('setupPhoneInput').value = localStorage.getItem('pacing_phone1') || '';
@@ -477,7 +478,7 @@
             applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100');
         });
 
-        if(localStorage.getItem('pacing_app_configured_v43')) {
+        if(localStorage.getItem('pacing_app_configured_v44')) {
             document.getElementById('onboardingIntro').innerHTML = "⚙️ <strong>Tagesform-Check:</strong> Bitte wähle dein heutiges Energielevel:";
             document.addEventListener("DOMContentLoaded", () => {
                 showScreen('betaNoticeScreen');
@@ -488,9 +489,27 @@
         }
 
         function finishOnboardingAndGoToBetaCheck() {
-            localStorage.setItem('pacing_app_configured_v43', 'true');
+            localStorage.setItem('pacing_app_configured_v44', 'true');
             document.getElementById('betaManualContinueBtn').style.display = 'block';
             showScreen('betaNoticeScreen');
+        }
+
+        // 🔎 STUFENLOSE SCHRIFTGRÖSSE: Setzt die Schriftgröße live per Pixel-Wert um
+        function applyGlobalTextScale(pxValue) {
+            localStorage.setItem('pacing_text_scale', pxValue);
+            document.body.style.fontSize = pxValue + "px";
+            
+            // Labels aktualisieren
+            const oLabel = document.getElementById('onboardingScaleLabel');
+            const iLabel = document.getElementById('inappScaleLabel');
+            if(oLabel) oLabel.innerText = `🔎 Textgröße: ${pxValue}px`;
+            if(iLabel) iLabel.innerText = `🔎 Textgröße: ${pxValue}px`;
+
+            // Regler-Stellungen synchronisieren
+            const oInput = document.getElementById('onboardingScaleInput');
+            const iInput = document.getElementById('inappScaleInput');
+            if(oInput) oInput.value = pxValue;
+            if(iInput) iInput.value = pxValue;
         }
 
         function handleSliderChange(val) {
@@ -516,7 +535,7 @@
             const p3 = localStorage.getItem('pacing_phone3') || '';
             
             if(!p1 && !p2 && !p3) {
-                container.innerHTML = `<p style="color: #888; font-size: 14px; font-style: italic;">Keine Nummern hinterlegt.</p>`;
+                container.innerHTML = `<p style="color: #888; font-size: 14px; font-style: italic; text-align:center;">Keine Nummern hinterlegt.</p>`;
                 return;
             }
             let html = '';
@@ -528,9 +547,7 @@
 
         function applyScreenBrightness(val) {
             localStorage.setItem('pacing_brightness', val);
-            document.documentElement.style.setProperty('--global-brightness', val / 100);
             document.body.style.filter = `brightness(${val / 100})`;
-            
             const bSlider = document.getElementById('brightnessRangeInput');
             if(bSlider) bSlider.value = val;
         }
@@ -682,26 +699,26 @@
             if (!isOpen) currentLayer.classList.add('open');
         }
 
-        function applyGlobalTextScaleNoJump(scale) {
-            localStorage.setItem('pacing_text_scale', scale);
-            document.body.classList.remove('text-normal', 'text-groess', 'text-sehrgroess');
-            document.body.classList.add('text-' + scale);
-            
-            const sSelect = document.getElementById('scaleSelect');
-            if(sSelect) sSelect.value = scale;
-        }
-
-        function applyGlobalTextScale(scale) { applyGlobalTextScaleNoJump(scale); }
-
+        // 🎨 LIVE-PROFILVORSCHAU: Synchronisiert die Dropdowns und aktualisiert die Vorschau-Punkte
         function applyColorProfile(profile) {
             localStorage.setItem('pacing_color_profile', profile);
             document.body.classList.remove('cb-rotgruen', 'cb-blaugelb', 'cb-monochrom');
             if(profile !== 'default') document.body.classList.add('cb-' + profile);
+            
             document.getElementById('colorBlindSelect').value = profile;
             document.getElementById('onboardingColorBlindSelect').value = profile;
+
+            // Farbwerte für die Vorschau-Kreise im Einstellungsmenü live anpassen
+            const dots = document.querySelectorAll('.color-preview-dot');
+            if(dots.length >= 3) {
+                const computedStyle = getComputedStyle(document.body);
+                dots[0].style.backgroundColor = computedStyle.getPropertyValue('--color-rot');
+                dots[1].style.backgroundColor = computedStyle.getPropertyValue('--color-blau');
+                dots[2].style.backgroundColor = computedStyle.getPropertyValue('--color-gruen');
+            }
         }
 
-        function openNachtraeglichSetup() { showScreen('setupScreen'); }
+        function openNachtraeglichSetup() { showScreen('setupScreen'); applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default'); }
         function finishSetupAndGoToGrid() { openFilteredPlanerScreen(); }
         function exitCrashMode() { applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100'); showScreen('startScreen'); }
         function goToMainMenu() { showScreen('startScreen'); }
