@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v42</title>
+    <title>Pacing App v43</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
         :root {
             --bg-main: #121212; --bg-card: #1E1E1E; --border-color: #2C2C2C; --text-main: #E0E0E0; --text-light: #FFFFFF;
             --color-rot: #FF8A8A; --color-blau: #D6D6FF; --color-gruen: #6B7A8F;
             --bg-rot-alpha: rgba(239, 68, 68, 0.2); --bg-blau-alpha: rgba(214, 214, 255, 0.1); --bg-gruen-alpha: rgba(107, 122, 143, 0.1);
+            --global-brightness: 1.0;
         }
+        
         body.cb-rotgruen {
             --color-rot: #38bdf8; --color-blau: #facc15; --color-gruen: #f8fafc;
             --bg-rot-alpha: rgba(56, 189, 248, 0.2); --bg-blau-alpha: rgba(250, 204, 21, 0.15); --bg-gruen-alpha: rgba(248, 250, 252, 0.1);
@@ -23,19 +26,41 @@
             --color-rot: #ffffff; --color-blau: #a3a3a3; --color-gruen: #525252;
             --bg-rot-alpha: rgba(255, 255, 255, 0.15); --bg-blau-alpha: rgba(163, 163, 163, 0.1); --bg-gruen-alpha: rgba(82, 82, 82, 0.08);
         }
-        body { background-color: var(--bg-main); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 16px; max-width: 500px; margin: 0 auto; transition: font-size 0.2s; }
-        body.crash-darkness { filter: brightness(0.4) contrast(0.9); }
-        .screen { display: none; } .screen.active { display: block; }
+
+        body.text-normal { font-size: 16px; }
+        body.text-groess { font-size: 20px; }
+        body.text-sehrgroess { font-size: 24px; }
+        
+        body.text-groess .start-question { font-size: 28px; }
+        body.text-sehrgroess .start-question { font-size: 32px; }
+        body.text-groess .label-text { font-size: 19px; }
+        body.text-sehrgroess .label-text { font-size: 22px; }
+
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main); 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            padding: 16px; 
+            max-width: 500px; 
+            margin: 0 auto; 
+            transition: filter 0.1s ease;
+        }
+
+        .screen { display: none; } 
+        .screen.active { display: block; }
         .start-container { text-align: center; padding: 10px; }
         .start-question { font-size: 24px; font-weight: 500; color: var(--text-light); margin-bottom: 35px; line-height: 1.4; }
+        
         .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
         .quad-btn {
             background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px 12px; color: var(--text-light);
             cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; font-size: 15px; font-weight: 600;
         }
         .quad-btn.placeholder { opacity: 0.4; cursor: not-allowed; border-style: dashed; }
+        
         .config-layer { display: none; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: left; }
         .config-layer.open { display: block; }
+        
         .ampel-btn, .acc-huge-btn, .menu-settings-btn {
             display: block; width: 100%; padding: 20px; margin-bottom: 14px; border-radius: 16px;
             font-size: 18px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-color); color: var(--text-light); text-align: center;
@@ -44,46 +69,59 @@
         .btn-gehtso { background-color: var(--bg-blau-alpha); border-color: var(--color-blau); }
         .btn-naja { background-color: var(--bg-rot-alpha); border-color: var(--color-rot); }
         .btn-crash { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #FF8A8A; margin-bottom: 25px; }
-        .menu-settings-btn, .action-btn-secondary { background-color: #222222 !important; border: 2px solid var(--color-rot) !important; color: #FFFFFF !important; font-size: 16px; font-weight: bold; }
+        
+        .menu-settings-btn { background-color: #222222 !important; border: 2px solid var(--color-rot) !important; color: #FFFFFF !important; font-size: 16px; font-weight: bold; }
         .action-btn-contrast { background-color: #1A1A1A !important; border: 2px solid var(--color-blau) !important; color: var(--color-blau) !important; font-weight: bold !important; }
+        
         .setup-input { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 16px; margin-bottom: 14px; margin-top: 6px; }
         .pacing-select { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #D6D6FF; font-size: 16px; font-weight: 600; margin-top: 6px; margin-bottom: 16px; outline: none; }
+        
         .slider-container { margin-top: 14px; padding: 4px 0; }
         .atem-slider { -webkit-appearance: none; width: 100%; height: 12px; border-radius: 6px; background: #333; outline: none; margin-top: 10px; }
         .atem-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #D6D6FF; cursor: pointer; border: 2px solid #121212; }
+        
         .preview-breathe-box { margin-top: 15px; padding: 15px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.15); background-color: rgba(255, 255, 255, 0.03); text-align: center; font-size: 13px; color: rgba(255, 255, 255, 0.6); }
         .grid-container { display: flex; flex-direction: column; gap: 12px; }
         .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #888888; margin-top: 8px; margin-bottom: 4px; }
+        
         .field-row { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 24px; display: flex; align-items: center; gap: 20px; cursor: pointer; }
         .field-row.disabled-row { opacity: 0.18; filter: grayscale(1); cursor: not-allowed !important; }
         .main-header-row { border-left: 4px solid var(--accent-color); }
+        
         .dots-container { display: flex; gap: 4px; min-width: 115px; font-family: monospace; font-size: 14px; color: #aaa; align-items: center; }
         .dot { width: 14px; height: 16px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
         .dot-red { background-color: var(--color-rot); }
         .dot-lavender { background-color: var(--color-blau); }
         .dot-slate { background-color: var(--color-gruen); }
+        
         .pulse-fast { animation: breathe 1.5s infinite ease-in-out; }
         .pulse-med { animation: breathe 3s infinite ease-in-out; }
         .pulse-slow { animation: breathe 5s infinite ease-in-out; }
         @keyframes breathe { 0% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.12); opacity: 0.4; } 100% { transform: scale(1); opacity: 0.9; } }
+        
         .pulse-crash-field { animation: crashWhiteBreathe 8s infinite ease-in-out; }
         @keyframes crashWhiteBreathe { 0% { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.4); } 50% { background-color: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.65); color: rgba(255, 255, 255, 1.0); } 100% { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.4); } }
         .fade-out-5s { animation: fadeToTransparent 5s forwards linear; }
         @keyframes fadeToTransparent { 0% { opacity: 1; } 100% { opacity: 0; } }
+        
         .label-text { font-size: 16px; font-weight: 500; color: var(--text-main); flex-grow: 1; }
         .sub-panel { display: none; flex-direction: column; gap: 10px; padding-left: 12px; margin-top: -4px; margin-bottom: 8px; }
         .sub-panel.open-panel { display: flex !important; }
         .chevron { font-size: 14px; color: #666666; }
+        
         .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
         .card-title { font-size: 18px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
         .az-box { font-family: monospace; background-color: var(--bg-main); padding: 8px 12px; border-radius: 6px; font-size: 13px; color: #D6D6FF; display: inline-block; margin-bottom: 16px; }
         .docs-status-box { background-color: #1A222D; border: 1px solid #29384D; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
         .badge-warning { background-color: #4A3319; color: #FFA333; border: 1px solid #7A5223; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
         .action-btn { display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; border: 1px solid #444; color: #fff; background-color: #222; text-align: center; }
+        
+        .crash-phone-btn { background-color: #4A1A1A; border: 2px solid #FF8A8A; border-radius: 12px; padding: 16px; color: #fff; font-size: 16px; font-weight: bold; text-align: left; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; text-decoration: none; }
     </style>
 </head>
-<body>
+<body class="text-normal">
 
+    <!-- SCREEN 1: ONBOARDING ACCESSIBILITY -->
     <div id="accessibilitySetupScreen" class="screen active">
         <div class="start-container" style="text-align: left;">
             <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; padding-top: 10px;">
@@ -107,25 +145,31 @@
 
             <div id="layerOnboardingSchrift" class="config-layer">
                 <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:15px;">Gewünschte Skalierung wählen:</h3>
-                <button class="acc-huge-btn btn-acc-select" style="padding:14px; font-size:16px;" onclick="applyGlobalTextScaleNoJump('normal')">🔎 Schrift: Normal</button>
-                <button class="acc-huge-btn btn-acc-select" style="padding:14px; font-size:19px;" onclick="applyGlobalTextScaleNoJump('groess')">🔎 Schrift: GROSS</button>
-                <button class="acc-huge-btn btn-acc-select" style="padding:14px; font-size:22px; font-weight: bold;" onclick="applyGlobalTextScaleNoJump('sehrgroess')">🔎 Schrift: SEHR GROSS</button>
+                <button class="acc-huge-btn btn-acc-select" style="padding:14px;" onclick="applyGlobalTextScaleNoJump('normal')">🔎 Schrift: Normal</button>
+                <button class="acc-huge-btn btn-acc-select" style="padding:14px;" onclick="applyGlobalTextScaleNoJump('groess')">🔎 Schrift: GROSS</button>
+                <button class="acc-huge-btn btn-acc-select" style="padding:14px; font-weight: bold;" onclick="applyGlobalTextScaleNoJump('sehrgroess')">🔎 Schrift: SEHR GROSS</button>
             </div>
 
             <div id="layerOnboardingVisuell" class="config-layer">
                 <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:15px;">Farbschwächen & Reizreduktion:</h3>
-                <select id="onboardingColorBlindSelect" class="pacing-select" style="margin-bottom:0;" onchange="applyColorProfile(this.value)">
+                <select id="onboardingColorBlindSelect" class="pacing-select" onchange="applyColorProfile(this.value)">
                     <option value="default">Standard (Reizarm Dunkel)</option>
                     <option value="rotgruen">Rot-Grün-Schwäche</option>
                     <option value="blaugelb">Blau-Gelb-Schwäche</option>
                     <option value="monochrom">Monochrom (100% Graustufen)</option>
                 </select>
+                
+                <label style="font-size:14px; font-weight:600; color:#D6D6FF; margin-top:10px; display:block;">🖥️ Bildschirm-Helligkeit drosseln:</label>
+                <div class="slider-container">
+                    <input type="range" min="20" max="100" step="5" value="100" class="atem-slider" oninput="applyScreenBrightness(this.value)">
+                </div>
             </div>
 
             <button class="action-btn" style="background-color:#1E3D23; border-color:#4ade80; color:#8AFF9A; padding:18px; margin-top:20px; font-weight:bold;" onclick="finishOnboardingAndGoToBetaCheck()">Einstellungen übernehmen & Weiter ➔</button>
         </div>
     </div>
 
+    <!-- SCREEN 2: BETA NOTICE -->
     <div id="betaNoticeScreen" class="screen">
         <div class="start-container" style="text-align: left; padding-top: 20px;">
             <div style="text-align:center; margin-bottom: 25px;">
@@ -141,6 +185,7 @@
         </div>
     </div>
 
+    <!-- SCREEN 3: TAGESFORM-AMPEL -->
     <div id="startScreen" class="screen">
         <div class="start-container">
             <div style="text-align: right; margin-bottom: 10px; font-size: 20px;" id="ampelAlarmIndicator">🔔 🔊</div>
@@ -157,6 +202,7 @@
         </div>
     </div>
 
+    <!-- SCREEN 4: NAJA WARNING SCREEN -->
     <div id="najaWarningScreen" class="screen">
         <div class="start-container" style="text-align: left; padding-top:40px;">
             <div class="start-question" style="text-align:center; color:#FFB077;">⚠️ Pacing-Hinweis</div>
@@ -171,6 +217,7 @@
         </div>
     </div>
 
+    <!-- SCREEN 5: IN-APP CONFIG INTERFACE -->
     <div id="setupScreen" class="screen">
         <div class="start-container" style="text-align: left;">
             <div class="start-question" style="text-align:center; font-size: 22px; margin-bottom: 20px;">⚙️ Hauptmenü & Einstellungen</div>
@@ -184,19 +231,22 @@
                     <span class="icon">👁️</span>
                     <span>Visuelle Ansicht</span>
                 </button>
-                <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
+                <button class="quad-btn" onclick="toggleConfigLayer('layerAuditiv')">
+                    <span class="icon">🔔</span>
+                    <span>Auditive Einstellungen</span>
+                </button>
                 <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
             </div>
 
             <div id="layerNotfall" class="config-layer">
                 <h3 style="color:#FF8A8A; margin-bottom:12px; font-size:16px;">Signal-Eingabe: Notfallkontakte</h3>
-                <input type="tel" id="setupPhoneInput" class="setup-input" placeholder="Hauptkontakt (z.B. Familie)">
-                <input type="tel" id="setupPhoneInput2" class="setup-input" placeholder="Notfallkontakt 2 (z.B. Freunde)">
-                <input type="tel" id="setupPhoneInput3" class="setup-input" placeholder="Notfallkontakt 3 (z.B. Taxi)">
+                <input type="tel" id="setupPhoneInput" class="setup-input" placeholder="Hauptkontakt (z.B. Familie)" oninput="saveContactsToRam()">
+                <input type="tel" id="setupPhoneInput2" class="setup-input" placeholder="Notfallkontakt 2 (z.B. Freunde)" oninput="saveContactsToRam()">
+                <input type="tel" id="setupPhoneInput3" class="setup-input" placeholder="Notfallkontakt 3 (z.B. Taxi)" oninput="saveContactsToRam()">
                 
-                <hr style="border-color:#333; margin:16px 0;">
+                <hr style="border-color:#333; margin: 15px 0;">
                 
-                <label style="font-size:14px; font-weight:600; color:#D6D6FF;" id="sliderDisplayLabel">🫁 Atem-Rhythmus: 8 Sekunden</label>
+                <label style="font-size:14px; font-weight:600; color:#D6D6FF;" id="sliderDisplayLabel">𫆢 Atem-Rhythmus: 8 Sekunden</label>
                 <div class="slider-container">
                     <input type="range" min="4" max="12" step="1" value="8" class="atem-slider" id="atemRangeInput" oninput="handleSliderChange(this.value)">
                 </div>
@@ -218,7 +268,14 @@
                 </select>
                 
                 <hr style="border-color:#333; margin:16px 0;">
-                <h3 style="color:#D6D6FF; margin-bottom:8px; font-size:14px;">🔔 Signal-Modus für Wecker:</h3>
+                <label style="font-size:14px; font-weight:600; color:#D6D6FF; display:block;">🖥️ Bildschirm-Helligkeit drosseln:</label>
+                <div class="slider-container">
+                    <input type="range" min="20" max="100" step="5" value="100" class="atem-slider" id="brightnessRangeInput" oninput="applyScreenBrightness(this.value)">
+                </div>
+            </div>
+
+            <div id="layerAuditiv" class="config-layer">
+                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:16px;">Wecker- & Signal-Modus</h3>
                 <select id="pacingAlarmSoundMode" class="pacing-select" style="margin-bottom:0;" onchange="localStorage.setItem('pacing_sound_mode', this.value)">
                     <option value="visual">Nur visuelles Blinken (Reizarm)</option>
                     <option value="sound">Sanfter Gong + Visuell</option>
@@ -229,6 +286,7 @@
         </div>
     </div>
 
+    <!-- SCREEN 6: KALENDERÜBERSICHT -->
     <div id="listScreen" class="screen">
         <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:18px; border: 2px solid var(--color-blau); color: var(--color-blau); font-weight: bold; letter-spacing: 0.03em;" onclick="goToMainMenu()">Layout-Umschalter ↩</button>
         
@@ -313,11 +371,13 @@
         <button class="menu-settings-btn" style="margin-top:40px;" onclick="openNachtraeglichSetup()">⚙️ Einstellungen ändern</button>
     </div>
 
+    <!-- SCREEN 7: TERMINLISTE -->
     <div id="appointmentsScreen" class="screen">
         <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('listScreen')">&#11013; Zurück zur Übersicht</button>
         <div id="appointmentsContent"></div>
     </div>
 
+    <!-- SCREEN 8: DETAILANSICHT -->
     <div id="detailScreen" class="screen">
         <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('appointmentsScreen')">&#11013; Zurück zur Liste</button>
         
@@ -366,13 +426,22 @@
         </div>
     </div>
 
+    <!-- SCREEN 9: CRASH SCREEN -->
     <div id="crashScreen" class="screen">
-        <div class="start-container" style="padding-top:40px;">
-            <div class="start-question" style="color:#FF8A8A; margin-bottom: 15px;">🚨 Akuter Crash-Schutz</div>
-            <p class="pulse-crash-field" style="font-size:16px; margin-bottom:30px; padding:12px; border-radius:8px; font-weight:500; line-height:1.4;">
-                Schließe deine Augen halb. Passe deinen Atem ganz ruhig dem pulsierenden Feld unten an. Aus... Ein...
+        <div class="start-container" style="padding-top:20px; text-align: left;">
+            <div class="start-question" style="color:#FF8A8A; margin-bottom: 15px; text-align: center;">🚨 Akuter Crash-Schutz</div>
+            
+            <p class="pulse-crash-field" style="font-size:16px; margin-bottom:20px; padding:12px; border-radius:8px; font-weight:500; line-height:1.4; text-align: center;">
+                Schließe deine Augen halb. Passe deinen Atem ganz ruhig dem pulsierenden Feld unten an.
             </p>
-            <div class="preview-breathe-box pulse-crash-field" style="padding:24px; font-weight:bold; font-size:16px; margin-bottom:30px;">🧘 ATMUNG SYNCHRONISIEREN</div>
+            
+            <div class="preview-breathe-box pulse-crash-field" style="padding:24px; font-weight:bold; font-size:16px; margin-bottom:30px; text-align: center;">🧘 ATMUNG SYNCHRONISIEREN</div>
+            
+            <h3 style="color: #fff; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">📞 Schnellanruf Kontakte:</h3>
+            <div id="crashContactsContainer" style="margin-bottom: 30px;">
+                <p style="color: #888; font-size: 14px; font-style: italic;">Keine Nummern eingetragen. Füge Kontakte in den Einstellungen hinzu.</p>
+            </div>
+
             <button class="action-btn action-btn-contrast" style="width:100%; padding:18px;" onclick="exitCrashMode()">← Zurück</button>
         </div>
     </div>
@@ -399,10 +468,16 @@
 
         applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default');
         const savedScale = localStorage.getItem('pacing_text_scale') || 'normal';
-        if (savedScale !== 'normal') document.body.classList.add('text-' + savedScale);
-        document.getElementById('scaleSelect').value = savedScale;
+        applyGlobalTextScaleNoJump(savedScale);
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('setupPhoneInput').value = localStorage.getItem('pacing_phone1') || '';
+            document.getElementById('setupPhoneInput2').value = localStorage.getItem('pacing_phone2') || '';
+            document.getElementById('setupPhoneInput3').value = localStorage.getItem('pacing_phone3') || '';
+            applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100');
+        });
 
-        if(localStorage.getItem('pacing_app_configured_v42')) {
+        if(localStorage.getItem('pacing_app_configured_v43')) {
             document.getElementById('onboardingIntro').innerHTML = "⚙️ <strong>Tagesform-Check:</strong> Bitte wähle dein heutiges Energielevel:";
             document.addEventListener("DOMContentLoaded", () => {
                 showScreen('betaNoticeScreen');
@@ -413,7 +488,7 @@
         }
 
         function finishOnboardingAndGoToBetaCheck() {
-            localStorage.setItem('pacing_app_configured_v42', 'true');
+            localStorage.setItem('pacing_app_configured_v43', 'true');
             document.getElementById('betaManualContinueBtn').style.display = 'block';
             showScreen('betaNoticeScreen');
         }
@@ -428,16 +503,47 @@
             if(!styleEl.parentNode) document.head.appendChild(styleEl);
         }
 
+        function saveContactsToRam() {
+            localStorage.setItem('pacing_phone1', document.getElementById('setupPhoneInput').value);
+            localStorage.setItem('pacing_phone2', document.getElementById('setupPhoneInput2').value);
+            localStorage.setItem('pacing_phone3', document.getElementById('setupPhoneInput3').value);
+        }
+
+        function rebuildCrashContactsView() {
+            const container = document.getElementById('crashContactsContainer');
+            const p1 = localStorage.getItem('pacing_phone1') || '';
+            const p2 = localStorage.getItem('pacing_phone2') || '';
+            const p3 = localStorage.getItem('pacing_phone3') || '';
+            
+            if(!p1 && !p2 && !p3) {
+                container.innerHTML = `<p style="color: #888; font-size: 14px; font-style: italic;">Keine Nummern hinterlegt.</p>`;
+                return;
+            }
+            let html = '';
+            if(p1) html += `<a href="tel:${p1}" class="crash-phone-btn"><span>📞 Hauptkontakt: ${p1}</span><span>➔</span></a>`;
+            if(p2) html += `<a href="tel:${p2}" class="crash-phone-btn"><span>📞 Kontakt 2: ${p2}</span><span>➔</span></a>`;
+            if(p3) html += `<a href="tel:${p3}" class="crash-phone-btn"><span>📞 Kontakt 3: ${p3}</span><span>➔</span></a>`;
+            container.innerHTML = html;
+        }
+
+        function applyScreenBrightness(val) {
+            localStorage.setItem('pacing_brightness', val);
+            document.documentElement.style.setProperty('--global-brightness', val / 100);
+            document.body.style.filter = `brightness(${val / 100})`;
+            
+            const bSlider = document.getElementById('brightnessRangeInput');
+            if(bSlider) bSlider.value = val;
+        }
+
         function handleStartChoice(choice) {
             currentEnergyStatus = choice;
-            document.body.classList.remove('crash-darkness');
             if (choice === 'gut' || choice === 'gehtso') {
                 openFilteredPlanerScreen();
             } else if (choice === 'naja') {
                 showScreen('najaWarningScreen');
             } else if (choice === 'crash') {
-                document.body.classList.add('crash-darkness');
                 handleSliderChange(selectedAtemSekunden);
+                rebuildCrashContactsView();
                 showScreen('crashScreen');
             }
         }
@@ -454,10 +560,6 @@
 
             document.querySelectorAll('.field-row').forEach(row => row.classList.remove('disabled-row'));
             if (isGehtSo) document.getElementById('rowGruen')?.classList.add('disabled-row');
-            if (currentEnergyStatus === 'naja') {
-                document.getElementById('rowBlau')?.classList.add('disabled-row');
-                document.getElementById('rowGruen')?.classList.add('disabled-row');
-            }
             showScreen('listScreen');
         }
 
@@ -582,9 +684,11 @@
 
         function applyGlobalTextScaleNoJump(scale) {
             localStorage.setItem('pacing_text_scale', scale);
-            document.body.className = document.body.className.replace(/\btext-\S+/g, '');
-            if (scale !== 'normal') document.body.classList.add('text-' + scale);
-            document.getElementById('scaleSelect').value = scale;
+            document.body.classList.remove('text-normal', 'text-groess', 'text-sehrgroess');
+            document.body.classList.add('text-' + scale);
+            
+            const sSelect = document.getElementById('scaleSelect');
+            if(sSelect) sSelect.value = scale;
         }
 
         function applyGlobalTextScale(scale) { applyGlobalTextScaleNoJump(scale); }
@@ -599,8 +703,8 @@
 
         function openNachtraeglichSetup() { showScreen('setupScreen'); }
         function finishSetupAndGoToGrid() { openFilteredPlanerScreen(); }
-        function exitCrashMode() { document.body.classList.remove('crash-darkness'); showScreen('startScreen'); }
-        function goToMainMenu() { document.body.classList.remove('crash-darkness'); showScreen('startScreen'); }
+        function exitCrashMode() { applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100'); showScreen('startScreen'); }
+        function goToMainMenu() { showScreen('startScreen'); }
         function goBack(id) { showScreen(id); }
         function showScreen(screenId) { document.getElementById(currentActiveScreen).classList.remove('active'); document.getElementById(screenId).classList.add('active'); currentActiveScreen = screenId; }
         
