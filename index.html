@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v45</title>
+    <title>Pacing App v46</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -95,8 +95,19 @@
         .pulse-slow { animation: breathe 5s infinite ease-in-out; }
         @keyframes breathe { 0% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.12); opacity: 0.4; } 100% { transform: scale(1); opacity: 0.9; } }
         
-        .pulse-crash-field { animation: crashWhiteBreathe 8s infinite ease-in-out; }
-        @keyframes crashWhiteBreathe { 0% { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.4); } 50% { background-color: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.65); color: rgba(255, 255, 255, 1.0); } 100% { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.4); } }
+        /* 🚨 FULLSCREEN PULSIEREN FÜR DEN CRASH SCREEN */
+        #crashScreen { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            max-width: 100vw !important; z-index: 99999; padding: 1.5rem; 
+            overflow-y: auto; background-color: var(--bg-main);
+            animation: crashFullBreathe 8s infinite ease-in-out; 
+        }
+        @keyframes crashFullBreathe { 
+            0% { background-color: #0c0c0c; } 
+            50% { background-color: #261616; } 
+            100% { background-color: #0c0c0c; } 
+        }
+        
         .fade-out-5s { animation: fadeToTransparent 5s forwards linear; }
         @keyframes fadeToTransparent { 0% { opacity: 1; } 100% { opacity: 0; } }
         
@@ -134,7 +145,10 @@
                     <span class="icon">🌓🎨</span>
                     <span>Visuelle Ansicht</span>
                 </button>
-                <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
+                <button class="quad-btn" onclick="toggleConfigLayer('layerOnboardingAuditiv')">
+                    <span class="icon">🔔</span>
+                    <span>Auditive Optionen</span>
+                </button>
                 <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
             </div>
 
@@ -164,6 +178,14 @@
                 <div class="slider-container">
                     <input type="range" min="20" max="100" step="5" value="100" class="atem-slider" oninput="applyScreenBrightness(this.value)">
                 </div>
+            </div>
+
+            <div id="layerOnboardingAuditiv" class="config-layer">
+                <h3 style="color:#D6D6FF; font-size:0.95rem;">Wecker- & Signal-Modus</h3>
+                <select id="onboardingAlarmSoundMode" class="pacing-select" style="margin-bottom:0;" onchange="syncAlarmSoundMode(this.value)">
+                    <option value="visual">Nur visuelles Blinken (Reizarm)</option>
+                    <option value="sound">Sanfter Gong + Visuell</option>
+                </select>
             </div>
 
             <button class="action-btn" style="background-color:#1E3D23; border-color:#4ade80; color:#8AFF9A; padding:18px; margin-top:20px; font-weight:bold;" onclick="finishOnboardingAndGoToBetaCheck()">Einstellungen übernehmen & Weiter ➔</button>
@@ -239,14 +261,6 @@
                 <input type="tel" id="setupPhoneInput" class="setup-input" placeholder="Hauptkontakt (z.B. Familie)" oninput="saveContactsToRam()">
                 <input type="tel" id="setupPhoneInput2" class="setup-input" placeholder="Notfallkontakt 2 (z.B. Freunde)" oninput="saveContactsToRam()">
                 <input type="tel" id="setupPhoneInput3" class="setup-input" placeholder="Notfallkontakt 3 (z.B. Taxi)" oninput="saveContactsToRam()">
-                
-                <hr style="border-color:#333; margin: 15px 0;">
-                
-                <label style="font-size:0.85rem; font-weight:600; color:#D6D6FF;" id="sliderDisplayLabel">𫆢 Atem-Rhythmus: 8 Sekunden</label>
-                <div class="slider-container">
-                    <input type="range" min="4" max="12" step="1" value="8" class="atem-slider" id="atemRangeInput" oninput="handleSliderChange(this.value)">
-                </div>
-                <div id="setupAtemPreview" class="preview-breathe-box">🧘 Live-Atem-Vorschau</div>
             </div>
 
             <div id="layerVisuell" class="config-layer">
@@ -280,7 +294,7 @@
 
             <div id="layerAuditiv" class="config-layer">
                 <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:0.95rem;">Wecker- & Signal-Modus</h3>
-                <select id="pacingAlarmSoundMode" class="pacing-select" style="margin-bottom:0;" onchange="localStorage.setItem('pacing_sound_mode', this.value)">
+                <select id="pacingAlarmSoundMode" class="pacing-select" style="margin-bottom:0;" onchange="syncAlarmSoundMode(this.value)">
                     <option value="visual">Nur visuelles Blinken (Reizarm)</option>
                     <option value="sound">Sanfter Gong + Visuell</option>
                 </select>
@@ -431,19 +445,20 @@
     </div>
 
     <div id="crashScreen" class="screen">
-        <div class="start-container" style="padding-top:20px; text-align: left;">
-            <div class="start-question" style="color:#FF8A8A; margin-bottom: 15px; text-align: center;">🚨 Akuter Crash-Schutz</div>
+        <div style="max-width: 460px; margin: 0 auto; padding-top: 15px;">
+            <div style="font-size: 1.5rem; font-weight: bold; color: #FF8A8A; margin-bottom: 10px; text-align: center;">🚨 Akuter Crash-Schutz</div>
             
-            <p class="pulse-crash-field" style="font-size:1rem; margin-bottom:20px; padding:12px; border-radius:8px; font-weight:500; line-height:1.4; text-align: center;">
-                Schließe deine Augen halb. Passe deinen Atem ganz ruhig dem pulsierenden Feld unten an.
-            </p>
+            <div style="background-color: rgba(0,0,0,0.4); border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <label style="font-size: 0.95rem; font-weight: 600; color: #D6D6FF; display: block;" id="crashSliderLabel">𫆢 Atem-Rhythmus anpassen: 8 Sekunden</label>
+                <input type="range" min="4" max="12" step="1" value="8" class="atem-slider" id="crashAtemRangeInput" oninput="handleSliderChange(this.value)">
+            </div>
             
-            <div class="preview-breathe-box pulse-crash-field" style="padding:24px; font-weight:bold; font-size:1rem; margin-bottom:30px; text-align: center;">🧘 ATMUNG SYNCHRONISIEREN</div>
+            <div class="preview-breathe-box pulse-crash-field" style="padding: 35px 20px; font-weight: bold; font-size: 1.2rem; margin-bottom: 25px; border-radius: 16px; text-align: center;">🧘 HIER REIZARM MITATMEN</div>
             
-            <h3 style="color: #fff; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">📞 Schnellanruf Kontakte:</h3>
+            <h3 style="color: #fff; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">📞 Sofort-Anruf Kontakte:</h3>
             <div id="crashContactsContainer" style="margin-bottom: 30px;"></div>
 
-            <button class="action-btn action-btn-contrast" style="width:100%; padding:18px;" onclick="exitCrashMode()">← Zurück</button>
+            <button class="action-btn action-btn-contrast" style="width:100%; padding: 18px; font-weight: bold;" onclick="exitCrashMode()">← Modus beenden</button>
         </div>
     </div>
 
@@ -458,7 +473,7 @@
                 { id: 202, title: "Befundberichte Versorgungsamt", time: "In 6 Tagen", az: "GdB-SGB-IX", partner: "Zentrale Einlaufstelle", phone: "030112233", desc: "Nachreichung der Berichte zur Feststellung des Merkzeichens G.", needsDocs: false, docsItems: [], depot: "" }
             ],
             rot1: [{ id: 301, title: "Lieferung Schwellenrampe", time: "10:00 Uhr (In 8 Tagen)", az: "Sanitätshaus Süd", partner: "Wagner (Logistik)", phone: "040998877", desc: "Techniker kommt. Haustürklingel stummschalten – er klopft sanft an die Scheibe.", needsDocs: false, docsItems: [], depot: "" }],
-            blau3: [{ id: 401, title: "LDN Rezepttelefon Hausarzt", time: "In 11 Tagen", az: "Dr. Becker", partner: "Rezeptions-Team", phone: "0711889900", desc: "Low Dose Naltrexon Rezept telephoneisch anfordern.", needsDocs: false, docsItems: [], depot: "" }],
+            blau3: [{ id: 401, title: "LDN Rezepttelefon Hausarzt", time: "In 11 Tagen", az: "Dr. Becker", partner: "Rezeptions-Team", phone: "0711889900", desc: "Low Dose Naltrexon Rezept telefonisch anfordern.", needsDocs: false, docsItems: [], depot: "" }],
             blau2: [], blau1: [], gruen3: [], gruen2: [], gruen1: []
         };
 
@@ -476,9 +491,10 @@
             document.getElementById('setupPhoneInput2').value = localStorage.getItem('pacing_phone2') || '';
             document.getElementById('setupPhoneInput3').value = localStorage.getItem('pacing_phone3') || '';
             applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100');
+            syncAlarmSoundMode(localStorage.getItem('pacing_sound_mode') || 'visual');
         });
 
-        if(localStorage.getItem('pacing_app_configured_v45')) {
+        if(localStorage.getItem('pacing_app_configured_v46')) {
             document.addEventListener("DOMContentLoaded", () => {
                 showScreen('betaNoticeScreen');
                 document.getElementById('betaManualContinueBtn').style.display = 'none';
@@ -488,12 +504,11 @@
         }
 
         function finishOnboardingAndGoToBetaCheck() {
-            localStorage.setItem('pacing_app_configured_v45', 'true');
+            localStorage.setItem('pacing_app_configured_v46', 'true');
             document.getElementById('betaManualContinueBtn').style.display = 'block';
             showScreen('betaNoticeScreen');
         }
 
-        // 🔎 FIXED TEXT SCALE: Jetzt wird das Skalierungs-Element global auf dem HTML-Körper berechnet
         function applyGlobalTextScale(pxValue) {
             localStorage.setItem('pacing_text_scale', pxValue);
             document.getElementById('html-root').style.setProperty('--text-base-size', pxValue + 'px');
@@ -509,14 +524,33 @@
             if(iInput) iInput.value = pxValue;
         }
 
+        // 🧘 FIXED: Atemregler synchronisiert sich jetzt fehlerfrei über alle Slider (auch im Crash-Vollbild)
         function handleSliderChange(val) {
             selectedAtemSekunden = parseInt(val, 10);
             localStorage.setItem('pacing_atem_freq', selectedAtemSekunden);
-            document.getElementById('sliderDisplayLabel').innerText = "𫆢 Atem-Rhythmus: " + selectedAtemSekunden + " Sekunden";
+            
+            const displayStr = "𫆢 Atem-Rhythmus: " + selectedAtemSekunden + " Sekunden";
+            document.getElementById('sliderDisplayLabel').innerText = displayStr;
+            const cLabel = document.getElementById('crashSliderLabel');
+            if(cLabel) cLabel.innerText = "𫆢 Atem-Rhythmus anpassen: " + selectedAtemSekunden + " Sekunden";
+            
+            const sInput = document.getElementById('atemRangeInput');
+            const cInput = document.getElementById('crashAtemRangeInput');
+            if(sInput) sInput.value = selectedAtemSekunden;
+            if(cInput) cInput.value = selectedAtemSekunden;
+
             let styleEl = document.getElementById('dynamic-pulse-style') || document.createElement('style');
             styleEl.id = 'dynamic-pulse-style';
-            styleEl.innerHTML = `.pulse-crash-field, .preview-breathe-box { animation: crashWhiteBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
+            styleEl.innerHTML = `#crashScreen, .pulse-crash-field, .preview-breathe-box { animation: crashFullBreathe ${selectedAtemSekunden}s infinite ease-in-out, crashWhiteBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
             if(!styleEl.parentNode) document.head.appendChild(styleEl);
+        }
+
+        function syncAlarmSoundMode(val) {
+            localStorage.setItem('pacing_sound_mode', val);
+            const menuSelect = document.getElementById('pacingAlarmSoundMode');
+            const onboardSelect = document.getElementById('onboardingAlarmSoundMode');
+            if(menuSelect) menuSelect.value = val;
+            if(onboardSelect) onboardSelect.value = val;
         }
 
         function saveContactsToRam() {
@@ -532,7 +566,7 @@
             const p3 = localStorage.getItem('pacing_phone3') || '';
             
             if(!p1 && !p2 && !p3) {
-                container.innerHTML = `<p style="color: #888; font-size: 14px; font-style: italic; text-align:center;">Keine Nummern hinterlegt.</p>`;
+                container.innerHTML = `<p style="color: #888; font-size: 14px; font-style: italic; text-align:center;">Keine Nummern hinterlegt. Trage sie im Menü ein.</p>`;
                 return;
             }
             let html = '';
@@ -562,22 +596,15 @@
             }
         }
 
-        // 🧠 FIXED FILTER LOGIK: Unerwünschte Blöcke werden jetzt via display:none unsichtbar geschaltet
         function openFilteredPlanerScreen() {
             updateCounters();
             const status = currentEnergyStatus;
-            
-            // Sektion 3 (Grün) filtern
             document.getElementById('containerSektionGruen').style.display = (status === 'gut') ? 'block' : 'none';
-            
-            // Sektion 2 (Blau) filtern
             document.getElementById('containerSektionBlau').style.display = (status === 'gut' || status === 'gehtso') ? 'block' : 'none';
-            
             showScreen('listScreen');
         }
 
         function activateNajaFilteredPlaner() { currentEnergyStatus = 'naja'; openFilteredPlanerScreen(); }
-        
         function checkAndShowTermine(tierKey) { showTermine(tierKey); }
 
         function checkAndTogglePanel(panelId, headerElement) {
