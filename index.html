@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="de" id="html-root"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v59</title>
+    <title>Pacing App v60</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -86,7 +86,6 @@
             background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem 0.8rem; color: var(--text-light);
             cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem; font-size: 0.95rem; font-weight: 600; text-align: center;
         }
-        .quad-btn.placeholder { opacity: 0.4; cursor: not-allowed; border-style: dashed; }
         
         .config-layer { display: none; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.25rem; margin-bottom: 1.25rem; text-align: left; }
         .config-layer.open { display: block; }
@@ -184,7 +183,6 @@
         </div>
     </header>
 
-    <!-- NEUER STARTBILDSCHIRM (Willkommen, Datensicherheit & Testphase) -->
     <div id="startScreen" class="screen active">
         <div class="start-container" style="text-align: left;">
             <div class="card" style="border-color: var(--color-blau); background-color: rgba(214,214,255,0.02); margin-bottom: 20px;">
@@ -200,99 +198,6 @@
             <button class="ampel-btn btn-crash" onclick="handleStartChoice('crash')" data-txt="ampel_crash">Crash steht kurz bevor</button>
             
             <button class="menu-settings-btn" onclick="openNachtraeglichSetup()" data-txt="btn_changesettings">⚙️ Ansicht & Einstellungen ändern</button>
-        </div>
-    </div>
-
-    <div id="accessibilitySetupScreen" class="screen">
-        <div class="start-container" style="text-align: left;">
-            <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; padding-top: 5px;">
-                <span style="font-size: 32px;">♿</span>
-                <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--text-light);" data-txt="nav_settings">Einstellungen</h2>
-            </div>
-            <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:30px; line-height:1.4;" data-txt="onboarding_sub">Wähle die für dich angenehmsten Einstellungen aus:</p>
-
-            <div class="quad-grid">
-                <button class="quad-btn" onclick="toggleConfigLayer('layerOnboardingSchrift')">
-                    <span class="icon" style="font-weight: bold; letter-spacing: -1px;">A⁺ / A⁻</span>
-                    <span data-txt="btn_textsize">Schriftgröße</span>
-                </button>
-                <button class="quad-btn" onclick="toggleConfigLayer('layerOnboardingVisuell')">
-                    <span class="icon">🌓🎨</span>
-                    <span data-txt="btn_visual">Visuelle Ansicht</span>
-                </button>
-                <button class="quad-btn" onclick="toggleConfigLayer('layerOnboardingAuditiv')">
-                    <span class="icon">🔔</span>
-                    <span data-txt="btn_audio">Auditive Optionen</span>
-                </button>
-                <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
-            </div>
-
-            <div id="layerOnboardingSchrift" class="config-layer">
-                <h3 style="color:#D6D6FF; font-size:0.95rem;" id="onboardingScaleLabel">🔎 Textgröße: 16px</h3>
-                <div class="slider-container">
-                    <input type="range" min="14" max="26" step="1" value="16" class="atem-slider" id="onboardingScaleInput" oninput="applyGlobalTextScale(this.value)">
-                </div>
-            </div>
-
-            <div id="layerOnboardingVisuell" class="config-layer">
-                <h3 style="color:#D6D6FF; font-size:0.95rem;" data-txt="vis_title">Farbschwächen & Reizreduktion:</h3>
-                <select id="onboardingColorBlindSelect" class="pacing-select" onchange="applyColorProfile(this.value)">
-                    <option value="default" data-txt="opt_def">Standard (Reizarm Dunkel)</option>
-                    <option value="rotgruen" data-txt="opt_rg">Rot-Grün-Schwäche</option>
-                    <option value="blaugelb" data-txt="opt_by">Blau-Gelb-Schwäche</option>
-                    <option value="monochrom" data-txt="opt_mono">Monochrom (100% Graustufen)</option>
-                </select>
-                
-                <div class="color-preview-box">
-                    <span class="color-preview-dot" style="background-color: var(--color-rot);"></span>
-                    <span class="color-preview-dot" style="background-color: var(--color-blau);"></span>
-                    <span class="color-preview-dot" style="background-color: var(--color-gruen);"></span>
-                </div>
-                
-                <label style="font-size:0.85rem; font-weight:600; color:#D6D6FF; margin-top:16px; display:block;" data-txt="vis_bright">🖥️ Bildschirm-Helligkeit drosseln:</label>
-                <div class="slider-container">
-                    <input type="range" min="20" max="100" step="5" value="100" class="atem-slider" oninput="applyScreenBrightness(this.value)">
-                </div>
-            </div>
-
-            <div id="layerOnboardingAuditiv" class="config-layer">
-                <h3 style="color:#D6D6FF; font-size:0.95rem;" data-txt="audio_title">Wecker- & Signal-Modus</h3>
-                <select id="onboardingAlarmSoundMode" class="pacing-select" style="margin-bottom:0;" onchange="syncAlarmSoundMode(this.value)">
-                    <option value="visual" data-txt="opt_vis">Nur visuelles Blinken (Reizarm)</option>
-                    <option value="sound" data-txt="opt_sound">Sanfter Gong + Visuell</option>
-                </select>
-            </div>
-
-            <button class="action-btn" style="background-color:#1E3D23; border-color:#4ade80; color:#8AFF9A; padding:18px; margin-top:20px; font-weight:bold;" onclick="finishOnboardingAndGoToBetaCheck()" data-txt="btn_apply">Einstellungen übernehmen & Weiter ➔</button>
-        </div>
-    </div>
-
-    <div id="betaNoticeScreen" class="screen">
-        <div class="start-container" style="text-align: left; padding-top: 20px;">
-            <div style="text-align:center; margin-bottom: 25px;">
-                <span style="font-size: 40px;">🧪</span>
-                <h2 style="font-size: 1.35rem; font-weight: bold; color: #FFE066; margin-top: 10px;" data-txt="beta_title">Wichtiger Testversion-Hinweis</h2>
-            </div>
-            <div class="card" id="betaCardBody" style="border-color: #FFE066; background-color: rgba(250, 204, 21, 0.03); margin: 0 auto 15px auto;">
-                <p style="font-weight: 600; margin-bottom: 10px; color: #fff;" data-txt="beta_hello">Hallo Test-User!</p>
-                <p style="line-height: 1.5; margin-bottom: 12px;" data-txt="beta_body1">Dies ist eine Testversion unserer Pacing-App. Wir erproben hier Barrierefreiheit und Reizreduktion.</p>
-                <p style="line-height: 1.5; color: #8AFF9A; font-weight: 500;" data-txt="beta_body2">💡 Wir freuen uns riesig über deine Verbesserungsvorschläge, Wünsche oder die Rückmeldung von vorhandenen Fehlern!</p>
-            </div>
-            <button id="betaManualContinueBtn" class="action-btn" style="background-color:#2A2A2A; padding:18px; font-weight:bold;" onclick="showScreen('startScreen')" data-txt="btn_continue">Weiter zur App ➔</button>
-        </div>
-    </div>
-
-    <div id="najaWarningScreen" class="screen">
-        <div class="start-container" style="text-align: left; padding-top:40px;">
-            <div class="start-question" style="text-align:center; color:#FFB077;" data-txt="warn_title">⚠️ Pacing-Hinweis</div>
-            <div class="card" style="border-color: #f97316; background-color: rgba(249, 115, 22, 0.05); margin: 0 auto 15px auto;">
-                <p style="font-size:1.15rem; font-weight:600; color:#fff; margin-bottom:12px;" data-txt="warn_body1">Momentan wäre Pacing besser für dich.</p>
-                <p style="line-height:1.5;" data-txt="warn_body2">Vermeide jetzt jede unnötige Überanstrengung. Nur absolut kritische Fristen anzeigen?</p>
-            </div>
-            <div style="margin-top:40px; display:flex; flex-direction:column; gap:14px; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto;">
-                <button class="action-btn" style="background-color:#1A1A1A; padding:18px;" onclick="goToMainMenu()" data-txt="btn_close">❌ Schließen</button>
-                <button class="action-btn" style="background-color:#2C2C2C; padding:18px;" onclick="activateNajaFilteredPlaner()" data-txt="btn_urgent_only">⏩ Nur dringende Fristen anzeigen</button>
-            </div>
         </div>
     </div>
 
@@ -313,7 +218,10 @@
                     <span class="icon">🔔</span>
                     <span data-txt="btn_audio">Auditive Einstellungen</span>
                 </button>
-                <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
+                <button class="quad-btn" onclick="toggleConfigLayer('layerTerminEingabe')" style="border: 1px solid var(--color-blau);">
+                    <span class="icon">📅</span>
+                    <span data-txt="btn_add_appointment">Termineingabe</span>
+                </button>
             </div>
 
             <div id="layerNotfall" class="config-layer">
@@ -329,9 +237,7 @@
                 <div class="slider-container">
                     <input type="range" min="14" max="26" step="1" value="16" class="atem-slider" id="inappScaleInput" oninput="applyGlobalTextScale(this.value)">
                 </div>
-                
                 <hr style="border-color:#333; margin:16px 0;">
-                
                 <h3 style="color:#D6D6FF; font-size:0.95rem;" data-txt="vis_title">Farbschwächen-Korrektur:</h3>
                 <select id="colorBlindSelect" class="pacing-select" onchange="applyColorProfile(this.value)">
                     <option value="default" data-txt="opt_def">Standard (Reizarm Dunkel)</option>
@@ -339,13 +245,11 @@
                     <option value="blaugelb" data-txt="opt_by">Blau-Gelb-Schwäche</option>
                     <option value="monochrom" data-txt="opt_mono">Monochrom</option>
                 </select>
-                
                 <div class="color-preview-box">
                     <span class="color-preview-dot" style="background-color: var(--color-rot);"></span>
                     <span class="color-preview-dot" style="background-color: var(--color-blau);"></span>
                     <span class="color-preview-dot" style="background-color: var(--color-gruen);"></span>
                 </div>
-                
                 <hr style="border-color:#333; margin:16px 0;">
                 <label style="font-size:0.85rem; font-weight:600; color:#D6D6FF; display:block;">🖥️ Bildschirm-Helligkeit drosseln:</label>
                 <div class="slider-container">
@@ -361,7 +265,37 @@
                 </select>
             </div>
 
-            <button class="action-btn" style="background-color:#2A2A2A; padding:18px; margin-top:20px;" onclick="finishSetupAndGoToGrid()" data-txt="btn_save_return">⏩ Speichern & Zurück zum Planer</button>
+            <div id="layerTerminEingabe" class="config-layer">
+                <h3 style="color:var(--color-blau); margin-bottom:12px; font-size:0.95rem;">Termin hinzufügen</h3>
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <button class="action-btn" onclick="triggerCameraInput()" style="background-color:#1e293b; border-color:var(--color-blau); font-size:0.85rem; padding:10px;">📸 Foto machen</button>
+                    <button class="action-btn" onclick="showManualForm()" style="background-color:#1e293b; border-color:var(--color-blau); font-size:0.85rem; padding:10px;">✍️ Manuelle Eingabe</button>
+                </div>
+                <input type="file" id="cameraInput" capture="environment" accept="image/*" style="display:none;" onchange="alert('Kamera-Zugriff erfolgreich. Foto erfasst (Testmodus).')">
+                
+                <div id="manualFormContainer" style="display:none; border-top:1px dashed #444; padding-top:12px;">
+                    <input type="text" id="newFormTitle" class="setup-input" placeholder="Titel des Termins">
+                    <select id="newFormTier" class="pacing-select">
+                        <option value="rot3">1-3 Tage (Kritisch)</option>
+                        <option value="rot2">4-7 Tage</option>
+                        <option value="rot1">8-10 Tage</option>
+                        <option value="blau3">11-14 Tage</option>
+                        <option value="blau2">15-18 Tage</option>
+                        <option value="blau1">19-21 Tage</option>
+                        <option value="gruen3">22-28 Tage</option>
+                        <option value="gruen2">29-60 Tage</option>
+                        <option value="gruen1">Über 60 Tage</option>
+                    </select>
+                    <input type="text" id="newFormTime" class="setup-input" placeholder="Zeitangabe (z.B. Morgen 10:00 Uhr)">
+                    <input type="text" id="newFormAz" class="setup-input" placeholder="Ident / Az">
+                    <input type="text" id="newFormPartner" class="setup-input" placeholder="Ansprechpartner">
+                    <input type="tel" id="newFormPhone" class="setup-input" placeholder="Direktrufnummer">
+                    <input type="text" id="newFormDesc" class="setup-input" placeholder="Reizarm-Info / Beschreibung">
+                    <button class="action-btn" onclick="saveNewManualTermin()" style="background-color:#1e3d23; border-color:#4ade80; color:#8aff9a;">Termin speichern</button>
+                </div>
+            </div>
+
+            <button id="setupMainActionBtn" class="action-btn" style="background-color:#2A2A2A; padding:18px; margin-top:20px;" onclick="handleSetupBackNavigation()">⏩ Schließen</button>
         </div>
     </div>
 
@@ -517,7 +451,6 @@
             <div class="filled-breathe-block" id="fullscreenBreatheVisual" data-txt="crash_breathe_box">🧘 MITATMEN (FARBTAKT)</div>
             
             <h3 style="color: #fff; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; text-align: left; width: 100%;" data-txt="crash_speeddial">📞 Sofort-Anruf Kontakte:</h3>
-            
             <div id="crashContactsContainer" style="width: 100%;"></div>
 
             <button class="action-btn action-btn-contrast" style="width:100%; padding: 18px; font-weight: bold;" onclick="exitCrashMode()" data-txt="btn_exit_crash">← Modus beenden</button>
@@ -531,7 +464,7 @@
                 welcome_sec1: "🔒 <strong>100% Datensicherheit:</strong> Deine Daten werden ausschließlich auf deinem eigenen Smartphone gespeichert. Es gibt keinen Server und keine Datenübertragung nach außen.",
                 welcome_sec2: "🧪 <strong>Testphase:</strong> Dies ist ein Prototyp. Wir freuen uns über Rückmeldungen zu Verbesserungen, Fehlermeldungen oder unhandlicher Bedienung.",
                 nav_settings: "Einstellungen", onboarding_sub: "Wähle die für dich angenehmsten Einstellungen aus:",
-                btn_textsize: "Schriftgröße", btn_visual: "Visuelle Ansicht", btn_audio: "Auditive Optionen",
+                btn_textsize: "Schriftgröße", btn_visual: "Visuelle Ansicht", btn_audio: "Auditive Optionen", btn_add_appointment: "Eingabe neuer Termine",
                 vis_title: "Farbschwächen & Reizreduktion:", opt_def: "Standard (Reizarm Dunkel)",
                 opt_rg: "Rot-Grün-Schwäche", opt_by: "Blau-Gelb-Schwäche", opt_mono: "Monochrom (100% Graustufen)",
                 vis_bright: "🖥️ Bildschirm-Helligkeit drosseln:", audio_title: "Wecker- & Signal-Modus",
@@ -562,7 +495,7 @@
                 welcome_sec1: "🔒 <strong>100% Data Security:</strong> Your data is strictly saved on your smartphone. No servers, no data transfers outside.",
                 welcome_sec2: "🧪 <strong>Beta Phase:</strong> This is a prototype. We are glad to hear any bug reports, layout requests or handling feedback.",
                 nav_settings: "Accessibility", onboarding_sub: "Choose the options most comfortable for you:",
-                btn_textsize: "Text Size", btn_visual: "Visual Mode", btn_audio: "Audio Options",
+                btn_textsize: "Text Size", btn_visual: "Visual Mode", btn_audio: "Audio Options", btn_add_appointment: "Add Appointments",
                 vis_title: "Color Filters & Processing Control:", opt_def: "Default (Low-Stimulus Dark)",
                 opt_rg: "Red-Green Blindness", opt_by: "Blue-Yellow Blindness", opt_mono: "Monochrome (100% Grayscale)",
                 vis_bright: "🖥️ Reduce Screen Brightness:", audio_title: "Alarm & Alert Mode",
@@ -590,7 +523,6 @@
             }
         };
 
-        // FIX: Alle Dummy-Daten auf Unterebene vollständig befüllt
         let mockDatabase = {
             rot3: [
                 { id: 1, title: "Amtsärztliches Gutachten", time: "09:00 Uhr (In 1 Tag)", az: "AZ-2026-X7", partner: "Frau Kling (Zentrale)", phone: "08911145", desc: "Untersuchung Dienstfähigkeit. Nimm die gelbe Mappe vom Schreibtisch mit. Vorher 2 Stunden totale Reizpause einplanen!", needsDocs: true, docsComplete: false, docsItems: [{name: "Kopie Verlaufsbericht", done: false}, {name: "Medikamentenplan", done: false}], depot: "Mappe rot, Regal links" },
@@ -639,7 +571,7 @@
                 { id: 30, title: "Patientenverfügung Update", time: "In 40 Tagen", az: "PV-Notar", partner: "Notar Siegel", phone: "08912266", desc: "Unterschrift im Beisein des Bevollmächtigten beglaubigen lassen.", needsDocs: false, docsItems: [], depot: "" },
                 { id: 31, title: "Antrag Kuraufenthalt", time: "In 45 Tagen", az: "KK-Kur-26", partner: "Zentrale Kasse", phone: "08912377", desc: "Sanatorium muss explizit reizarm und MCS-geeignet sein.", needsDocs: false, docsItems: [], depot: "" },
                 { id: 32, title: "Vorsorgevollmacht", time: "In 50 Tagen", az: "VV-Gericht", partner: "Zentralregister", phone: "08912488", desc: "Registrierungsgebühr im Bundeszentralregister einplanen.", needsDocs: false, docsItems: [], depot: "" },
-                { id: 33, title: "Krankenkassenwechsel", time: "In 60 Tagen", az: "KK-Wechsel", partner: "Berater", phone: "08912599", desc: "Satzungsleistungen bezüglich osteopathischer Behandlungen vergleichen.", needsDocs: false, docsItems: [], depot: "" }
+                { id: 33, title: "Krankenkassenwechsel", time: "In 60 Tagen", az: "KK-Wechsel", partner: "Berater", phone: "08912599", desc: "Satzungsleistungen vergleichen.", needsDocs: false, docsItems: [], depot: "" }
             ],
             gruen1: [
                 { id: 34, title: "Schwerbehindertenausweis", time: "In 70 Tagen", az: "VA-Ausweis-Ex", partner: "Frau Pass", phone: "08912611", desc: "Neues Passbild einsenden vor Ablauf der Gültigkeit.", needsDocs: false, docsItems: [], depot: "" },
@@ -730,6 +662,62 @@
             localStorage.setItem('pacing_phone2', document.getElementById('setupPhoneInput2').value);
             localStorage.setItem('pacing_phone3', document.getElementById('setupPhoneInput3').value);
             localStorage.setItem('pacing_emergency_num', document.getElementById('setupEmergencyInput').value);
+        }
+
+        function triggerCameraInput() { document.getElementById('cameraInput').click(); }
+        function showManualForm() { document.getElementById('manualFormContainer').style.display = 'block'; }
+
+        function saveNewManualTermin() {
+            const title = document.getElementById('newFormTitle').value;
+            const tier = document.getElementById('newFormTier').value;
+            const time = document.getElementById('newFormTime').value;
+            const az = document.getElementById('newFormAz').value;
+            const partner = document.getElementById('newFormPartner').value;
+            const phone = document.getElementById('newFormPhone').value;
+            const desc = document.getElementById('newFormDesc').value;
+
+            if(!title) { alert('Bitte mindestens einen Titel eingeben.'); return; }
+
+            const newId = Date.now();
+            mockDatabase[tier].push({
+                id: newId, title: title, time: time, az: az, partner: partner, phone: phone, desc: desc, needsDocs: false, docsItems: [], depot: ""
+            });
+
+            // Formular zurücksetzen & schließen
+            document.getElementById('newFormTitle').value = '';
+            document.getElementById('newFormTime').value = '';
+            document.getElementById('newFormAz').value = '';
+            document.getElementById('newFormPartner').value = '';
+            document.getElementById('newFormPhone').value = '';
+            document.getElementById('newFormDesc').value = '';
+            document.getElementById('manualFormContainer').style.display = 'none';
+            document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
+            
+            updateCounters();
+            alert('Termin erfolgreich hinzugefügt.');
+        }
+
+        // FIX: Steuert das dynamische Verhalten des Zurück-Buttons im Menü
+        function handleSetupBackNavigation() {
+            const activeLayer = document.querySelector('.config-layer.open');
+            if (activeLayer) {
+                activeLayer.classList.remove('open');
+                document.getElementById('setupMainActionBtn').innerText = "⏩ Speichern & Zurück zum Planer";
+            } else {
+                openFilteredPlanerScreen();
+            }
+        }
+
+        function toggleConfigLayer(layerId) {
+            const currentLayer = document.getElementById(layerId);
+            const isOpen = currentLayer.classList.contains('open');
+            document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
+            if (!isOpen) {
+                currentLayer.classList.add('open');
+                document.getElementById('setupMainActionBtn').innerText = "⏩ Speichern & Schließen";
+            } else {
+                document.getElementById('setupMainActionBtn').innerText = "⏩ Speichern & Zurück zum Planer";
+            }
         }
 
         function rebuildCrashContactsView() {
@@ -878,18 +866,16 @@
             alarmDisplay.innerHTML = `🚗 ${txtDep}: <strong>${pad(Math.floor(((10*60+30)-fahrtzeit)/60))}:${pad(((10*60+30)-fahrtzeit)%60)} Uhr</strong><br>🧘 ${txtAnch}: <strong style="color:var(--color-rot);">${pad(Math.floor(totalInMinutes/60))}:${pad(totalInMinutes%60)} Uhr</strong>`;
         }
 
+        // FIX: Summiert nun die Werte der Unterkategorien exakt auf
         function updateCounters() {
             const keys = ['rot3', 'rot2', 'rot1', 'blau3', 'blau2', 'blau1', 'gruen3', 'gruen2', 'gruen1'];
             keys.forEach(key => { if(document.getElementById('count_' + key)) document.getElementById('count_' + key).innerText = `(${mockDatabase[key].length})`; });
-            if(document.getElementById('count_blauGroup')) document.getElementById('count_blauGroup').innerText = `(${mockDatabase.blau3.length})`;
-            if(document.getElementById('count_gruenGroup')) document.getElementById('count_gruenGroup').innerText = `(0)`;
-        }
-
-        function toggleConfigLayer(layerId) {
-            const currentLayer = document.getElementById(layerId);
-            const isOpen = currentLayer.classList.contains('open');
-            document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
-            if (!isOpen) currentLayer.classList.add('open');
+            
+            const sumBlau = mockDatabase.blau3.length + mockDatabase.blau2.length + mockDatabase.blau1.length;
+            if(document.getElementById('count_blauGroup')) document.getElementById('count_blauGroup').innerText = `(${sumBlau})`;
+            
+            const sumGruen = mockDatabase.gruen3.length + mockDatabase.gruen2.length + mockDatabase.gruen1.length;
+            if(document.getElementById('count_gruenGroup')) document.getElementById('count_gruenGroup').innerText = `(${sumGruen})`;
         }
 
         function applyColorProfile(profile) {
@@ -907,7 +893,11 @@
             }
         }
 
-        function openNachtraeglichSetup() { showScreen('setupScreen'); applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default'); }
+        function openNachtraeglichSetup() { 
+            showScreen('setupScreen'); 
+            applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default'); 
+            document.getElementById('setupMainActionBtn').innerText = "⏩ Speichern & Zurück zum Planer";
+        }
         function finishSetupAndGoToGrid() { openFilteredPlanerScreen(); }
         
         function exitCrashMode() { 
