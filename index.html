@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de" id="html-root"> 
+<html lang="de" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v50</title>
+    <title>Pacing App v51</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -41,6 +41,18 @@
 
         .screen { display: none; } 
         .screen.active { display: block; }
+        
+        /* Crash-Screen nutzt flex nur, wenn er auch wirklich die Klasse .active hat */
+        #crashScreen.active { 
+            display: flex !important; flex-direction: column; align-items: center !important; justify-content: flex-start;
+        }
+        
+        #crashScreen { 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            max-width: 100vw !important; z-index: 99999; padding: 2rem 1rem; 
+            overflow-y: auto; background-color: #0c0c0c; box-sizing: border-box;
+        }
+
         .start-container { padding: 0.5rem; }
         .start-question { font-size: 1.5rem; font-weight: 500; color: var(--text-light); margin-bottom: 2rem; line-height: 1.4; text-align: center; }
         
@@ -94,15 +106,6 @@
         .pulse-med { animation: breathe 3s infinite ease-in-out; }
         .pulse-slow { animation: breathe 5s infinite ease-in-out; }
         @keyframes breathe { 0% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.12); opacity: 0.4; } 100% { transform: scale(1); opacity: 0.9; } }
-        
-        /* 🚨 FIXED: Absolut erzwungene Monitor-Zentrierung für den Crash-Modus */
-        #crashScreen { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            max-width: 100vw !important; z-index: 99999; padding: 2rem 1rem; 
-            overflow-y: auto; background-color: #0c0c0c;
-            display: flex !important; flex-direction: column; align-items: center !important; justify-content: flex-start;
-            box-sizing: border-box;
-        }
 
         .filled-breathe-block { 
             width: 100%; max-width: 420px; padding: 40px 20px; 
@@ -142,7 +145,6 @@
 </head>
 <body>
 
-    <!-- SCREEN 1: ONBOARDING ACCESSIBILITY -->
     <div id="accessibilitySetupScreen" class="screen active">
         <div class="lang-switch-box">
             <button class="lang-tab-btn active-lang" id="btnLangDE" onclick="switchLanguage('de')">DE</button>
@@ -212,7 +214,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 2: BETA NOTICE -->
     <div id="betaNoticeScreen" class="screen">
         <div class="start-container" style="text-align: left; padding-top: 20px;">
             <div style="text-align:center; margin-bottom: 25px;">
@@ -228,7 +229,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 3: TAGESFORM-AMPEL -->
     <div id="startScreen" class="screen">
         <div class="start-container">
             <div id="onboardingIntro" style="margin-bottom: 25px; color:#D6D6FF; font-size:0.95rem; background-color: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #444; text-align: center;" data-txt="intro_pacing">
@@ -244,7 +244,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 4: NAJA WARNING SCREEN -->
     <div id="najaWarningScreen" class="screen">
         <div class="start-container" style="text-align: left; padding-top:40px;">
             <div class="start-question" style="text-align:center; color:#FFB077;" data-txt="warn_title">⚠️ Pacing-Hinweis</div>
@@ -259,7 +258,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 5: IN-APP CONFIG INTERFACE -->
     <div id="setupScreen" class="screen">
         <div class="start-container" style="text-align: left;">
             <div class="start-question" style="text-align:center; font-size: 1.35rem; margin-bottom: 20px;" data-txt="menu_title">⚙️ Hauptmenü & Einstellungen</div>
@@ -328,7 +326,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 6: KALENDERÜBERSICHT -->
     <div id="listScreen" class="screen">
         <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:18px; border: 2px solid var(--color-blau); color: var(--color-blau); font-weight: bold; letter-spacing: 0.03em;" onclick="goToMainMenu()" data-txt="btn_layout_toggle">Layout-Umschalter ↩</button>
         
@@ -416,13 +413,11 @@
         <button class="menu-settings-btn" style="margin-top:40px;" onclick="openNachtraeglichSetup()" data-txt="btn_changesettings">⚙️ Einstellungen ändern</button>
     </div>
 
-    <!-- SCREEN 7: TERMINLISTE -->
     <div id="appointmentsScreen" class="screen">
         <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('listScreen')" data-txt="btn_back_overview">↩ Zurück zur Übersicht</button>
         <div id="appointmentsContent"></div>
     </div>
 
-    <!-- SCREEN 8: DETAILANSICHT -->
     <div id="detailScreen" class="screen">
         <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('appointmentsScreen')" data-txt="btn_back_list">↩ Zurück zur Liste</button>
         
@@ -471,7 +466,6 @@
         </div>
     </div>
 
-    <!-- SCREEN 9: FULLSCREEN CRASH SCREEN (ZENTRIERUNG GEZWUNGEN) -->
     <div id="crashScreen" class="screen">
         <div style="width: 100%; max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
             <div style="font-size: 1.5rem; font-weight: bold; color: #FF8A8A; margin-bottom: 15px;" data-txt="crash_title">🚨 Akuter Crash-Schutz</div>
@@ -486,7 +480,6 @@
             <h3 style="color: #fff; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; text-align: left; width: 100%;" data-txt="crash_speeddial">📞 Sofort-Anruf Kontakte:</h3>
             <div id="crashContactsContainer" style="margin-bottom: 30px; width: 100%;"></div>
 
-            <!-- 🚨 FIXED BUTTON: Klick löst den Status jetzt absolut zuverlässig auf -->
             <button class="action-btn action-btn-contrast" style="width:100%; padding: 18px; font-weight: bold;" onclick="exitCrashMode()" data-txt="btn_exit_crash">← Modus beenden</button>
         </div>
     </div>
@@ -584,19 +577,20 @@
             applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100');
             syncAlarmSoundMode(localStorage.getItem('pacing_sound_mode') || 'visual');
             switchLanguage(currentLang);
-        });
-
-        if(localStorage.getItem('pacing_app_configured_v50')) {
-            document.addEventListener("DOMContentLoaded", () => {
+            
+            // 🚨 SYSTEM-START AUSGEGLICHEN: Verhindert das Festhängen
+            if(localStorage.getItem('pacing_app_configured_v51')) {
                 showScreen('betaNoticeScreen');
                 document.getElementById('betaManualContinueBtn').style.display = 'none';
                 document.getElementById('betaCardBody').classList.add('fade-out-5s');
                 setTimeout(() => { showScreen('startScreen'); }, 5000);
-            });
-        }
+            } else {
+                showScreen('accessibilitySetupScreen');
+            }
+        });
 
         function finishOnboardingAndGoToBetaCheck() {
-            localStorage.setItem('pacing_app_configured_v50', 'true');
+            localStorage.setItem('pacing_app_configured_v51', 'true');
             document.getElementById('betaManualContinueBtn').style.display = 'block';
             showScreen('betaNoticeScreen');
         }
@@ -818,29 +812,12 @@
         
         function goToMainMenu() { showScreen('startScreen'); }
         function goBack(id) { showScreen(id); }
+        
         function showScreen(screenId) { 
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active'); 
             currentActiveScreen = screenId; 
         }
-        <script>
-// Sofortiger Notausgang: Deaktiviert den Crash-Schutz beim Laden radikal
-window.addEventListener('DOMContentLoaded', () => {
-    // 1. Blendet das Vollbild-Pulsfeld komplett aus
-    const overlay = document.getElementById('emergency-overlay');
-    if (overlay) overlay.style.display = 'none';
-    
-    // 2. Setzt die Helligkeit wieder auf 100%
-    document.body.style.filter = 'none';
-    document.documentElement.style.setProperty('--brightness-level', '1');
-    
-    // 3. Löscht eventuelle Sperren im Speicher
-    localStorage.removeItem('crash-protection-active');
-    sessionStorage.removeItem('crash-protection-active');
-    
-    console.log("Notausgang erfolgreich: App zurückgesetzt.");
-});
-</script>
     </script>
-</body> 
+</body>
 </html>
