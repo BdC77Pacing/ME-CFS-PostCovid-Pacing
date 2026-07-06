@@ -1,12 +1,7 @@
-Hier ist der vollständige, korrigierte Code für deine index.html (Version 52).
-
-Die CSS-Klassen für den Crash-Schutz (#crashScreen und #crashScreen.active) wurden so angepasst, dass das Layout über position: fixed, left: 0, top: 0, width: 100vw und max-width: 100vw !important absolut zentriert, bündig und ohne jeglichen Rechtsversatz auf den gesamten Bildschirm erzwungen wird. Deine gesamte Anwendungslogik und Datenbank blieben dabei unangetastet.
-
-HTML
 <!DOCTYPE html><html lang="de" id="html-root"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v52</title>
+    <title>Pacing App v53</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -45,7 +40,7 @@ HTML
         .screen { display: none; } 
         .screen.active { display: block; }
         
-        /* FIX: Absolute Zentrierung und Bündigkeit für den Crash-Screen ohne Rechtsversatz */
+        /* Absolute Zentrierung und Bündigkeit für den Crash-Screen ohne Rechtsversatz */
         #crashScreen { 
             position: fixed; 
             top: 0; 
@@ -104,8 +99,9 @@ HTML
         .color-preview-box { display: flex; align-items: center; justify-content: space-around; background-color: #121212; border: 1px dashed #444; padding: 14px; border-radius: 10px; margin-top: 10px; }
         .color-preview-dot { width: 20px; height: 20px; border-radius: 50%; display: inline-block; }
         
+        /* FIX: Fehlende Klammer korrigiert */
         .grid-container { display: flex; flex-direction: column; gap: 0.75rem; }
-        .section-title font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #888888; margin-top: 8px; margin-bottom: 4px; }
+        .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #888888; margin-top: 8px; margin-bottom: 4px; }
         
         .field-row { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.1rem 1.5rem; display: flex; align-items: center; gap: 1.25rem; cursor: pointer; }
         .main-header-row { border-left: 4px solid var(--accent-color); }
@@ -633,15 +629,15 @@ HTML
             selectedAtemSekunden = parseInt(val, 10);
             localStorage.setItem('pacing_atem_freq', selectedAtemSekunden);
             const unit = translations[currentLang]['b_txt'];
-            const displayStr = `𫆢 Atem-Rhythmus: ${selectedAtemSekunden} ${unit}`;
-            if(document.getElementById('sliderDisplayLabel')) document.getElementById('sliderDisplayLabel').innerText = displayStr;
-            if(document.getElementById('crashSliderLabel')) document.getElementById('crashSliderLabel').innerText = (currentLang === 'de' ? '𫆢 Atem-Rhythmus anpassen: ' : '𫆢 Adjust Breathing: ') + selectedAtemSekunden + ` ${unit}`;
+            const unitText = unit ? unit : "Sekunden";
+            if(document.getElementById('sliderDisplayLabel')) document.getElementById('sliderDisplayLabel').innerText = `𫆢 Atem-Rhythmus: ${selectedAtemSekunden} ${unitText}`;
+            if(document.getElementById('crashSliderLabel')) document.getElementById('crashSliderLabel').innerText = (currentLang === 'de' ? '𫆢 Atem-Rhythmus anpassen: ' : '𫆢 Adjust Breathing: ') + selectedAtemSekunden + ` ${unitText}`;
             if(document.getElementById('atemRangeInput')) document.getElementById('atemRangeInput').value = selectedAtemSekunden;
             if(document.getElementById('crashAtemRangeInput')) document.getElementById('crashAtemRangeInput').value = selectedAtemSekunden;
 
             let styleEl = document.getElementById('dynamic-pulse-style') || document.createElement('style');
             styleEl.id = 'dynamic-pulse-style';
-            styleEl.innerHTML = `.filled-breathe-block, .preview-breathe-box { animation: crashFilledColorBreathe ${selectedAtemSekunden}s infinite ease-in-out, crashWhiteBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
+            styleEl.innerHTML = `.filled-breathe-block, .preview-breathe-box { animation: crashFilledColorBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
             if(!styleEl.parentNode) document.head.appendChild(styleEl);
         }
 
