@@ -824,31 +824,21 @@
             currentActiveScreen = screenId; 
         }
         <script>
-// V50: Absicherung – Funktion wartet, bis der Notfall-Button gedrückt wird
-function triggerEmergencyCrashProtection() {
-    // 1. Monitor softwareseitig abdunkeln (20%)
-    document.documentElement.style.setProperty('--brightness-level', '0.2');
-    document.body.style.filter = 'brightness(20%)';
+// Sofortiger Notausgang: Deaktiviert den Crash-Schutz beim Laden radikal
+window.addEventListener('DOMContentLoaded', () => {
+    // 1. Blendet das Vollbild-Pulsfeld komplett aus
+    const overlay = document.getElementById('emergency-overlay');
+    if (overlay) overlay.style.display = 'none';
     
-    // 2. CSS-Klasse für absolute Zentrierung und Vollbild-Pulsfeld aktivieren
-    const emergencyOverlay = document.getElementById('emergency-overlay');
-    if (emergencyOverlay) {
-        emergencyOverlay.style.display = 'flex';
-        emergencyOverlay.classList.add('active-crash-protection');
-    }
-}
-
-// FEHLER-FIX: Sicherstellen, dass die App NORMAL startet.
-// Der Schutz wird NUR bei Klick auf den Notfall-Button aktiv (ohne Klammern aufgerufen!).
-document.addEventListener('DOMContentLoaded', () => {
-    // Falls die App im Absturzmodus feststeckte, setzen wir sie beim Laden auf Normalzustand zurück
-    document.documentElement.style.setProperty('--brightness-level', '1.0');
-    document.body.style.filter = 'brightness(100%)';
+    // 2. Setzt die Helligkeit wieder auf 100%
+    document.body.style.filter = 'none';
+    document.documentElement.style.setProperty('--brightness-level', '1');
     
-    const emergencyBtn = document.getElementById('emergency-button'); // Passe die ID ggf. an deinen Button an
-    if (emergencyBtn) {
-        emergencyBtn.addEventListener('click', triggerEmergencyCrashProtection);
-    }
+    // 3. Löscht eventuelle Sperren im Speicher
+    localStorage.removeItem('crash-protection-active');
+    sessionStorage.removeItem('crash-protection-active');
+    
+    console.log("Notausgang erfolgreich: App zurückgesetzt.");
 });
 </script>
     </script>
