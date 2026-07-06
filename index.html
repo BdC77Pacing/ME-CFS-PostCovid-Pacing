@@ -3,174 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v41 - Interaktiv</title>
+    <title>Pacing App v42</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         :root {
-            --bg-main: #121212;
-            --bg-card: #1E1E1E;
-            --border-color: #2C2C2C;
-            --text-main: #E0E0E0;
-            --text-light: #FFFFFF;
-            
-            --color-rot: #FF8A8A;
-            --color-blau: #D6D6FF;
-            --color-gruen: #6B7A8F;
-            
-            --bg-rot-alpha: rgba(239, 68, 68, 0.2);
-            --bg-blau-alpha: rgba(214, 214, 255, 0.1);
-            --bg-gruen-alpha: rgba(107, 122, 143, 0.1);
+            --bg-main: #121212; --bg-card: #1E1E1E; --border-color: #2C2C2C; --text-main: #E0E0E0; --text-light: #FFFFFF;
+            --color-rot: #FF8A8A; --color-blau: #D6D6FF; --color-gruen: #6B7A8F;
+            --bg-rot-alpha: rgba(239, 68, 68, 0.2); --bg-blau-alpha: rgba(214, 214, 255, 0.1); --bg-gruen-alpha: rgba(107, 122, 143, 0.1);
         }
-
         body.cb-rotgruen {
-            --color-rot: #38bdf8; 
-            --color-blau: #facc15; 
-            --color-gruen: #f8fafc; 
-            --bg-rot-alpha: rgba(56, 189, 248, 0.2);
-            --bg-blau-alpha: rgba(250, 204, 21, 0.15);
-            --bg-gruen-alpha: rgba(248, 250, 252, 0.1);
+            --color-rot: #38bdf8; --color-blau: #facc15; --color-gruen: #f8fafc;
+            --bg-rot-alpha: rgba(56, 189, 248, 0.2); --bg-blau-alpha: rgba(250, 204, 21, 0.15); --bg-gruen-alpha: rgba(248, 250, 252, 0.1);
         }
-
         body.cb-blaugelb {
-            --color-rot: #ef4444; 
-            --color-blau: #14b8a6; 
-            --color-gruen: #64748b; 
-            --bg-rot-alpha: rgba(239, 68, 68, 0.25);
-            --bg-blau-alpha: rgba(20, 184, 166, 0.15);
-            --bg-gruen-alpha: rgba(100, 116, 139, 0.1);
+            --color-rot: #ef4444; --color-blau: #14b8a6; --color-gruen: #64748b;
+            --bg-rot-alpha: rgba(239, 68, 68, 0.25); --bg-blau-alpha: rgba(20, 184, 166, 0.15); --bg-gruen-alpha: rgba(100, 116, 139, 0.1);
         }
-
         body.cb-monochrom {
-            --color-rot: #ffffff; 
-            --color-blau: #a3a3a3;
-            --color-gruen: #525252;
-            --bg-rot-alpha: rgba(255, 255, 255, 0.15);
-            --bg-blau-alpha: rgba(163, 163, 163, 0.1);
-            --bg-gruen-alpha: rgba(82, 82, 82, 0.08);
+            --color-rot: #ffffff; --color-blau: #a3a3a3; --color-gruen: #525252;
+            --bg-rot-alpha: rgba(255, 255, 255, 0.15); --bg-blau-alpha: rgba(163, 163, 163, 0.1); --bg-gruen-alpha: rgba(82, 82, 82, 0.08);
         }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            padding: 16px;
-            max-width: 500px;
-            margin: 0 auto;
-            transition: font-size 0.2s, line-height 0.2s, filter 0.5s;
-        }
-
+        body { background-color: var(--bg-main); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 16px; max-width: 500px; margin: 0 auto; transition: font-size 0.2s; }
         body.crash-darkness { filter: brightness(0.4) contrast(0.9); }
-
-        .screen { display: none; }
-        .screen.active { display: block; }
-        .start-container { text-align: center; padding: 10px 10px 20px 10px; }
+        .screen { display: none; } .screen.active { display: block; }
+        .start-container { text-align: center; padding: 10px; }
         .start-question { font-size: 24px; font-weight: 500; color: var(--text-light); margin-bottom: 35px; line-height: 1.4; }
-
         .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
         .quad-btn {
             background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px 12px; color: var(--text-light);
-            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; font-size: 15px; font-weight: 600;
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; font-size: 15px; font-weight: 600;
         }
-        .quad-btn:active { background-color: #252525; }
-        .quad-btn .icon { font-size: 26px; }
         .quad-btn.placeholder { opacity: 0.4; cursor: not-allowed; border-style: dashed; }
-
         .config-layer { display: none; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: left; }
         .config-layer.open { display: block; }
-
         .ampel-btn, .acc-huge-btn, .menu-settings-btn {
             display: block; width: 100%; padding: 20px; margin-bottom: 14px; border-radius: 16px;
             font-size: 18px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-color); color: var(--text-light); text-align: center;
         }
-
-        .btn-gut { background-color: var(--bg-gruen-alpha); border-color: var(--color-gruen); color: var(--text-light); }
-        .btn-gehtso { background-color: var(--bg-blau-alpha); border-color: var(--color-blau); color: var(--text-light); }
-        .btn-naja { background-color: var(--bg-rot-alpha); border-color: var(--color-rot); color: var(--text-light); }
+        .btn-gut { background-color: var(--bg-gruen-alpha); border-color: var(--color-gruen); }
+        .btn-gehtso { background-color: var(--bg-blau-alpha); border-color: var(--color-blau); }
+        .btn-naja { background-color: var(--bg-rot-alpha); border-color: var(--color-rot); }
         .btn-crash { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #FF8A8A; margin-bottom: 25px; }
-
-        /* 🎨 CONTRAST FIX: Stark verbesserte Sichtbarkeit für sekundäre Funktionstasten */
-        .menu-settings-btn, .action-btn-secondary { 
-            background-color: #222222 !important; 
-            border: 2px solid var(--color-rot) !important; 
-            color: #FFFFFF !important; 
-            font-size: 16px; 
-            font-weight: bold; 
-        }
-
-        .action-btn-contrast {
-            background-color: #1A1A1A !important;
-            border: 2px solid var(--color-blau) !important;
-            color: var(--color-blau) !important;
-            font-weight: bold !important;
-        }
-
+        .menu-settings-btn, .action-btn-secondary { background-color: #222222 !important; border: 2px solid var(--color-rot) !important; color: #FFFFFF !important; font-size: 16px; font-weight: bold; }
+        .action-btn-contrast { background-color: #1A1A1A !important; border: 2px solid var(--color-blau) !important; color: var(--color-blau) !important; font-weight: bold !important; }
         .setup-input { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 16px; margin-bottom: 14px; margin-top: 6px; }
         .pacing-select { width: 100%; padding: 12px; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #D6D6FF; font-size: 16px; font-weight: 600; margin-top: 6px; margin-bottom: 16px; outline: none; }
-
         .slider-container { margin-top: 14px; padding: 4px 0; }
         .atem-slider { -webkit-appearance: none; width: 100%; height: 12px; border-radius: 6px; background: #333; outline: none; margin-top: 10px; }
         .atem-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #D6D6FF; cursor: pointer; border: 2px solid #121212; }
-
         .preview-breathe-box { margin-top: 15px; padding: 15px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.15); background-color: rgba(255, 255, 255, 0.03); text-align: center; font-size: 13px; color: rgba(255, 255, 255, 0.6); }
-
         .grid-container { display: flex; flex-direction: column; gap: 12px; }
         .section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: #888888; margin-top: 8px; margin-bottom: 4px; }
-        
         .field-row { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px 24px; display: flex; align-items: center; gap: 20px; cursor: pointer; }
-        
-        /* Visuelles Ausgrauen gesperrter Blöcke */
         .field-row.disabled-row { opacity: 0.18; filter: grayscale(1); cursor: not-allowed !important; }
-        
         .main-header-row { border-left: 4px solid var(--accent-color); }
         .dots-container { display: flex; gap: 4px; min-width: 115px; font-family: monospace; font-size: 14px; color: #aaa; align-items: center; }
-        
         .dot { width: 14px; height: 16px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
         .dot-red { background-color: var(--color-rot); }
         .dot-lavender { background-color: var(--color-blau); }
         .dot-slate { background-color: var(--color-gruen); }
-
         .pulse-fast { animation: breathe 1.5s infinite ease-in-out; }
         .pulse-med { animation: breathe 3s infinite ease-in-out; }
         .pulse-slow { animation: breathe 5s infinite ease-in-out; }
-
-        @keyframes breathe {
-            0% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.12); opacity: 0.4; }
-            100% { transform: scale(1); opacity: 0.9; }
-        }
-
+        @keyframes breathe { 0% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.12); opacity: 0.4; } 100% { transform: scale(1); opacity: 0.9; } }
         .pulse-crash-field { animation: crashWhiteBreathe 8s infinite ease-in-out; }
-        @keyframes crashWhiteBreathe {
-            0% { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.4); }
-            50% { background-color: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.65); color: rgba(255, 255, 255, 1.0); }
-            100% { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.4); }
-        }
-
+        @keyframes crashWhiteBreathe { 0% { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.4); } 50% { background-color: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.65); color: rgba(255, 255, 255, 1.0); } 100% { background-color: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.4); } }
         .fade-out-5s { animation: fadeToTransparent 5s forwards linear; }
         @keyframes fadeToTransparent { 0% { opacity: 1; } 100% { opacity: 0; } }
-
         .label-text { font-size: 16px; font-weight: 500; color: var(--text-main); flex-grow: 1; }
         .sub-panel { display: none; flex-direction: column; gap: 10px; padding-left: 12px; margin-top: -4px; margin-bottom: 8px; }
         .sub-panel.open-panel { display: flex !important; }
         .chevron { font-size: 14px; color: #666666; }
-
         .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
         .card-title { font-size: 18px; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
         .az-box { font-family: monospace; background-color: var(--bg-main); padding: 8px 12px; border-radius: 6px; font-size: 13px; color: #D6D6FF; display: inline-block; margin-bottom: 16px; }
-        
         .docs-status-box { background-color: #1A222D; border: 1px solid #29384D; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
         .badge-warning { background-color: #4A3319; color: #FFA333; border: 1px solid #7A5223; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
-
-        .notfall-box { background-color: rgba(255, 138, 138, 0.05); border: 1px dashed rgba(255, 138, 138, 0.2); border-radius: 14px; padding: 16px; margin-top: 20px; }
-        .notfall-title { font-size: 14px; font-weight: 600; color: #FF8A8A; margin-bottom: 4px; }
-        .notfall-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
-        .notfall-btn { background-color: #2C1A1A; border: 1px solid #4A2727; color: #FF8A8A; padding: 14px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; text-align: center; }
+        .action-btn { display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; border: 1px solid #444; color: #fff; background-color: #222; text-align: center; }
     </style>
 </head>
 <body>
@@ -223,7 +132,7 @@
                 <span style="font-size: 40px;">🧪</span>
                 <h2 style="font-size: 22px; font-weight: bold; color: #FFE066; margin-top: 10px;">Wichtiger Testversion-Hinweis</h2>
             </div>
-            <div class="info-card" id="betaCardBody" style="border-color: #FFE066; background-color: rgba(250, 204, 21, 0.03);">
+            <div class="card" id="betaCardBody" style="border-color: #FFE066; background-color: rgba(250, 204, 21, 0.03);">
                 <p style="font-weight: 600; margin-bottom: 10px; color: #fff;">Hallo Test-User!</p>
                 <p style="line-height: 1.5; margin-bottom: 12px;">Dies ist eine **Testversion** unserer Pacing-App. Wir erproben hier Barrierefreiheit und Reizreduktion.</p>
                 <p style="line-height: 1.5; color: #8AFF9A; font-weight: 500;">💡 Wir freuen uns riesig über deine Verbesserungsvorschläge, Wünsche oder die Rückmeldung von vorhandenen Fehlern!</p>
@@ -251,7 +160,7 @@
     <div id="najaWarningScreen" class="screen">
         <div class="start-container" style="text-align: left; padding-top:40px;">
             <div class="start-question" style="text-align:center; color:#FFB077;">⚠️ Pacing-Hinweis</div>
-            <div class="info-card" style="border-color: #f97316; background-color: rgba(249, 115, 22, 0.05);">
+            <div class="card" style="border-color: #f97316; background-color: rgba(249, 115, 22, 0.05);">
                 <p style="font-size:18px; font-weight:600; color:#fff; margin-bottom:12px;">Momentan wäre Pacing besser für dich.</p>
                 <p style="line-height:1.5;">Vermeide jetzt jede unnötige Überanstrengung. Nur absolut kritische Fristen anzeigen?</p>
             </div>
@@ -442,7 +351,7 @@
 
             <div style="background-color:#121212; border:1px solid #333; padding:15px; border-radius:10px; margin-bottom:5px;">
                 <label style="font-size:13px; font-weight:600; color:var(--color-rot); display:block; margin-bottom:4px;">⏱️ Geschätzte Fahrzeit (Minuten):</label>
-                <input type="number" id="detFahrzeitInput" class="setup-input" style="margin-bottom:12px; margin-top:0;" value="20" onchange="recalculatePacingAlarm()">
+                <input type="number" id="detFahrzeitInput" class="setup-input" style="margin-bottom:12px; margin-top:0;" value="20" oninput="recalculatePacingAlarm()">
                 
                 <label style="font-size:13px; font-weight:600; color:var(--color-blau); display:block; margin-bottom:4px;">🔔 Pacing-Rettungsanker (Puffer):</label>
                 <select id="pacingDropdown" class="pacing-select" style="margin-bottom:12px;" onchange="recalculatePacingAlarm()">
@@ -469,7 +378,6 @@
     </div>
 
     <script>
-        // Datenbank wird im Speicher gehalten, um Interaktivität (Abhaken, Depot-Edit) zu ermöglichen
         let mockDatabase = {
             rot3: [
                 { id: 101, title: "Dr. Thilmann (Amtsarzt)", time: "10:30 Uhr (In 2 Tagen)", az: "AZ-2026-991A", partner: "Frau Meyer (Vorzimmer)", phone: "0123456789", desc: "Untersuchung Dienstfähigkeit. Nimm die gelbe Mappe vom Schreibtisch mit. Vorher 2 Stunden totale Reizpause einplanen!", needsDocs: true, docsComplete: false, docsItems: [{name: "Aktueller Arztbericht (Kopie)", done: false}, {name: "Medikamentenplan", done: false}], depot: "Blauer Ordner 'Dienstunfall' auf dem Schreibtisch" },
@@ -479,7 +387,7 @@
                 { id: 201, title: "Zahnarzt (Reizarme Prophylaxe)", time: "09:00 Uhr (In 4 Tagen)", az: "Praxis Kern", partner: "Dr. Kern", phone: "0711445566", desc: "Behandlung ohne laute Geräusche vereinbart. Gehörschutz und dunkle Sonnenbrille mitbringen.", needsDocs: true, docsComplete: true, docsItems: [{name: "Bonusheft", done: true}], depot: "In der Brieftasche an der Garderobe" },
                 { id: 202, title: "Befundberichte Versorgungsamt", time: "In 6 Tagen", az: "GdB-SGB-IX", partner: "Zentrale Einlaufstelle", phone: "030112233", desc: "Nachreichung der Berichte zur Feststellung des Merkzeichens G.", needsDocs: false, docsItems: [], depot: "" }
             ],
-            rot1: [{ id: 301, title: "Lieferung Schwellenrampe", time: "10:00 Uhr (In 8 Tagen)", az: "Sanitätshaus Süd", partner: "Herr Wagner (Logistik)", phone: "040998877", desc: "Techniker kommt. Haustürklingel stummschalten – er klopft sanft an die Scheibe.", needsDocs: false, docsItems: [], depot: "" }],
+            rot1: [{ id: 301, title: "Lieferung Schwellenrampe", time: "10:00 Uhr (In 8 Tagen)", az: "Sanitätshaus Süd", partner: "Wagner (Logistik)", phone: "040998877", desc: "Techniker kommt. Haustürklingel stummschalten – er klopft sanft an die Scheibe.", needsDocs: false, docsItems: [], depot: "" }],
             blau3: [{ id: 401, title: "LDN Rezepttelefon Hausarzt", time: "In 11 Tagen", az: "Dr. Becker", partner: "Rezeptions-Team", phone: "0711889900", desc: "Low Dose Naltrexon Rezept telefonisch anfordern.", needsDocs: false, docsItems: [], depot: "" }],
             blau2: [], blau1: [], gruen3: [], gruen2: [], gruen1: []
         };
@@ -494,7 +402,7 @@
         if (savedScale !== 'normal') document.body.classList.add('text-' + savedScale);
         document.getElementById('scaleSelect').value = savedScale;
 
-        if(localStorage.getItem('pacing_app_configured_v41')) {
+        if(localStorage.getItem('pacing_app_configured_v42')) {
             document.getElementById('onboardingIntro').innerHTML = "⚙️ <strong>Tagesform-Check:</strong> Bitte wähle dein heutiges Energielevel:";
             document.addEventListener("DOMContentLoaded", () => {
                 showScreen('betaNoticeScreen');
@@ -505,7 +413,7 @@
         }
 
         function finishOnboardingAndGoToBetaCheck() {
-            localStorage.setItem('pacing_app_configured_v41', 'true');
+            localStorage.setItem('pacing_app_configured_v42', 'true');
             document.getElementById('betaManualContinueBtn').style.display = 'block';
             showScreen('betaNoticeScreen');
         }
@@ -534,30 +442,19 @@
             }
         }
 
-        // 🧠 DEIN FILTER-WUNSCH: Radikale Reiz-Sperrung auf Sektionsebene umgesetzt
         function openFilteredPlanerScreen() {
             updateCounters();
-            
             const isGut = (currentEnergyStatus === 'gut');
             const isGehtSo = (currentEnergyStatus === 'gehtso');
-            const isNaja = (currentEnergyStatus === 'naja');
             
-            // 🌤️ Geht So & Naja: Verstecke die grüne Haupt-Sektion komplett aus dem Sichtfeld
             document.getElementById('titleGruen').style.display = isGut ? 'block' : 'none';
             document.getElementById('rowGruen').style.display = isGut ? 'block' : 'none';
-
-            // ⚠️ Naja: Verstecke ZUSÄTZLICH auch die blaue Haupt-Sektion komplett
             document.getElementById('titleBlau').style.display = (isGut || isGehtSo) ? 'block' : 'none';
             document.getElementById('rowBlau').style.display = (isGut || isGehtSo) ? 'block' : 'none';
 
-            // Alle Sperr-Klassen vorher säubern
             document.querySelectorAll('.field-row').forEach(row => row.classList.remove('disabled-row'));
-
-            // Sollten Blöcke im Grenzbereich sichtbar sein, grau überlagern
-            if (isGehtSo) {
-                document.getElementById('rowGruen')?.classList.add('disabled-row');
-            }
-            if (isNaja) {
+            if (isGehtSo) document.getElementById('rowGruen')?.classList.add('disabled-row');
+            if (currentEnergyStatus === 'naja') {
                 document.getElementById('rowBlau')?.classList.add('disabled-row');
                 document.getElementById('rowGruen')?.classList.add('disabled-row');
             }
@@ -596,14 +493,12 @@
             showScreen('appointmentsScreen');
         }
 
-        // Sauberes Laden über ID-Referenz zur Laufzeit (Verhindert Stringify-Abstürze)
         function loadAndShowDetail(tierKey, id) {
             const list = mockDatabase[tierKey] || [];
             const termin = list.find(item => item.id === id);
             if(!termin) return;
             
-            activeOpenedTerminRef = termin; // Referenz für interaktive Änderungen speichern
-            
+            activeOpenedTerminRef = termin;
             document.getElementById('detTitle').innerText = termin.title;
             document.getElementById('detTime').innerText = termin.time;
             document.getElementById('detAz').innerText = "Ident / Az: " + termin.az;
@@ -613,22 +508,17 @@
             const phoneEl = document.getElementById('detPhone');
             phoneEl.innerText = termin.phone || "Keine Nummer";
             phoneEl.onclick = () => { if(termin.phone) window.location.href = "tel:" + termin.phone; };
-
-            // Ablageort Textfeld befüllen
             document.getElementById('detDepotInput').value = termin.depot || "";
 
             renderDocsChecklist();
-            setTimeout(() => { recalculatePacingAlarm(); }, 50);
+            recalculatePacingAlarm();
             showScreen('detailScreen');
         }
 
-        // 🛠️ INTERAKTIVES INTERFACE: Checkboxen dynamisch rendern und im RAM umschalten
         function renderDocsChecklist() {
             const docsSection = document.getElementById('docsStatusSection');
             if(activeOpenedTerminRef && activeOpenedTerminRef.needsDocs) {
                 docsSection.style.display = "block";
-                
-                // Prüfen ob alle Haken gesetzt sind
                 const allDone = activeOpenedTerminRef.docsItems.every(i => i.done);
                 const badge = document.getElementById('docsBadge');
                 badge.innerText = allDone ? "VOLLSTÄNDIG" : "OFFEN";
@@ -653,17 +543,68 @@
         function handleDocCheckboxToggle(index, isChecked) {
             if(activeOpenedTerminRef) {
                 activeOpenedTerminRef.docsItems[index].done = isChecked;
-                renderDocsChecklist(); // Visuelles Update sofort anstoßen
+                renderDocsChecklist();
             }
         }
 
-        function handleDepotLiveEdit(val) {
-            if(activeOpenedTerminRef) {
-                activeOpenedTerminRef.depot = val; // Im Speicher verankern
-            }
-        }
+        function handleDepotLiveEdit(val) { if(activeOpenedTerminRef) { activeOpenedTerminRef.depot = val; } }
 
         function recalculatePacingAlarm() {
-            const fahrtzeit = parseInt(document.getElementById('detFahrzeitInput').value, 10) || 0;
+            const fahrzeitField = document.getElementById('detFahrzeitInput');
+            const alarmDisplay = document.getElementById('calculatedAlarmTime');
+            if (!fahrzeitField || !alarmDisplay) return;
+
+            const fahrtzeit = parseInt(fahrzeitField.value, 10) || 0;
             const puffer = parseInt(document.getElementById('pacingDropdown').value, 10) || 0;
+            
             let totalInMinutes = (10 * 60 + 30) - (fahrtzeit + puffer);
+            const pad = (num) => String(num).padStart(2, '0');
+            
+            alarmDisplay.innerHTML = `🚗 Späteste Abfahrt: <strong>${pad(Math.floor(((10*60+30)-fahrtzeit)/60))}:${pad(((10*60+30)-fahrtzeit)%60)} Uhr</strong><br>🧘 Pacing-Anker schlägt an um: <strong style="color:var(--color-rot);">${pad(Math.floor(totalInMinutes/60))}:${pad(totalInMinutes%60)} Uhr</strong>`;
+        }
+
+        function updateCounters() {
+            const keys = ['rot3', 'rot2', 'rot1', 'blau3', 'blau2', 'blau1', 'gruen3', 'gruen2', 'gruen1'];
+            keys.forEach(key => {
+                const element = document.getElementById('count_' + key);
+                if(element) element.innerText = `(${mockDatabase[key].length})`;
+            });
+            document.getElementById('count_blauGroup').innerText = `(${mockDatabase.blau3.length})`;
+            document.getElementById('count_gruenGroup').innerText = `(0)`;
+        }
+
+        function toggleConfigLayer(layerId) {
+            const currentLayer = document.getElementById(layerId);
+            const isOpen = currentLayer.classList.contains('open');
+            document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
+            if (!isOpen) currentLayer.classList.add('open');
+        }
+
+        function applyGlobalTextScaleNoJump(scale) {
+            localStorage.setItem('pacing_text_scale', scale);
+            document.body.className = document.body.className.replace(/\btext-\S+/g, '');
+            if (scale !== 'normal') document.body.classList.add('text-' + scale);
+            document.getElementById('scaleSelect').value = scale;
+        }
+
+        function applyGlobalTextScale(scale) { applyGlobalTextScaleNoJump(scale); }
+
+        function applyColorProfile(profile) {
+            localStorage.setItem('pacing_color_profile', profile);
+            document.body.classList.remove('cb-rotgruen', 'cb-blaugelb', 'cb-monochrom');
+            if(profile !== 'default') document.body.classList.add('cb-' + profile);
+            document.getElementById('colorBlindSelect').value = profile;
+            document.getElementById('onboardingColorBlindSelect').value = profile;
+        }
+
+        function openNachtraeglichSetup() { showScreen('setupScreen'); }
+        function finishSetupAndGoToGrid() { openFilteredPlanerScreen(); }
+        function exitCrashMode() { document.body.classList.remove('crash-darkness'); showScreen('startScreen'); }
+        function goToMainMenu() { document.body.classList.remove('crash-darkness'); showScreen('startScreen'); }
+        function goBack(id) { showScreen(id); }
+        function showScreen(screenId) { document.getElementById(currentActiveScreen).classList.remove('active'); document.getElementById(screenId).classList.add('active'); currentActiveScreen = screenId; }
+        
+        document.addEventListener("DOMContentLoaded", () => { updateCounters(); handleSliderChange(selectedAtemSekunden); });
+    </script>
+</body>
+</html>
