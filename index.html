@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="de" id="html-root"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v61</title>
+    <title>Pacing App v62</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -56,26 +56,14 @@
         .screen.active { display: block; }
         
         #crashScreen { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            right: 0;
-            margin: 0 auto;
-            width: 100vw !important; 
-            height: 100vh; 
-            max-width: 100% !important; 
-            z-index: 99999; 
-            padding: 2rem 1rem; 
-            overflow-y: auto; 
-            background-color: #0c0c0c; 
-            box-sizing: border-box;
+            position: fixed; top: 0; left: 0; right: 0; margin: 0 auto;
+            width: 100vw !important; height: 100vh; max-width: 100% !important; 
+            z-index: 99999; padding: 2rem 1rem; overflow-y: auto; 
+            background-color: #0c0c0c; box-sizing: border-box;
         }
 
         #crashScreen.active { 
-            display: flex !important; 
-            flex-direction: column; 
-            align-items: center !important; 
-            justify-content: flex-start;
+            display: flex !important; flex-direction: column; align-items: center !important; justify-content: flex-start;
         }
 
         .start-container { padding: 0.5rem; }
@@ -129,7 +117,6 @@
         .dot-lavender { background-color: var(--color-blau); }
         .dot-slate { background-color: var(--color-gruen); }
         
-        /* FIX: Reizreduktion - Pulsieren deutlich verlangsamt um PEM zu verhindern */
         .pulse-fast { animation: breathe 3s infinite ease-in-out; }
         .pulse-med { animation: breathe 5s infinite ease-in-out; }
         .pulse-slow { animation: breathe 7s infinite ease-in-out; }
@@ -185,18 +172,18 @@
         </div>
     </header>
 
-    <!-- 1. STARTBILDSCHIRM: Blendet sich nach 10 Sekunden automatisch aus -->
     <div id="welcomeScreen" class="screen active">
         <div class="start-container" style="text-align: left;">
             <div class="card" style="border-color: var(--color-blau); background-color: rgba(214,214,255,0.02); margin-bottom: 20px;">
                 <h2 style="font-size: 1.4rem; color: #fff; margin-bottom: 12px; text-align: center;" data-txt="welcome_title">Herzlich willkommen</h2>
                 <p style="line-height: 1.5; font-size: 0.95rem; margin-bottom: 14px;" data-txt="welcome_sec1">🔒 <strong>100% Datensicherheit:</strong> Deine Daten werden ausschließlich auf deinem eigenen Smartphone gespeichert. Es gibt keinen Server und keine Datenübertragung nach außen.</p>
-                <p style="line-height: 1.5; font-size: 0.95rem; color: #FFE066;" data-txt="welcome_sec2">🧪 <strong>Testphase:</strong> Dies ist ein Prototyp. Wir freuen uns über Rückmeldungen zu Verbesserungen, Fehlermeldungen oder unhandlicher Bedienung.</p>
+                <p style="line-height: 1.5; font-size: 0.95rem; color: #FFE066; margin-bottom: 20px;" data-txt="welcome_sec2">🧪 <strong>Testphase:</strong> Dies ist ein Prototyp. Wir freuen uns über Rückmeldungen zu Verbesserungen, Fehlermeldungen oder unhandlicher Bedienung.</p>
+                
+                <button class="action-btn" onclick="showScreen('setupScreen')" style="background-color: var(--bg-main); border-color: var(--color-blau); color: #fff; font-weight: bold;">Weiter zum Hauptmenü ➔</button>
             </div>
         </div>
     </div>
 
-    <!-- 2. HAUPTBILDSCHIRM: Hauptmenü & Einstellungen -->
     <div id="setupScreen" class="screen">
         <div class="start-container" style="text-align: left;">
             <div class="start-question" style="text-align:center; font-size: 1.35rem; margin-bottom: 20px;" data-txt="menu_title">⚙️ Hauptmenü & Einstellungen</div>
@@ -291,15 +278,12 @@
                 </div>
             </div>
 
-            <!-- FIX: Button-Text angepasst auf "Zum Planer" -->
             <button id="setupMainActionBtn" class="action-btn" style="background-color:#2A2A2A; padding:18px; margin-top:20px;" onclick="handleSetupBackNavigation()">Zum Planer</button>
         </div>
     </div>
 
-    <!-- 3. BILD-ANSICHT: Tagesform erfassen -->
     <div id="startScreen" class="screen">
         <div class="start-container">
-            <!-- FIX: Anpassung der Fragen-Struktur, Bezeichnungen und ehrlicher Hinweistext -->
             <div class="start-question" data-txt="question_form">Wie geht es Dir gerade?</div>
             <div class="start-subtext" data-txt="question_honesty">Bitte sei ehrlich, denn nur dann können wir Dir mit diesem Planer effektiv helfen</div>
             
@@ -318,7 +302,6 @@
                 <p style="line-height:1.5;" data-txt="warn_body2">Vermeide jetzt jede unnötige Überanstrengung. Nur absolut kritische Fristen anzeigen?</p>
             </div>
             <div style="margin-top:40px; display:flex; flex-direction:column; gap:14px; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto;">
-                <!-- FIX: Verlinkung korrigiert um direkt in den Planer zu leiten -->
                 <button class="action-btn" style="background-color:#1A1A1A; padding:18px;" onclick="activateNajaFilteredPlaner()" data-txt="btn_close">❌ Schließen</button>
                 <button class="action-btn" style="background-color:#2C2C2C; padding:18px;" onclick="activateNajaFilteredPlaner()" data-txt="btn_urgent_only">⏩ Nur dringende Fristen anzeigen</button>
             </div>
@@ -326,7 +309,6 @@
     </div>
 
     <div id="listScreen" class="screen">
-        <!-- FIX: Layout-Umschalter umbenannt in "Tagesform falsch eingeschätzt?" -->
         <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:18px; border: 2px solid var(--color-blau); color: var(--color-blau); font-weight: bold; letter-spacing: 0.03em;" onclick="goToMainMenu()" data-txt="btn_layout_toggle">Tagesform falsch eingeschätzt? ↩</button>
         
         <div class="grid-container">
@@ -491,7 +473,7 @@
                 welcome_sec1: "🔒 <strong>100% Datensicherheit:</strong> Deine Daten werden ausschließlich auf deinem eigenen Smartphone gespeichert. Es gibt keinen Server und keine Datenübertragung nach außen.",
                 welcome_sec2: "🧪 <strong>Testphase:</strong> Dies ist ein Prototyp. Wir freuen uns über Rückmeldungen zu Verbesserungen, Fehlermeldungen oder unhandlicher Bedienung.",
                 nav_settings: "Einstellungen", onboarding_sub: "Wähle die für dich angenehmsten Einstellungen aus:",
-                btn_textsize: "Schriftgröße", btn_visual: "Visuelle Ansicht", btn_audio: "Auditive Optionen", btn_add_appointment: "Eingabe neuer Termine",
+                btn_textsize: "Schriftgröße", btn_visual: "Visuelle Ansicht", btn_audio: "Auditive Optionen", btn_add_appointment: "Termineingabe",
                 vis_title: "Farbschwächen & Reizreduktion:", opt_def: "Standard (Reizarm Dunkel)",
                 opt_rg: "Rot-Grün-Schwäche", opt_by: "Blau-Gelb-Schwäche", opt_mono: "Monochrom (100% Graustufen)",
                 vis_bright: "🖥️ Bildschirm-Helligkeit drosseln:", audio_title: "Wecker- & Signal-Modus",
@@ -599,53 +581,18 @@
             ]
         };
 
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById('setupPhoneInput').value = localStorage.getItem('pacing_phone1') || '';
-            document.getElementById('setupPhoneInput2').value = localStorage.getItem('pacing_phone2') || '';
-            document.getElementById('setupPhoneInput3').value = localStorage.getItem('pacing_phone3') || '';
-            document.getElementById('setupEmergencyInput').value = localStorage.getItem('pacing_emergency_num') || '';
-            applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100');
-            syncAlarmSoundMode(localStorage.getItem('pacing_sound_mode') || 'visual');
-            switchLanguage(currentLang);
-            
-            // FIX: Willkommens-Timer (10 Sekunden) leitet direkt zum Setup weiter
-            setTimeout(() => {
-                if(currentActiveScreen === 'welcomeScreen' || document.getElementById('welcomeScreen').classList.contains('active')) {
-                    showScreen('setupScreen');
-                }
-            }, 10000);
-        });
-
-        function switchLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('pacing_lang', lang);
-            document.querySelectorAll('[data-txt]').forEach(el => {
-                const key = el.getAttribute('data-txt');
-                if (translations[lang][key]) el.innerText = translations[lang][key];
-            });
-            document.getElementById('btnLangDE').classList.toggle('active-lang', lang === 'de');
-            document.getElementById('btnLangEN').classList.toggle('active-lang', lang === 'en');
-            applyGlobalTextScale(localStorage.getItem('pacing_text_scale') || '16');
-            handleSliderChange(selectedAtemSekunden);
-        }
+        let currentLang = 'de';
 
         function applyGlobalTextScale(pxValue) {
             localStorage.setItem('pacing_text_scale', pxValue);
             document.getElementById('html-root').style.setProperty('--text-base-size', pxValue + 'px');
-            const txt = currentLang === 'de' ? "Textgröße" : "Text Size";
-            if(document.getElementById('onboardingScaleLabel')) document.getElementById('onboardingScaleLabel').innerText = `🔎 ${txt}: ${pxValue}px`;
-            if(document.getElementById('inappScaleLabel')) document.getElementById('inappScaleLabel').innerText = `🔎 ${txt}: ${pxValue}px`;
-            if(document.getElementById('onboardingScaleInput')) document.getElementById('onboardingScaleInput').value = pxValue;
-            if(document.getElementById('inappScaleInput')) document.getElementById('inappScaleInput').value = pxValue;
         }
 
-        // FIX: Atem-Slider aktualisiert live den Sekundentext
         function handleSliderChange(val) {
             selectedAtemSekunden = parseInt(val, 10);
             localStorage.setItem('pacing_atem_freq', selectedAtemSekunden);
             const unit = currentLang === 'de' ? "Sekunden" : "seconds";
             if(document.getElementById('crashSliderLabel')) document.getElementById('crashSliderLabel').innerText = (currentLang === 'de' ? '𫆢 Atem-Rhythmus anpassen: ' : '𫆢 Adjust Breathing: ') + selectedAtemSekunden + ` ${unit}`;
-            if(document.getElementById('crashAtemRangeInput')) document.getElementById('crashAtemRangeInput').value = selectedAtemSekunden;
 
             let styleEl = document.getElementById('dynamic-pulse-style') || document.createElement('style');
             styleEl.id = 'dynamic-pulse-style';
@@ -653,11 +600,7 @@
             if(!styleEl.parentNode) document.head.appendChild(styleEl);
         }
 
-        function syncAlarmSoundMode(val) {
-            localStorage.setItem('pacing_sound_mode', val);
-            if(document.getElementById('pacingAlarmSoundMode')) document.getElementById('pacingAlarmSoundMode').value = val;
-        }
-
+        function syncAlarmSoundMode(val) { localStorage.setItem('pacing_sound_mode', val); }
         function saveContactsToRam() {
             localStorage.setItem('pacing_phone1', document.getElementById('setupPhoneInput').value);
             localStorage.setItem('pacing_phone2', document.getElementById('setupPhoneInput2').value);
@@ -676,13 +619,11 @@
             const partner = document.getElementById('newFormPartner').value;
             const phone = document.getElementById('newFormPhone').value;
             const desc = document.getElementById('newFormDesc').value;
-
             if(!title) return;
 
             mockDatabase[tier].push({
                 id: Date.now(), title: title, time: time, az: az, partner: partner, phone: phone, desc: desc, needsDocs: false, docsItems: [], depot: ""
             });
-
             document.getElementById('newFormTitle').value = '';
             document.getElementById('manualFormContainer').style.display = 'none';
             document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
@@ -690,7 +631,6 @@
             updateCounters();
         }
 
-        // FIX: Unterebenen schließen über denselben Button
         function handleSetupBackNavigation() {
             const activeLayer = document.querySelector('.config-layer.open');
             if (activeLayer) {
@@ -721,11 +661,10 @@
                 const p2 = localStorage.getItem('pacing_phone2') || '';
                 const p3 = localStorage.getItem('pacing_phone3') || '';
                 const sosNum = localStorage.getItem('pacing_emergency_num') || '112';
-                
                 let html = '';
                 if(p1) html += `<a href="tel:${p1}" class="crash-phone-btn"><span>📞 Hauptkontakt: ${p1}</span><span>➔</span></a>`;
                 if(p2) html += `<a href="tel:${p2}" class="crash-phone-btn"><span>📞 Kontakt 2: ${p2}</span><span>➔</span></a>`;
-                if(p3) html += `<a href="tel:${p3}/" class="crash-phone-btn"><span>📞 Kontakt 3: ${p3}</span><span>➔</span></a>`;
+                if(p3) html += `<a href="tel:${p3}" class="crash-phone-btn"><span>📞 Kontakt 3: ${p3}</span><span>➔</span></a>`;
                 html += `<a href="tel:${sosNum}" class="crash-phone-btn sos-btn"><span>🚨 NOTRUF: ${sosNum}</span><span>➔</span></a>`;
                 container.innerHTML = html;
             } catch (e) { console.log(e); }
@@ -734,7 +673,6 @@
         function applyScreenBrightness(val) {
             localStorage.setItem('pacing_brightness', val);
             document.body.style.filter = `brightness(${val / 100})`;
-            if(document.getElementById('brightnessRangeInput')) document.getElementById('brightnessRangeInput').value = val;
         }
 
         function fadeBrightnessToMin() {
@@ -843,7 +781,6 @@
             alarmDisplay.innerHTML = `🚗 Späteste Abfahrt: <strong>${pad(Math.floor(((10*60+30)-fahrtzeit)/60))}:${pad(((10*60+30)-fahrtzeit)%60)} Uhr</strong><br>🧘 Pacing-Anker schlägt an um: <strong style="color:var(--color-rot);">${pad(Math.floor(totalInMinutes/60))}:${pad(totalInMinutes%60)} Uhr</strong>`;
         }
 
-        // FIX: Korrigierte mathematische Summen-Zählerberechnung für die Gruppenköpfe
         function updateCounters() {
             const keys = ['rot3', 'rot2', 'rot1', 'blau3', 'blau2', 'blau1', 'gruen3', 'gruen2', 'gruen1'];
             keys.forEach(key => { if(document.getElementById('count_' + key)) document.getElementById('count_' + key).innerText = `(${mockDatabase[key].length})`; });
@@ -855,21 +792,7 @@
             if(document.getElementById('count_gruenGroup')) document.getElementById('count_gruenGroup').innerText = `(${sumGruen})`;
         }
 
-        function applyColorProfile(profile) {
-            localStorage.setItem('pacing_color_profile', profile);
-            document.body.classList.remove('cb-rotgruen', 'cb-blaugelb', 'cb-monochrom');
-            if(profile !== 'default') document.body.classList.add('cb-' + profile);
-            if(document.getElementById('colorBlindSelect')) document.getElementById('colorBlindSelect').value = profile;
-            const dots = document.querySelectorAll('.color-preview-dot');
-            if(dots.length >= 3) {
-                const computedStyle = getComputedStyle(document.body);
-                dots[0].style.backgroundColor = computedStyle.getPropertyValue('--color-rot');
-                dots[1].style.backgroundColor = computedStyle.getPropertyValue('--color-blau');
-                dots[2].style.backgroundColor = computedStyle.getPropertyValue('--color-gruen');
-            }
-        }
-
-        function openNachtraeglichSetup() { showScreen('setupScreen'); applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default'); }
+        function openNachtraeglichSetup() { showScreen('setupScreen'); document.getElementById('setupMainActionBtn').innerText = "Zum Planer"; }
         function exitCrashMode() { if (fadeInterval) clearInterval(fadeInterval); applyScreenBrightness(preCrashBrightness); showScreen('startScreen'); }
         function goToMainMenu() { showScreen('startScreen'); }
         function goBack(id) { showScreen(id); }
