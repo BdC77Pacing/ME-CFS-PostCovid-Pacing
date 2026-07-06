@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="de" id="html-root"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v56</title>
+    <title>Pacing App v57</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -106,6 +106,7 @@
         .action-btn-contrast { background-color: #1A1A1A !important; border: 2px solid var(--color-blau) !important; color: var(--color-blau) !important; font-weight: bold !important; }
         
         .setup-input { width: 100%; padding: 0.75rem; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 1rem; margin-bottom: 0.8rem; margin-top: 0.4rem; }
+        .setup-input::placeholder { color: #777; }
         .pacing-select { width: 100%; padding: 0.75rem; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #D6D6FF; font-size: 1rem; font-weight: 600; margin-top: 0.4rem; margin-bottom: 1rem; outline: none; }
         
         .slider-container { margin-top: 0.6rem; padding: 4px 0; margin-bottom: 0.8rem; }
@@ -134,18 +135,19 @@
         .pulse-slow { animation: breathe 5s infinite ease-in-out; }
         @keyframes breathe { 0% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.12); opacity: 0.4; } 100% { transform: scale(1); opacity: 0.9; } }
 
+        /* Barrierefreie Animation koppelt sich an Profilvariablen */
         .filled-breathe-block { 
             width: 100%; max-width: 420px; padding: 40px 20px; 
             font-weight: bold; font-size: 1.25rem; margin-bottom: 25px; 
-            border-radius: 16px; text-align: center; border: 2px solid #552222;
-            color: #ffffff; background-color: #3a1515;
+            border-radius: 16px; text-align: center; border: 2px solid var(--color-rot);
+            color: #ffffff; background-color: var(--bg-rot-alpha);
             animation: crashFilledColorBreathe 8s infinite ease-in-out;
             margin: 0 auto 25px auto;
         }
         @keyframes crashFilledColorBreathe {
-            0% { background-color: #230c0c; border-color: #331111; color: rgba(255,255,255,0.4); }
-            50% { background-color: #ef4444; border-color: #ff8a8a; color: #ffffff; }
-            100% { background-color: #230c0c; border-color: #331111; color: rgba(255,255,255,0.4); }
+            0% { background-color: #161616; border-color: #333; color: rgba(255,255,255,0.4); }
+            50% { background-color: var(--color-rot); border-color: #ffffff; color: #000000; }
+            100% { background-color: #161616; border-color: #333; color: rgba(255,255,255,0.4); }
         }
         
         .fade-out-5s { animation: fadeToTransparent 5s forwards linear; }
@@ -172,11 +174,9 @@
         .lang-tab-btn { background-color: #222; border: 1px solid #444; color: #888; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; gap: 4px; }
         .lang-tab-btn.active-lang { border-color: var(--color-blau); color: #fff; background-color: #333; }
         
-        /* FIX: Skalierung der Deutschland-Fahne korrigiert */
         .flag-icon { width: 16px; height: 11px; display: inline-block; border-radius: 1px; }
     </style></head><body>
 
-    <!-- Globaler, permanenter Header über allen App-Ansichten -->
     <header class="global-app-header">
         <div class="global-app-title">PACING APP</div>
         <div class="lang-switch-box">
@@ -268,7 +268,6 @@
         </div>
     </div>
 
-    <!-- App startet standardmäßig immer mit diesem StartScreen (Zustandserfassung & Setup-Einstieg) -->
     <div id="startScreen" class="screen active">
         <div class="start-container">
             <div id="onboardingIntro" style="margin-bottom: 25px; color:#D6D6FF; font-size:0.95rem; background-color: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #444; text-align: center;" data-txt="intro_pacing">
@@ -318,13 +317,12 @@
                 <button class="quad-btn placeholder" disabled><span class="icon">🪵</span><span>[Platzhalter]</span></button>
             </div>
 
-            <!-- FIX: Notfall-Layer um Feld für nationale Notfallnummer erweitert -->
             <div id="layerNotfall" class="config-layer">
                 <h3 style="color:#FF8A8A; margin-bottom:12px; font-size:0.95rem;" data-txt="em_input_title">Signal-Eingabe: Notfallkontakte</h3>
                 <input type="tel" id="setupPhoneInput" class="setup-input" placeholder="Hauptkontakt (z.B. Familie)" oninput="saveContactsToRam()">
                 <input type="tel" id="setupPhoneInput2" class="setup-input" placeholder="Notfallkontakt 2 (z.B. Freunde)" oninput="saveContactsToRam()">
                 <input type="tel" id="setupPhoneInput3" class="setup-input" placeholder="Notfallkontakt 3 (z.B. Taxi)" oninput="saveContactsToRam()">
-                <input type="tel" id="setupEmergencyInput" class="setup-input" style="border-color: var(--color-rot);" placeholder="Nationale Notrufnummer (Standard: 112)" oninput="saveContactsToRam()">
+                <input type="tel" id="setupEmergencyInput" class="setup-input" style="border-color: var(--color-rot);" placeholder="Nationale Notrufnummer (z.B. in DE 112, USA 911)" oninput="saveContactsToRam()">
             </div>
 
             <div id="layerVisuell" class="config-layer">
@@ -521,7 +519,6 @@
             
             <h3 style="color: #fff; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; text-align: left; width: 100%;" data-txt="crash_speeddial">📞 Sofort-Anruf Kontakte:</h3>
             
-            <!-- Dynamische Kontakte aus dem RAM -->
             <div id="crashContactsContainer" style="width: 100%;"></div>
 
             <button class="action-btn action-btn-contrast" style="width:100%; padding: 18px; font-weight: bold;" onclick="exitCrashMode()" data-txt="btn_exit_crash">← Modus beenden</button>
@@ -619,7 +616,7 @@
             document.getElementById('setupPhoneInput').value = localStorage.getItem('pacing_phone1') || '';
             document.getElementById('setupPhoneInput2').value = localStorage.getItem('pacing_phone2') || '';
             document.getElementById('setupPhoneInput3').value = localStorage.getItem('pacing_phone3') || '';
-            document.getElementById('setupEmergencyInput').value = localStorage.getItem('pacing_emergency_num') || '112';
+            document.getElementById('setupEmergencyInput').value = localStorage.getItem('pacing_emergency_num') || '';
             applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100');
             syncAlarmSoundMode(localStorage.getItem('pacing_sound_mode') || 'visual');
             switchLanguage(currentLang);
@@ -703,7 +700,7 @@
                 if(p2) html += `<a href="tel:${p2}" class="crash-phone-btn"><span>📞 ${lbl2}: ${p2}</span><span>➔</span></a>`;
                 if(p3) html += `<a href="tel:${p3}" class="crash-phone-btn"><span>📞 ${lbl3}: ${p3}</span><span>➔</span></a>`;
                 
-                // FIX: Notruf-Feld hinter Kontakt 3 gereiht mit Sicherheitsabstand-Klasse
+                // Notruf-Feld hinter Kontakt 3 gereiht mit Sicherheitsabstand-Klasse
                 html += `<a href="tel:${sosNum}" class="crash-phone-btn sos-btn"><span>🚨 ${lblSos}: ${sosNum}</span><span>➔</span></a>`;
                 
                 container.innerHTML = html;
@@ -716,12 +713,12 @@
             if(document.getElementById('brightnessRangeInput')) document.getElementById('brightnessRangeInput').value = val;
         }
 
-        // FIX: Helligkeit drosselt sich über 1,5 Sekunden gleichmäßig herunter
+        // Helligkeit drosselt sich über 1,5 Sekunden gleichmäßig herunter
         function fadeBrightnessToMin() {
             if (fadeInterval) clearInterval(fadeInterval);
             let currentBright = parseInt(preCrashBrightness, 10);
             const targetBright = 20;
-            const step = (currentBright - targetBright) / 15; // 15 Schritte über 1500ms (alle 100ms)
+            const step = (currentBright - targetBright) / 15;
             
             fadeInterval = setInterval(() => {
                 currentBright -= step;
@@ -742,7 +739,7 @@
             } else if (choice === 'crash') {
                 preCrashBrightness = localStorage.getItem('pacing_brightness') || '100';
                 showScreen('crashScreen');
-                fadeBrightnessToMin(); // Startet die sanfte Abdunklung
+                fadeBrightnessToMin();
                 handleSliderChange(selectedAtemSekunden);
                 rebuildCrashContactsView();
             }
