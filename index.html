@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v49</title>
+    <title>Pacing App v50</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -95,11 +95,13 @@
         .pulse-slow { animation: breathe 5s infinite ease-in-out; }
         @keyframes breathe { 0% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.12); opacity: 0.4; } 100% { transform: scale(1); opacity: 0.9; } }
         
+        /* 🚨 FIXED: Absolut erzwungene Monitor-Zentrierung für den Crash-Modus */
         #crashScreen { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            max-width: 100vw !important; z-index: 99999; padding: 2rem 1.5rem; 
+            max-width: 100vw !important; z-index: 99999; padding: 2rem 1rem; 
             overflow-y: auto; background-color: #0c0c0c;
-            text-align: center; display: flex; flex-direction: column; align-items: center;
+            display: flex !important; flex-direction: column; align-items: center !important; justify-content: flex-start;
+            box-sizing: border-box;
         }
 
         .filled-breathe-block { 
@@ -108,6 +110,7 @@
             border-radius: 16px; text-align: center; border: 2px solid #552222;
             color: #ffffff; background-color: #3a1515;
             animation: crashFilledColorBreathe 8s infinite ease-in-out;
+            margin: 0 auto 25px auto;
         }
         @keyframes crashFilledColorBreathe {
             0% { background-color: #230c0c; border-color: #331111; color: rgba(255,255,255,0.4); }
@@ -123,16 +126,15 @@
         .sub-panel.open-panel { display: flex !important; }
         .chevron { font-size: 0.85rem; color: #666666; }
         
-        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem; width: 100%; max-width: 420px; }
         .card-title { font-size: 1.15rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
         .az-box { font-family: monospace; background-color: var(--bg-main); padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; color: #D6D6FF; display: inline-block; margin-bottom: 16px; }
         .docs-status-box { background-color: #1A222D; border: 1px solid #29384D; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
         .badge-warning { background-color: #4A3319; color: #FFA333; border: 1px solid #7A5223; font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
         .action-btn { display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border: 1px solid #444; color: #fff; background-color: #222; text-align: center; }
         
-        .crash-phone-btn { background-color: #4A1A1A; border: 2px solid #FF8A8A; border-radius: 12px; padding: 16px; color: #fff; font-size: 1rem; font-weight: bold; text-align: left; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; text-decoration: none; width: 100%; max-width: 420px; }
+        .crash-phone-btn { background-color: #4A1A1A; border: 2px solid #FF8A8A; border-radius: 12px; padding: 16px; color: #fff; font-size: 1rem; font-weight: bold; text-align: left; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; text-decoration: none; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto; }
         
-        /* 🌐 SPRACHSCHALTER BUTTONS OBEN RECHTS */
         .lang-switch-box { text-align: right; margin-bottom: 10px; display: flex; justify-content: flex-end; gap: 8px; }
         .lang-tab-btn { background-color: #222; border: 1px solid #444; color: #888; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
         .lang-tab-btn.active-lang { border-color: var(--color-blau); color: #fff; background-color: #333; }
@@ -142,7 +144,6 @@
 
     <!-- SCREEN 1: ONBOARDING ACCESSIBILITY -->
     <div id="accessibilitySetupScreen" class="screen active">
-        <!-- 🌐 NEU: Sprachauswahl direkt oben eingebunden -->
         <div class="lang-switch-box">
             <button class="lang-tab-btn active-lang" id="btnLangDE" onclick="switchLanguage('de')">DE</button>
             <button class="lang-tab-btn" id="btnLangEN" onclick="switchLanguage('en')">EN</button>
@@ -218,7 +219,7 @@
                 <span style="font-size: 40px;">🧪</span>
                 <h2 style="font-size: 1.35rem; font-weight: bold; color: #FFE066; margin-top: 10px;" data-txt="beta_title">Wichtiger Testversion-Hinweis</h2>
             </div>
-            <div class="card" id="betaCardBody" style="border-color: #FFE066; background-color: rgba(250, 204, 21, 0.03);">
+            <div class="card" id="betaCardBody" style="border-color: #FFE066; background-color: rgba(250, 204, 21, 0.03); margin: 0 auto 15px auto;">
                 <p style="font-weight: 600; margin-bottom: 10px; color: #fff;" data-txt="beta_hello">Hallo Test-User!</p>
                 <p style="line-height: 1.5; margin-bottom: 12px;" data-txt="beta_body1">Dies ist eine Testversion unserer Pacing-App. Wir erproben hier Barrierefreiheit und Reizreduktion.</p>
                 <p style="line-height: 1.5; color: #8AFF9A; font-weight: 500;" data-txt="beta_body2">💡 Wir freuen uns riesig über deine Verbesserungsvorschläge, Wünsche oder die Rückmeldung von vorhandenen Fehlern!</p>
@@ -247,11 +248,11 @@
     <div id="najaWarningScreen" class="screen">
         <div class="start-container" style="text-align: left; padding-top:40px;">
             <div class="start-question" style="text-align:center; color:#FFB077;" data-txt="warn_title">⚠️ Pacing-Hinweis</div>
-            <div class="card" style="border-color: #f97316; background-color: rgba(249, 115, 22, 0.05);">
+            <div class="card" style="border-color: #f97316; background-color: rgba(249, 115, 22, 0.05); margin: 0 auto 15px auto;">
                 <p style="font-size:1.15rem; font-weight:600; color:#fff; margin-bottom:12px;" data-txt="warn_body1">Momentan wäre Pacing besser für dich.</p>
                 <p style="line-height:1.5;" data-txt="warn_body2">Vermeide jetzt jede unnötige Überanstrengung. Nur absolut kritische Fristen anzeigen?</p>
             </div>
-            <div style="margin-top:40px; display:flex; flex-direction:column; gap:14px;">
+            <div style="margin-top:40px; display:flex; flex-direction:column; gap:14px; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto;">
                 <button class="action-btn" style="background-color:#1A1A1A; padding:18px;" onclick="goToMainMenu()" data-txt="btn_close">❌ Schließen</button>
                 <button class="action-btn" style="background-color:#2C2C2C; padding:18px;" onclick="activateNajaFilteredPlaner()" data-txt="btn_urgent_only">⏩ Nur dringende Fristen anzeigen</button>
             </div>
@@ -309,7 +310,7 @@
                 </div>
                 
                 <hr style="border-color:#333; margin:16px 0;">
-                <label style="font-size:0.85rem; font-weight:600; color:#D6D6FF; display:block;" data-txt="vis_bright">🖥️ Bildschirm-Helligkeit drosseln:</label>
+                <label style="font-size:0.85rem; font-weight:600; color:#D6D6FF; display:block;">🖥️ Bildschirm-Helligkeit drosseln:</label>
                 <div class="slider-container">
                     <input type="range" min="20" max="100" step="5" value="100" class="atem-slider" id="brightnessRangeInput" oninput="applyScreenBrightness(this.value)">
                 </div>
@@ -417,13 +418,13 @@
 
     <!-- SCREEN 7: TERMINLISTE -->
     <div id="appointmentsScreen" class="screen">
-        <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('listScreen')" data-txt="btn_back_overview"># Zurück zur Übersicht</button>
+        <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('listScreen')" data-txt="btn_back_overview">↩ Zurück zur Übersicht</button>
         <div id="appointmentsContent"></div>
     </div>
 
     <!-- SCREEN 8: DETAILANSICHT -->
     <div id="detailScreen" class="screen">
-        <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('appointmentsScreen')" data-txt="btn_back_list"># Zurück zur Liste</button>
+        <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('appointmentsScreen')" data-txt="btn_back_list">↩ Zurück zur Liste</button>
         
         <div class="docs-status-box" id="docsStatusSection">
             <div style="font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
@@ -470,9 +471,9 @@
         </div>
     </div>
 
-    <!-- SCREEN 9: FULLSCREEN CRASH SCREEN -->
+    <!-- SCREEN 9: FULLSCREEN CRASH SCREEN (ZENTRIERUNG GEZWUNGEN) -->
     <div id="crashScreen" class="screen">
-        <div style="width: 100%; max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="width: 100%; max-width: 420px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
             <div style="font-size: 1.5rem; font-weight: bold; color: #FF8A8A; margin-bottom: 15px;" data-txt="crash_title">🚨 Akuter Crash-Schutz</div>
             
             <div style="background-color: rgba(0,0,0,0.6); border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 20px; width: 100%; text-align: left;">
@@ -482,15 +483,15 @@
             
             <div class="filled-breathe-block" id="fullscreenBreatheVisual" data-txt="crash_breathe_box">🧘 MITATMEN (FARBTAKT)</div>
             
-            <h3 style="color: #fff; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; align-self: flex-start;" data-txt="crash_speeddial">📞 Sofort-Anruf Kontakte:</h3>
+            <h3 style="color: #fff; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; text-align: left; width: 100%;" data-txt="crash_speeddial">📞 Sofort-Anruf Kontakte:</h3>
             <div id="crashContactsContainer" style="margin-bottom: 30px; width: 100%;"></div>
 
+            <!-- 🚨 FIXED BUTTON: Klick löst den Status jetzt absolut zuverlässig auf -->
             <button class="action-btn action-btn-contrast" style="width:100%; padding: 18px; font-weight: bold;" onclick="exitCrashMode()" data-txt="btn_exit_crash">← Modus beenden</button>
         </div>
     </div>
 
     <script>
-        // 🌐 SPRACHDATENBANK (DICTIONARY)
         const translations = {
             de: {
                 nav_settings: "Einstellungen", onboarding_sub: "Wähle die für dich angenehmsten Einstellungen aus:",
@@ -582,10 +583,10 @@
             document.getElementById('setupPhoneInput3').value = localStorage.getItem('pacing_phone3') || '';
             applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100');
             syncAlarmSoundMode(localStorage.getItem('pacing_sound_mode') || 'visual');
-            switchLanguage(currentLang); // Sprachpaket initial abfeuern
+            switchLanguage(currentLang);
         });
 
-        if(localStorage.getItem('pacing_app_configured_v49')) {
+        if(localStorage.getItem('pacing_app_configured_v50')) {
             document.addEventListener("DOMContentLoaded", () => {
                 showScreen('betaNoticeScreen');
                 document.getElementById('betaManualContinueBtn').style.display = 'none';
@@ -595,28 +596,20 @@
         }
 
         function finishOnboardingAndGoToBetaCheck() {
-            localStorage.setItem('pacing_app_configured_v49', 'true');
+            localStorage.setItem('pacing_app_configured_v50', 'true');
             document.getElementById('betaManualContinueBtn').style.display = 'block';
             showScreen('betaNoticeScreen');
         }
 
-        // 🌐 LIVEDATEN-ÜBERSETZUNG: Tauscht alle markierten DOM-Texte reizarm im RAM aus
         function switchLanguage(lang) {
             currentLang = lang;
             localStorage.setItem('pacing_lang', lang);
-            
             document.querySelectorAll('[data-txt]').forEach(el => {
                 const key = el.getAttribute('data-txt');
-                if (translations[lang][key]) {
-                    el.innerText = translations[lang][key];
-                }
+                if (translations[lang][key]) el.innerText = translations[lang][key];
             });
-
-            // Aktiven Sprach-Button hervorheben
             document.getElementById('btnLangDE').classList.toggle('active-lang', lang === 'de');
             document.getElementById('btnLangEN').classList.toggle('active-lang', lang === 'en');
-            
-            // Labels mitsynchronisieren
             applyGlobalTextScale(localStorage.getItem('pacing_text_scale') || '16');
             handleSliderChange(selectedAtemSekunden);
         }
@@ -624,47 +617,33 @@
         function applyGlobalTextScale(pxValue) {
             localStorage.setItem('pacing_text_scale', pxValue);
             document.getElementById('html-root').style.setProperty('--text-base-size', pxValue + 'px');
-            
             const txt = currentLang === 'de' ? "Textgröße" : "Text Size";
-            const oLabel = document.getElementById('onboardingScaleLabel');
-            const iLabel = document.getElementById('inappScaleLabel');
-            if(oLabel) oLabel.innerText = `🔎 ${txt}: ${pxValue}px`;
-            if(iLabel) iLabel.innerText = `🔎 ${txt}: ${pxValue}px`;
-
-            const oInput = document.getElementById('onboardingScaleInput');
-            const iInput = document.getElementById('inappScaleInput');
-            if(oInput) oInput.value = pxValue;
-            if(iInput) iInput.value = pxValue;
+            if(document.getElementById('onboardingScaleLabel')) document.getElementById('onboardingScaleLabel').innerText = `🔎 ${txt}: ${pxValue}px`;
+            if(document.getElementById('inappScaleLabel')) document.getElementById('inappScaleLabel').innerText = `🔎 ${txt}: ${pxValue}px`;
+            if(document.getElementById('onboardingScaleInput')) document.getElementById('onboardingScaleInput').value = pxValue;
+            if(document.getElementById('inappScaleInput')) document.getElementById('inappScaleInput').value = pxValue;
         }
 
         function handleSliderChange(val) {
             selectedAtemSekunden = parseInt(val, 10);
             localStorage.setItem('pacing_atem_freq', selectedAtemSekunden);
-            
             const unit = translations[currentLang]['b_txt'];
             const displayStr = `𫆢 Atem-Rhythmus: ${selectedAtemSekunden} ${unit}`;
-            const sLabel = document.getElementById('sliderDisplayLabel');
-            const cLabel = document.getElementById('crashSliderLabel');
-            if(sLabel) sLabel.innerText = displayStr;
-            if(cLabel) cLabel.innerText = (currentLang === 'de' ? '𫆢 Atem-Rhythmus anpassen: ' : '𫆢 Adjust Breathing: ') + selectedAtemSekunden + ` ${unit}`;
-            
-            const sInput = document.getElementById('atemRangeInput');
-            const cInput = document.getElementById('crashAtemRangeInput');
-            if(sInput) sInput.value = selectedAtemSekunden;
-            if(cInput) cInput.value = selectedAtemSekunden;
+            if(document.getElementById('sliderDisplayLabel')) document.getElementById('sliderDisplayLabel').innerText = displayStr;
+            if(document.getElementById('crashSliderLabel')) document.getElementById('crashSliderLabel').innerText = (currentLang === 'de' ? '𫆢 Atem-Rhythmus anpassen: ' : '𫆢 Adjust Breathing: ') + selectedAtemSekunden + ` ${unit}`;
+            if(document.getElementById('atemRangeInput')) document.getElementById('atemRangeInput').value = selectedAtemSekunden;
+            if(document.getElementById('crashAtemRangeInput')) document.getElementById('crashAtemRangeInput').value = selectedAtemSekunden;
 
             let styleEl = document.getElementById('dynamic-pulse-style') || document.createElement('style');
             styleEl.id = 'dynamic-pulse-style';
-            styleEl.innerHTML = `#crashScreen { animation: crashFullBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; } .filled-breathe-block, .preview-breathe-box { animation: crashFilledColorBreathe ${selectedAtemSekunden}s infinite ease-in-out, crashWhiteBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
+            styleEl.innerHTML = `.filled-breathe-block, .preview-breathe-box { animation: crashFilledColorBreathe ${selectedAtemSekunden}s infinite ease-in-out, crashWhiteBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
             if(!styleEl.parentNode) document.head.appendChild(styleEl);
         }
 
         function syncAlarmSoundMode(val) {
             localStorage.setItem('pacing_sound_mode', val);
-            const menuSelect = document.getElementById('pacingAlarmSoundMode');
-            const onboardSelect = document.getElementById('onboardingAlarmSoundMode');
-            if(menuSelect) menuSelect.value = val;
-            if(onboardSelect) onboardSelect.value = val;
+            if(document.getElementById('pacingAlarmSoundMode')) document.getElementById('pacingAlarmSoundMode').value = val;
+            if(document.getElementById('onboardingAlarmSoundMode')) document.getElementById('onboardingAlarmSoundMode').value = val;
         }
 
         function saveContactsToRam() {
@@ -677,11 +656,9 @@
             try {
                 const container = document.getElementById('crashContactsContainer');
                 if (!container) return;
-                
                 const p1 = localStorage.getItem('pacing_phone1') || '';
                 const p2 = localStorage.getItem('pacing_phone2') || '';
                 const p3 = localStorage.getItem('pacing_phone3') || '';
-                
                 if(!p1 && !p2 && !p3) {
                     container.innerHTML = `<p style="color: #888; font-size: 14px; font-style: italic; text-align:center;">${currentLang === 'de' ? 'Keine Nummern hinterlegt.' : 'No speed dial numbers set.'}</p>`;
                     return;
@@ -694,16 +671,13 @@
                 if(p2) html += `<a href="tel:${p2}" class="crash-phone-btn"><span>📞 ${lbl2}: ${p2}</span><span>➔</span></a>`;
                 if(p3) html += `<a href="tel:${p3}" class="crash-phone-btn"><span>📞 ${lbl3}: ${p3}</span><span>➔</span></a>`;
                 container.innerHTML = html;
-            } catch (e) {
-                console.log("Crash-Container temporär nicht bereit");
-            }
+            } catch (e) { console.log(e); }
         }
 
         function applyScreenBrightness(val) {
             localStorage.setItem('pacing_brightness', val);
             document.body.style.filter = `brightness(${val / 100})`;
-            const bSlider = document.getElementById('brightnessRangeInput');
-            if(bSlider) bSlider.value = val;
+            if(document.getElementById('brightnessRangeInput')) document.getElementById('brightnessRangeInput').value = val;
         }
 
         function handleStartChoice(choice) {
@@ -742,7 +716,7 @@
             const list = mockDatabase[tierKey] || [];
             const container = document.getElementById('appointmentsContent');
             if(list.length === 0) {
-                container.innerHTML = `<p style="padding:40px 20px; text-align:center; color:#888;">Keine Einträge vorhanden / No records.</p>`;
+                container.innerHTML = `<p style="padding:40px 20px; text-align:center; color:#888;">Keine Einträge vorhanden.</p>`;
             } else {
                 let html = '<div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">';
                 list.forEach(t => {
@@ -758,22 +732,17 @@
             const list = mockDatabase[tierKey] || [];
             const termin = list.find(item => item.id === id);
             if(!termin) return;
-            
             activeOpenedTerminRef = termin;
             document.getElementById('detTitle').innerText = termin.title;
             document.getElementById('detTime').innerText = termin.time;
             document.getElementById('detAz').innerText = "Ident / Az: " + termin.az;
             document.getElementById('detDescription').innerText = termin.desc;
             document.getElementById('detPartner').innerText = termin.partner || "Nicht genannt";
-            
             const phoneEl = document.getElementById('detPhone');
             phoneEl.innerText = termin.phone || "Keine Nummer";
             phoneEl.onclick = () => { if(termin.phone) window.location.href = "tel:" + termin.phone; };
             document.getElementById('detDepotInput').value = termin.depot || "";
-
-            renderDocsChecklist();
-            recalculatePacingAlarm();
-            showScreen('detailScreen');
+            renderDocsChecklist(); recalculatePacingAlarm(); showScreen('detailScreen');
         }
 
         function renderDocsChecklist() {
@@ -785,56 +754,36 @@
                 badge.innerText = allDone ? (currentLang === 'de' ? "VOLLSTÄNDIG" : "COMPLETE") : (currentLang === 'de' ? "OFFEN" : "OPEN");
                 badge.style.backgroundColor = allDone ? "#1E3D23" : "#4A3319";
                 badge.style.color = allDone ? "#8AFF9A" : "#FFA333";
-
                 let listHtml = "";
                 activeOpenedTerminRef.docsItems.forEach((item, index) => {
                     let checked = item.done ? "checked" : "";
-                    listHtml += `
-                        <label style="display:flex; align-items:center; gap:14px; padding:6px 0; cursor:pointer;">
-                            <input type="checkbox" style="transform: scale(1.5); cursor:pointer;" ${checked} onchange="handleDocCheckboxToggle(${index}, this.checked)"> 
-                            <span style="color: ${item.done ? '#888' : '#fff'}; text-decoration: ${item.done ? 'line-through' : 'none'};">${item.name}</span>
-                        </label>`;
+                    listHtml += `<label style="display:flex; align-items:center; gap:14px; padding:6px 0; cursor:pointer;"><input type="checkbox" style="transform: scale(1.5); cursor:pointer;" ${checked} onchange="handleDocCheckboxToggle(${index}, this.checked)"> <span style="color: ${item.done ? '#888' : '#fff'}; text-decoration: ${item.done ? 'line-through' : 'none'};">${item.name}</span></label>`;
                 });
                 document.getElementById('docsList').innerHTML = listHtml;
-            } else {
-                docsSection.style.display = "none";
-            }
+            } else { docsSection.style.display = "none"; }
         }
 
-        function handleDocCheckboxToggle(index, isChecked) {
-            if(activeOpenedTerminRef) {
-                activeOpenedTerminRef.docsItems[index].done = isChecked;
-                renderDocsChecklist();
-            }
-        }
-
+        function handleDocCheckboxToggle(index, isChecked) { if(activeOpenedTerminRef) { activeOpenedTerminRef.docsItems[index].done = isChecked; renderDocsChecklist(); } }
         function handleDepotLiveEdit(val) { if(activeOpenedTerminRef) { activeOpenedTerminRef.depot = val; } }
 
         function recalculatePacingAlarm() {
             const fahrzeitField = document.getElementById('detFahrzeitInput');
             const alarmDisplay = document.getElementById('calculatedAlarmTime');
             if (!fahrzeitField || !alarmDisplay) return;
-
             const fahrtzeit = parseInt(fahrzeitField.value, 10) || 0;
             const puffer = parseInt(document.getElementById('pacingDropdown').value, 10) || 0;
-            
             let totalInMinutes = (10 * 60 + 30) - (fahrtzeit + puffer);
             const pad = (num) => String(num).padStart(2, '0');
-            
             const txtDep = currentLang === 'de' ? "Späteste Abfahrt" : "Latest Departure";
             const txtAnch = currentLang === 'de' ? "Pacing-Anker schlägt an um" : "Pacing Anchor triggers at";
-            
             alarmDisplay.innerHTML = `🚗 ${txtDep}: <strong>${pad(Math.floor(((10*60+30)-fahrtzeit)/60))}:${pad(((10*60+30)-fahrtzeit)%60)} Uhr</strong><br>🧘 ${txtAnch}: <strong style="color:var(--color-rot);">${pad(Math.floor(totalInMinutes/60))}:${pad(totalInMinutes%60)} Uhr</strong>`;
         }
 
         function updateCounters() {
             const keys = ['rot3', 'rot2', 'rot1', 'blau3', 'blau2', 'blau1', 'gruen3', 'gruen2', 'gruen1'];
-            keys.forEach(key => {
-                const element = document.getElementById('count_' + key);
-                if(element) element.innerText = `(${mockDatabase[key].length})`;
-            });
-            document.getElementById('count_blauGroup').innerText = `(${mockDatabase.blau3.length})`;
-            document.getElementById('count_gruenGroup').innerText = `(0)`;
+            keys.forEach(key => { if(document.getElementById('count_' + key)) document.getElementById('count_' + key).innerText = `(${mockDatabase[key].length})`; });
+            if(document.getElementById('count_blauGroup')) document.getElementById('count_blauGroup').innerText = `(${mockDatabase.blau3.length})`;
+            if(document.getElementById('count_gruenGroup')) document.getElementById('count_gruenGroup').innerText = `(0)`;
         }
 
         function toggleConfigLayer(layerId) {
@@ -848,12 +797,8 @@
             localStorage.setItem('pacing_color_profile', profile);
             document.body.classList.remove('cb-rotgruen', 'cb-blaugelb', 'cb-monochrom');
             if(profile !== 'default') document.body.classList.add('cb-' + profile);
-            
-            const cSelect = document.getElementById('colorBlindSelect');
-            const oSelect = document.getElementById('onboardingColorBlindSelect');
-            if(cSelect) cSelect.value = profile;
-            if(oSelect) oSelect.value = profile;
-
+            if(document.getElementById('colorBlindSelect')) document.getElementById('colorBlindSelect').value = profile;
+            if(document.getElementById('onboardingColorBlindSelect')) document.getElementById('onboardingColorBlindSelect').value = profile;
             const dots = document.querySelectorAll('.color-preview-dot');
             if(dots.length >= 3) {
                 const computedStyle = getComputedStyle(document.body);
@@ -873,9 +818,11 @@
         
         function goToMainMenu() { showScreen('startScreen'); }
         function goBack(id) { showScreen(id); }
-        function showScreen(screenId) { document.getElementById(currentActiveScreen).classList.remove('active'); document.getElementById(screenId).classList.add('active'); currentActiveScreen = screenId; }
-        
-        document.addEventListener("DOMContentLoaded", () => { updateCounters(); handleSliderChange(selectedAtemSekunden); });
+        function showScreen(screenId) { 
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active'); 
+            currentActiveScreen = screenId; 
+        }
     </script>
 </body>
 </html>
