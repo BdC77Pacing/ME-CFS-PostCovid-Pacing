@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="de" id="html-root"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v60</title>
+    <title>Pacing App v61</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -79,7 +79,8 @@
         }
 
         .start-container { padding: 0.5rem; }
-        .start-question { font-size: 1.4rem; font-weight: 500; color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.4; text-align: center; }
+        .start-question { font-size: 1.4rem; font-weight: 500; color: var(--text-light); margin-bottom: 0.5rem; line-height: 1.4; text-align: center; }
+        .start-subtext { font-size: 0.85rem; color: #aaa; text-align: center; margin-bottom: 2rem; display: block; padding: 0 10px; }
         
         .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.5rem; }
         .quad-btn {
@@ -128,9 +129,10 @@
         .dot-lavender { background-color: var(--color-blau); }
         .dot-slate { background-color: var(--color-gruen); }
         
-        .pulse-fast { animation: breathe 1.5s infinite ease-in-out; }
-        .pulse-med { animation: breathe 3s infinite ease-in-out; }
-        .pulse-slow { animation: breathe 5s infinite ease-in-out; }
+        /* FIX: Reizreduktion - Pulsieren deutlich verlangsamt um PEM zu verhindern */
+        .pulse-fast { animation: breathe 3s infinite ease-in-out; }
+        .pulse-med { animation: breathe 5s infinite ease-in-out; }
+        .pulse-slow { animation: breathe 7s infinite ease-in-out; }
         @keyframes breathe { 0% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.12); opacity: 0.4; } 100% { transform: scale(1); opacity: 0.9; } }
 
         .filled-breathe-block { 
@@ -183,24 +185,18 @@
         </div>
     </header>
 
-    <div id="startScreen" class="screen active">
+    <!-- 1. STARTBILDSCHIRM: Blendet sich nach 10 Sekunden automatisch aus -->
+    <div id="welcomeScreen" class="screen active">
         <div class="start-container" style="text-align: left;">
             <div class="card" style="border-color: var(--color-blau); background-color: rgba(214,214,255,0.02); margin-bottom: 20px;">
                 <h2 style="font-size: 1.4rem; color: #fff; margin-bottom: 12px; text-align: center;" data-txt="welcome_title">Herzlich willkommen</h2>
                 <p style="line-height: 1.5; font-size: 0.95rem; margin-bottom: 14px;" data-txt="welcome_sec1">🔒 <strong>100% Datensicherheit:</strong> Deine Daten werden ausschließlich auf deinem eigenen Smartphone gespeichert. Es gibt keinen Server und keine Datenübertragung nach außen.</p>
                 <p style="line-height: 1.5; font-size: 0.95rem; color: #FFE066;" data-txt="welcome_sec2">🧪 <strong>Testphase:</strong> Dies ist ein Prototyp. Wir freuen uns über Rückmeldungen zu Verbesserungen, Fehlermeldungen oder unhandlicher Bedienung.</p>
             </div>
-            
-            <div class="start-question" style="margin-top: 25px;" data-txt="question_form">Wie geht es Dir gerade?</div>
-            <button class="ampel-btn btn-gut" onclick="handleStartChoice('gut')" data-txt="ampel_good">Gut</button>
-            <button class="ampel-btn btn-gehtso" onclick="handleStartChoice('gehtso')" data-txt="ampel_ok">Geht so</button>
-            <button class="ampel-btn btn-naja" onclick="handleStartChoice('naja')" data-txt="ampel_bad">Naja</button>
-            <button class="ampel-btn btn-crash" onclick="handleStartChoice('crash')" data-txt="ampel_crash">Crash steht kurz bevor</button>
-            
-            <button class="menu-settings-btn" onclick="openNachtraeglichSetup()" data-txt="btn_changesettings">⚙️ Ansicht & Einstellungen ändern</button>
         </div>
     </div>
 
+    <!-- 2. HAUPTBILDSCHIRM: Hauptmenü & Einstellungen -->
     <div id="setupScreen" class="screen">
         <div class="start-container" style="text-align: left;">
             <div class="start-question" style="text-align:center; font-size: 1.35rem; margin-bottom: 20px;" data-txt="menu_title">⚙️ Hauptmenü & Einstellungen</div>
@@ -286,7 +282,7 @@
                         <option value="gruen2">29-60 Tage</option>
                         <option value="gruen1">Über 60 Tage</option>
                     </select>
-                    <input type="text" id="newFormTime" class="setup-input" placeholder="Zeitangabe (z.B. Morgen 10:00 Uhr)">
+                    <input type="text" id="newFormTime" class="setup-input" placeholder="Zeitangabe">
                     <input type="text" id="newFormAz" class="setup-input" placeholder="Ident / Az">
                     <input type="text" id="newFormPartner" class="setup-input" placeholder="Ansprechpartner">
                     <input type="tel" id="newFormPhone" class="setup-input" placeholder="Direktrufnummer">
@@ -295,12 +291,43 @@
                 </div>
             </div>
 
-            <button id="setupMainActionBtn" class="action-btn" style="background-color:#2A2A2A; padding:18px; margin-top:20px;" onclick="handleSetupBackNavigation()">⏩ Schließen</button>
+            <!-- FIX: Button-Text angepasst auf "Zum Planer" -->
+            <button id="setupMainActionBtn" class="action-btn" style="background-color:#2A2A2A; padding:18px; margin-top:20px;" onclick="handleSetupBackNavigation()">Zum Planer</button>
+        </div>
+    </div>
+
+    <!-- 3. BILD-ANSICHT: Tagesform erfassen -->
+    <div id="startScreen" class="screen">
+        <div class="start-container">
+            <!-- FIX: Anpassung der Fragen-Struktur, Bezeichnungen und ehrlicher Hinweistext -->
+            <div class="start-question" data-txt="question_form">Wie geht es Dir gerade?</div>
+            <div class="start-subtext" data-txt="question_honesty">Bitte sei ehrlich, denn nur dann können wir Dir mit diesem Planer effektiv helfen</div>
+            
+            <button class="ampel-btn btn-gut" onclick="handleStartChoice('gut')" data-txt="ampel_good">Guter Tag</button>
+            <button class="ampel-btn btn-gehtso" onclick="handleStartChoice('gehtso')" data-txt="ampel_ok">Mittelmäßiger Tag</button>
+            <button class="ampel-btn btn-naja" onclick="handleStartChoice('naja')" data-txt="ampel_bad">Schlechter Tag mit PEM-Phase</button>
+            <button class="ampel-btn btn-crash" onclick="handleStartChoice('crash')" data-txt="ampel_crash">Crash steht kurz bevor</button>
+        </div>
+    </div>
+
+    <div id="najaWarningScreen" class="screen">
+        <div class="start-container" style="text-align: left; padding-top:40px;">
+            <div class="start-question" style="text-align:center; color:#FFB077;" data-txt="warn_title">⚠️ Pacing-Hinweis</div>
+            <div class="card" style="border-color: #f97316; background-color: rgba(249, 115, 22, 0.05); margin: 0 auto 15px auto;">
+                <p style="font-size:1.15rem; font-weight:600; color:#fff; margin-bottom:12px;" data-txt="warn_body1">Momentan wäre Pacing besser für dich.</p>
+                <p style="line-height:1.5;" data-txt="warn_body2">Vermeide jetzt jede unnötige Überanstrengung. Nur absolut kritische Fristen anzeigen?</p>
+            </div>
+            <div style="margin-top:40px; display:flex; flex-direction:column; gap:14px; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto;">
+                <!-- FIX: Verlinkung korrigiert um direkt in den Planer zu leiten -->
+                <button class="action-btn" style="background-color:#1A1A1A; padding:18px;" onclick="activateNajaFilteredPlaner()" data-txt="btn_close">❌ Schließen</button>
+                <button class="action-btn" style="background-color:#2C2C2C; padding:18px;" onclick="activateNajaFilteredPlaner()" data-txt="btn_urgent_only">⏩ Nur dringende Fristen anzeigen</button>
+            </div>
         </div>
     </div>
 
     <div id="listScreen" class="screen">
-        <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:18px; border: 2px solid var(--color-blau); color: var(--color-blau); font-weight: bold; letter-spacing: 0.03em;" onclick="goToMainMenu()" data-txt="btn_layout_toggle">Layout-Umschalter ↩</button>
+        <!-- FIX: Layout-Umschalter umbenannt in "Tagesform falsch eingeschätzt?" -->
+        <button class="action-btn" style="background-color:#1A1A1A; margin-bottom:18px; border: 2px solid var(--color-blau); color: var(--color-blau); font-weight: bold; letter-spacing: 0.03em;" onclick="goToMainMenu()" data-txt="btn_layout_toggle">Tagesform falsch eingeschätzt? ↩</button>
         
         <div class="grid-container">
             <div id="containerSektionRot">
@@ -383,7 +410,7 @@
                 </div>
             </div>
         </div>
-        <button class="menu-settings-btn" style="margin-top:40px;" onclick="openNachtraeglichSetup()" data-txt="btn_changesettings">⚙️ Einstellungen ändern</button>
+        <button class="menu-settings-btn" style="margin-top:40px;" onclick="openNachtraeglichSetup()">⚙️ Einstellungen ändern</button>
     </div>
 
     <div id="appointmentsScreen" class="screen">
@@ -469,16 +496,10 @@
                 opt_rg: "Rot-Grün-Schwäche", opt_by: "Blau-Gelb-Schwäche", opt_mono: "Monochrom (100% Graustufen)",
                 vis_bright: "🖥️ Bildschirm-Helligkeit drosseln:", audio_title: "Wecker- & Signal-Modus",
                 opt_vis: "Nur visuelles Blinken (Reizarm)", opt_sound: "Sanfter Gong + Visuell",
-                btn_apply: "Einstellungen übernehmen & Weiter ➔", beta_title: "Wichtiger Testversion-Hinweis",
-                beta_hello: "Hallo Test-User!", beta_body1: "Dies ist eine Testversion unserer Pacing-App. Wir erproben hier Barrierefreiheit und Reizreduktion.",
-                beta_body2: "💡 Wir freuen uns riesig über deine Verbesserungsvorschläge, Wünsche oder die Rückmeldung von vorhandenen Fehlern!",
-                btn_continue: "Weiter zur App ➔", intro_pacing: "Bestimme deine heutige Energie für die automatische Filterung.",
-                question_form: "Wie geht es Dir gerade?", ampel_good: "Gut", ampel_ok: "Geht so", ampel_bad: "Naja", ampel_crash: "Crash steht kurz bevor",
-                btn_changesettings: "⚙️ Ansicht & Einstellungen ändern", warn_title: "⚠️ Pacing-Hinweis",
-                warn_body1: "Momentan wäre Pacing besser für dich.", warn_body2: "Vermeide jetzt jede unnötige Überanstrengung. Nur absolut kritische Fristen anzeigen?",
-                btn_close: "❌ Schließen", btn_urgent_only: "⏩ Nur dringende Fristen anzeigen",
-                menu_title: "⚙️ Hauptmenü & Einstellungen", btn_emergency: "Notfallkontakt", btn_save_return: "⏩ Speichern & Zurück zum Planer",
-                btn_layout_toggle: "Layout-Umschalter ↩", tier_high: "Höchste Dringlichkeit", tier_med: "Mittlere Dringlichkeit", tier_low: "Niedrige Dringlichkeit",
+                question_form: "Wie geht es Dir gerade?", question_honesty: "Bitte sei ehrlich, denn nur dann können wir Dir mit diesem Planer effektiv helfen",
+                ampel_good: "Guter Tag", ampel_ok: "Mittelmäßiger Tag", ampel_bad: "Schlechter Tag mit PEM-Phase", ampel_crash: "Crash steht kurz bevor",
+                menu_title: "⚙️ Hauptmenü & Einstellungen", btn_emergency: "Notfallkontakt", btn_save_return: "Zum Planer",
+                tier_high: "Höchste Dringlichkeit", tier_med: "Mittlere Dringlichkeit", tier_low: "Niedrige Dringlichkeit",
                 days_1_3: "1 - 3 Tage (Kritische Fristen)", days_4_7: "4 - 7 Tage", days_8_10: "8 - 10 Tage", days_11_21: "11 - 21 Tage",
                 days_11_14: "11 - 14 Tage", days_15_18: "15 - 18 Tage", days_19_21: "19 - 21 Tage", days_22_plus: "Über 22 Tage",
                 days_22_28: "22 - 28 Tage", days_29_60: "29 - 60 Tage", days_60_plus: "Über 60 Tage",
@@ -500,16 +521,10 @@
                 opt_rg: "Red-Green Blindness", opt_by: "Blue-Yellow Blindness", opt_mono: "Monochrome (100% Grayscale)",
                 vis_bright: "🖥️ Reduce Screen Brightness:", audio_title: "Alarm & Alert Mode",
                 opt_vis: "Visual Flash Only (Low Stimulus)", opt_sound: "Soft Gong + Visual",
-                btn_apply: "Apply Settings & Continue ➔", beta_title: "Important Beta Notice",
-                beta_hello: "Hello Beta Tester!", beta_body1: "This is a test version of our pacing app, specifically exploring neuro-divergent accessibility and crash guards.",
-                beta_body2: "💡 We highly appreciate your feedback, layout requests, or bug reports!",
-                btn_continue: "Continue to App ➔", intro_pacing: "Log your energy envelope to filter out non-essential stimuli.",
-                question_form: "How is your energy right now?", ampel_good: "Good", ampel_ok: "Okay", ampel_bad: "Struggling", ampel_crash: "Crash is imminent",
-                btn_changesettings: "⚙️ Change View & Settings", warn_title: "⚠️ Pacing Alert",
-                warn_body1: "Your envelope is strictly limited today.", warn_body2: "Avoid any unnecessary exertion. Show absolute critical deadlines only?",
-                btn_close: "❌ Close", btn_urgent_only: "⏩ Show Urgent Deadlines Only",
-                menu_title: "⚙️ Main Menu & Settings", btn_emergency: "Emergency Contacts", btn_save_return: "⏩ Save & Return to Planner",
-                btn_layout_toggle: "Toggle Layout View ↩", tier_high: "High Urgency", tier_med: "Medium Urgency", tier_low: "Low Urgency",
+                question_form: "How is your energy right now?", question_honesty: "Please be honest, only then we can effectively help you with this planner",
+                ampel_good: "Good Day", ampel_ok: "Average Day", ampel_bad: "Bad Day with PEM phase", ampel_crash: "Crash is imminent",
+                menu_title: "⚙️ Main Menu & Settings", btn_emergency: "Emergency Contacts", btn_save_return: "To Planner",
+                tier_high: "High Urgency", tier_med: "Medium Urgency", tier_low: "Low Urgency",
                 days_1_3: "1 - 3 Days (Critical Deadlines)", days_4_7: "4 - 7 Days", days_8_10: "8 - 10 Days", days_11_21: "11 - 21 Days",
                 days_11_14: "11 - 14 Days", days_15_18: "15 - 18 Days", days_19_21: "19 - 21 Days", days_22_plus: "Over 22 Days",
                 days_22_28: "22 - 28 Days", days_29_60: "29 - 60 Days", days_60_plus: "Over 60 Days",
@@ -584,17 +599,6 @@
             ]
         };
 
-        let currentActiveScreen = 'startScreen';
-        let currentEnergyStatus = 'gut';
-        let selectedAtemSekunden = 8;
-        let activeOpenedTerminRef = null;
-        let preCrashBrightness = '100';
-        let fadeInterval = null;
-
-        applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default');
-        const savedScale = localStorage.getItem('pacing_text_scale') || '16';
-        applyGlobalTextScale(savedScale);
-        
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('setupPhoneInput').value = localStorage.getItem('pacing_phone1') || '';
             document.getElementById('setupPhoneInput2').value = localStorage.getItem('pacing_phone2') || '';
@@ -603,14 +607,14 @@
             applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100');
             syncAlarmSoundMode(localStorage.getItem('pacing_sound_mode') || 'visual');
             switchLanguage(currentLang);
-            showScreen('startScreen');
+            
+            // FIX: Willkommens-Timer (10 Sekunden) leitet direkt zum Setup weiter
+            setTimeout(() => {
+                if(currentActiveScreen === 'welcomeScreen' || document.getElementById('welcomeScreen').classList.contains('active')) {
+                    showScreen('setupScreen');
+                }
+            }, 10000);
         });
-
-        function finishOnboardingAndGoToBetaCheck() {
-            localStorage.setItem('pacing_app_configured_v51', 'true');
-            document.getElementById('betaManualContinueBtn').style.display = 'block';
-            showScreen('betaNoticeScreen');
-        }
 
         function switchLanguage(lang) {
             currentLang = lang;
@@ -635,26 +639,23 @@
             if(document.getElementById('inappScaleInput')) document.getElementById('inappScaleInput').value = pxValue;
         }
 
+        // FIX: Atem-Slider aktualisiert live den Sekundentext
         function handleSliderChange(val) {
             selectedAtemSekunden = parseInt(val, 10);
             localStorage.setItem('pacing_atem_freq', selectedAtemSekunden);
-            const unit = translations[currentLang]['b_txt'];
-            const unitText = unit ? unit : "Sekunden";
-            if(document.getElementById('sliderDisplayLabel')) document.getElementById('sliderDisplayLabel').innerText = `𫆢 Atem-Rhythmus: ${selectedAtemSekunden} ${unitText}`;
-            if(document.getElementById('crashSliderLabel')) document.getElementById('crashSliderLabel').innerText = (currentLang === 'de' ? '𫆢 Atem-Rhythmus anpassen: ' : '𫆢 Adjust Breathing: ') + selectedAtemSekunden + ` ${unitText}`;
-            if(document.getElementById('atemRangeInput')) document.getElementById('atemRangeInput').value = selectedAtemSekunden;
+            const unit = currentLang === 'de' ? "Sekunden" : "seconds";
+            if(document.getElementById('crashSliderLabel')) document.getElementById('crashSliderLabel').innerText = (currentLang === 'de' ? '𫆢 Atem-Rhythmus anpassen: ' : '𫆢 Adjust Breathing: ') + selectedAtemSekunden + ` ${unit}`;
             if(document.getElementById('crashAtemRangeInput')) document.getElementById('crashAtemRangeInput').value = selectedAtemSekunden;
 
             let styleEl = document.getElementById('dynamic-pulse-style') || document.createElement('style');
             styleEl.id = 'dynamic-pulse-style';
-            styleEl.innerHTML = `.filled-breathe-block, .preview-breathe-box { animation: crashFilledColorBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
+            styleEl.innerHTML = `.filled-breathe-block { animation: crashFilledColorBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
             if(!styleEl.parentNode) document.head.appendChild(styleEl);
         }
 
         function syncAlarmSoundMode(val) {
             localStorage.setItem('pacing_sound_mode', val);
             if(document.getElementById('pacingAlarmSoundMode')) document.getElementById('pacingAlarmSoundMode').value = val;
-            if(document.getElementById('onboardingAlarmSoundMode')) document.getElementById('onboardingAlarmSoundMode').value = val;
         }
 
         function saveContactsToRam() {
@@ -676,35 +677,27 @@
             const phone = document.getElementById('newFormPhone').value;
             const desc = document.getElementById('newFormDesc').value;
 
-            if(!title) { alert('Bitte mindestens einen Titel eingeben.'); return; }
+            if(!title) return;
 
-            const newId = Date.now();
             mockDatabase[tier].push({
-                id: newId, title: title, time: time, az: az, partner: partner, phone: phone, desc: desc, needsDocs: false, docsItems: [], depot: ""
+                id: Date.now(), title: title, time: time, az: az, partner: partner, phone: phone, desc: desc, needsDocs: false, docsItems: [], depot: ""
             });
 
-            // Formular zurücksetzen & schließen
             document.getElementById('newFormTitle').value = '';
-            document.getElementById('newFormTime').value = '';
-            document.getElementById('newFormAz').value = '';
-            document.getElementById('newFormPartner').value = '';
-            document.getElementById('newFormPhone').value = '';
-            document.getElementById('newFormDesc').value = '';
             document.getElementById('manualFormContainer').style.display = 'none';
             document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
-            
+            document.getElementById('setupMainActionBtn').innerText = "Zum Planer";
             updateCounters();
-            alert('Termin erfolgreich hinzugefügt.');
         }
 
-        // FIX: Steuert das dynamische Verhalten des Zurück-Buttons im Menü
+        // FIX: Unterebenen schließen über denselben Button
         function handleSetupBackNavigation() {
             const activeLayer = document.querySelector('.config-layer.open');
             if (activeLayer) {
                 activeLayer.classList.remove('open');
-                document.getElementById('setupMainActionBtn').innerText = "⏩ Speichern & Zurück zum Planer";
+                document.getElementById('setupMainActionBtn').innerText = "Zum Planer";
             } else {
-                openFilteredPlanerScreen();
+                showScreen('startScreen');
             }
         }
 
@@ -714,9 +707,9 @@
             document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
             if (!isOpen) {
                 currentLayer.classList.add('open');
-                document.getElementById('setupMainActionBtn').innerText = "⏩ Speichern & Schließen";
+                document.getElementById('setupMainActionBtn').innerText = "Schließen";
             } else {
-                document.getElementById('setupMainActionBtn').innerText = "⏩ Speichern & Zurück zum Planer";
+                document.getElementById('setupMainActionBtn').innerText = "Zum Planer";
             }
         }
 
@@ -730,17 +723,10 @@
                 const sosNum = localStorage.getItem('pacing_emergency_num') || '112';
                 
                 let html = '';
-                const lbl1 = currentLang === 'de' ? 'Hauptkontakt' : 'Primary';
-                const lbl2 = currentLang === 'de' ? 'Kontakt 2' : 'Contact 2';
-                const lbl3 = currentLang === 'de' ? 'Kontakt 3' : 'Contact 3';
-                const lblSos = currentLang === 'de' ? 'NOTRUF' : 'EMERGENCY';
-                
-                if(p1) html += `<a href="tel:${p1}" class="crash-phone-btn"><span>📞 ${lbl1}: ${p1}</span><span>➔</span></a>`;
-                if(p2) html += `<a href="tel:${p2}" class="crash-phone-btn"><span>📞 ${lbl2}: ${p2}</span><span>➔</span></a>`;
-                if(p3) html += `<a href="tel:${p3}" class="crash-phone-btn"><span>📞 ${lbl3}: ${p3}</span><span>➔</span></a>`;
-                
-                html += `<a href="tel:${sosNum}" class="crash-phone-btn sos-btn"><span>🚨 ${lblSos}: ${sosNum}</span><span>➔</span></a>`;
-                
+                if(p1) html += `<a href="tel:${p1}" class="crash-phone-btn"><span>📞 Hauptkontakt: ${p1}</span><span>➔</span></a>`;
+                if(p2) html += `<a href="tel:${p2}" class="crash-phone-btn"><span>📞 Kontakt 2: ${p2}</span><span>➔</span></a>`;
+                if(p3) html += `<a href="tel:${p3}/" class="crash-phone-btn"><span>📞 Kontakt 3: ${p3}</span><span>➔</span></a>`;
+                html += `<a href="tel:${sosNum}" class="crash-phone-btn sos-btn"><span>🚨 NOTRUF: ${sosNum}</span><span>➔</span></a>`;
                 container.innerHTML = html;
             } catch (e) { console.log(e); }
         }
@@ -756,13 +742,9 @@
             let currentBright = parseInt(preCrashBrightness, 10);
             const targetBright = 20;
             const step = (currentBright - targetBright) / 15;
-            
             fadeInterval = setInterval(() => {
                 currentBright -= step;
-                if (currentBright <= targetBright) {
-                    currentBright = targetBright;
-                    clearInterval(fadeInterval);
-                }
+                if (currentBright <= targetBright) { currentBright = targetBright; clearInterval(fadeInterval); }
                 document.body.style.filter = `brightness(${currentBright / 100})`;
             }, 100);
         }
@@ -775,10 +757,7 @@
                 showScreen('najaWarningScreen');
             } else if (choice === 'crash') {
                 preCrashBrightness = localStorage.getItem('pacing_brightness') || '100';
-                showScreen('crashScreen');
-                fadeBrightnessToMin();
-                handleSliderChange(selectedAtemSekunden);
-                rebuildCrashContactsView();
+                showScreen('crashScreen'); fadeBrightnessToMin(); handleSliderChange(selectedAtemSekunden); rebuildCrashContactsView();
             }
         }
 
@@ -838,7 +817,7 @@
                 docsSection.style.display = "block";
                 const allDone = activeOpenedTerminRef.docsItems.every(i => i.done);
                 const badge = document.getElementById('docsBadge');
-                badge.innerText = allDone ? (currentLang === 'de' ? "VOLLSTÄNDIG" : "COMPLETE") : (currentLang === 'de' ? "OFFEN" : "OPEN");
+                badge.innerText = allDone ? "VOLLSTÄNDIG" : "OFFEN";
                 badge.style.backgroundColor = allDone ? "#1E3D23" : "#4A3319";
                 badge.style.color = allDone ? "#8AFF9A" : "#FFA333";
                 let listHtml = "";
@@ -861,12 +840,10 @@
             const puffer = parseInt(document.getElementById('pacingDropdown').value, 10) || 0;
             let totalInMinutes = (10 * 60 + 30) - (fahrtzeit + puffer);
             const pad = (num) => String(num).padStart(2, '0');
-            const txtDep = currentLang === 'de' ? "Späteste Abfahrt" : "Latest Departure";
-            const txtAnch = currentLang === 'de' ? "Pacing-Anker schlägt an um" : "Pacing Anchor triggers at";
-            alarmDisplay.innerHTML = `🚗 ${txtDep}: <strong>${pad(Math.floor(((10*60+30)-fahrtzeit)/60))}:${pad(((10*60+30)-fahrtzeit)%60)} Uhr</strong><br>🧘 ${txtAnch}: <strong style="color:var(--color-rot);">${pad(Math.floor(totalInMinutes/60))}:${pad(totalInMinutes%60)} Uhr</strong>`;
+            alarmDisplay.innerHTML = `🚗 Späteste Abfahrt: <strong>${pad(Math.floor(((10*60+30)-fahrtzeit)/60))}:${pad(((10*60+30)-fahrtzeit)%60)} Uhr</strong><br>🧘 Pacing-Anker schlägt an um: <strong style="color:var(--color-rot);">${pad(Math.floor(totalInMinutes/60))}:${pad(totalInMinutes%60)} Uhr</strong>`;
         }
 
-        // FIX: Summiert nun die Werte der Unterkategorien exakt auf
+        // FIX: Korrigierte mathematische Summen-Zählerberechnung für die Gruppenköpfe
         function updateCounters() {
             const keys = ['rot3', 'rot2', 'rot1', 'blau3', 'blau2', 'blau1', 'gruen3', 'gruen2', 'gruen1'];
             keys.forEach(key => { if(document.getElementById('count_' + key)) document.getElementById('count_' + key).innerText = `(${mockDatabase[key].length})`; });
@@ -883,7 +860,6 @@
             document.body.classList.remove('cb-rotgruen', 'cb-blaugelb', 'cb-monochrom');
             if(profile !== 'default') document.body.classList.add('cb-' + profile);
             if(document.getElementById('colorBlindSelect')) document.getElementById('colorBlindSelect').value = profile;
-            if(document.getElementById('onboardingColorBlindSelect')) document.getElementById('onboardingColorBlindSelect').value = profile;
             const dots = document.querySelectorAll('.color-preview-dot');
             if(dots.length >= 3) {
                 const computedStyle = getComputedStyle(document.body);
@@ -893,19 +869,8 @@
             }
         }
 
-        function openNachtraeglichSetup() { 
-            showScreen('setupScreen'); 
-            applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default'); 
-            document.getElementById('setupMainActionBtn').innerText = "⏩ Speichern & Zurück zum Planer";
-        }
-        function finishSetupAndGoToGrid() { openFilteredPlanerScreen(); }
-        
-        function exitCrashMode() { 
-            if (fadeInterval) clearInterval(fadeInterval);
-            applyScreenBrightness(preCrashBrightness); 
-            showScreen('startScreen'); 
-        }
-        
+        function openNachtraeglichSetup() { showScreen('setupScreen'); applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default'); }
+        function exitCrashMode() { if (fadeInterval) clearInterval(fadeInterval); applyScreenBrightness(preCrashBrightness); showScreen('startScreen'); }
         function goToMainMenu() { showScreen('startScreen'); }
         function goBack(id) { showScreen(id); }
         
