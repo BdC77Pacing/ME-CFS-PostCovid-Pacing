@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="de" id="html-root"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v57</title>
+    <title>Pacing App v58</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -37,7 +37,6 @@
             transition: filter 0.1s ease;
         }
 
-        /* Permanenter globaler Header für die Sprachumschaltung */
         .global-app-header {
             display: flex;
             justify-content: space-between;
@@ -56,7 +55,6 @@
         .screen { display: none; } 
         .screen.active { display: block; }
         
-        /* Absolute Zentrierung ohne Rechtsversatz durch left/right null und margin auto */
         #crashScreen { 
             position: fixed; 
             top: 0; 
@@ -106,7 +104,11 @@
         .action-btn-contrast { background-color: #1A1A1A !important; border: 2px solid var(--color-blau) !important; color: var(--color-blau) !important; font-weight: bold !important; }
         
         .setup-input { width: 100%; padding: 0.75rem; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 1rem; margin-bottom: 0.8rem; margin-top: 0.4rem; }
+        
+        /* FIX: Kleinere Schriftgröße für den spezifischen Platzhalter im Notrufffeld */
+        #setupEmergencyInput::placeholder { font-size: 0.78rem; color: #777; }
         .setup-input::placeholder { color: #777; }
+        
         .pacing-select { width: 100%; padding: 0.75rem; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #D6D6FF; font-size: 1rem; font-weight: 600; margin-top: 0.4rem; margin-bottom: 1rem; outline: none; }
         
         .slider-container { margin-top: 0.6rem; padding: 4px 0; margin-bottom: 0.8rem; }
@@ -114,7 +116,6 @@
         .atem-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #D6D6FF; cursor: pointer; border: 2px solid #121212; }
         
         .preview-breathe-box { margin-top: 15px; padding: 15px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.15); background-color: rgba(255, 255, 255, 0.03); text-align: center; font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); }
-        
         .color-preview-box { display: flex; align-items: center; justify-content: space-around; background-color: #121212; border: 1px dashed #444; padding: 14px; border-radius: 10px; margin-top: 10px; }
         .color-preview-dot { width: 20px; height: 20px; border-radius: 50%; display: inline-block; }
         
@@ -135,7 +136,6 @@
         .pulse-slow { animation: breathe 5s infinite ease-in-out; }
         @keyframes breathe { 0% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.12); opacity: 0.4; } 100% { transform: scale(1); opacity: 0.9; } }
 
-        /* Barrierefreie Animation koppelt sich an Profilvariablen */
         .filled-breathe-block { 
             width: 100%; max-width: 420px; padding: 40px 20px; 
             font-weight: bold; font-size: 1.25rem; margin-bottom: 25px; 
@@ -166,14 +166,11 @@
         .action-btn { display: block; width: 100%; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; border: 1px solid #444; color: #fff; background-color: #222; text-align: center; }
         
         .crash-phone-btn { background-color: #4A1A1A; border: 2px solid #FF8A8A; border-radius: 12px; padding: 16px; color: #fff; font-size: 1rem; font-weight: bold; text-align: left; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; text-decoration: none; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto; }
-        
-        /* Sicherheitsabstand für SOS Notruf-Button oben/unten */
         .sos-btn { background-color: #8b0000 !important; border: 2px solid #ff0000 !important; margin: 35px auto !important; }
 
         .lang-switch-box { display: flex; gap: 6px; }
         .lang-tab-btn { background-color: #222; border: 1px solid #444; color: #888; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; gap: 4px; }
         .lang-tab-btn.active-lang { border-color: var(--color-blau); color: #fff; background-color: #333; }
-        
         .flag-icon { width: 16px; height: 11px; display: inline-block; border-radius: 1px; }
     </style></head><body>
 
@@ -585,20 +582,65 @@
             }
         };
 
-        let currentLang = localStorage.getItem('pacing_lang') || 'de';
-
         let mockDatabase = {
             rot3: [
-                { id: 101, title: "Dr. Thilmann (Amtsarzt)", time: "10:30 Uhr (In 2 Tagen)", az: "AZ-2026-991A", partner: "Frau Meyer (Vorzimmer)", phone: "0123456789", desc: "Untersuchung Dienstfähigkeit. Nimm die gelbe Mappe vom Schreibtisch mit. Vorher 2 Stunden totale Reizpause einplanen!", needsDocs: true, docsComplete: false, docsItems: [{name: "Aktueller Arztbericht (Kopie)", done: false}, {name: "Medikamentenplan", done: false}], depot: "Blauer Ordner 'Dienstunfall' auf dem Schreibtisch" },
-                { id: 102, title: "Widerspruchsfrist Krankenkasse", time: "Morgen um 23:59 Uhr", az: "KK-7762-V", partner: "Herr Richter (Abt. 4)", phone: "089554433", desc: "Letzter Tag zur Fristwahrung des Widerspruchs bezüglich Krankengeldstreichung.", needsDocs: false, docsItems: [], depot: "" }
+                { id: 1, title: "Amtsärztliches Gutachten", time: "09:00 Uhr (In 1 Tag)", az: "AZ-2026-X7", partner: "Frau Kling", phone: "089111", desc: "Wichtig: Alle Befunde bereitlegen.", needsDocs: true, docsComplete: false, docsItems: [{name: "Kopie Verlaufsbericht", done: false}], depot: "Mappe rot, Regal" },
+                { id: 2, title: "Fristwahrung Krankengeld", time: "12:00 Uhr (In 2 Tagen)", az: "KG-Frist-99", partner: "Zentrale", phone: "089222", desc: "Letzter Tag für postalischen Einlauf.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 3, title: "Rezeptabholung LDN", time: "16:00 Uhr (In 2 Tagen)", az: "Rezept-LDN", partner: "Dr. med. Arndt", phone: "089333", desc: "Wichtig für kontinuierliche Therapie.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 4, title: "Widerspruch Pflegegrad", time: "23:59 Uhr (In 3 Tagen)", az: "MD-PF-44", partner: "Herr Weber", phone: "089444", desc: "Fristende des ersten Einspruchs.", needsDocs: true, docsComplete: false, docsItems: [{name: "Pflegetagebuch", done: false}], depot: "Schreibtisch links" },
+                { id: 5, title: "Eilantrag Sozialgericht", time: "In 3 Tagen", az: "SG-2026-Eil", partner: "Rechtspfleger", phone: "089555", desc: "Einreichung per Fax vorab zur Fristwahrung.", needsDocs: false, docsItems: [], depot: "" }
             ],
             rot2: [
-                { id: 201, title: "Zahnarzt (Reizarme Prophylaxe)", time: "09:00 Uhr (In 4 Tagen)", az: "Praxis Kern", partner: "Dr. Kern", phone: "0711445566", desc: "Behandlung ohne laute Geräusche vereinbart. Gehörschutz und dunkle Sonnenbrille mitbringen.", needsDocs: true, docsComplete: true, docsItems: [{name: "Bonusheft", done: true}], depot: "In der Brieftasche an der Garderobe" },
-                { id: 202, title: "Befundberichte Versorgungsamt", time: "In 6 Tagen", az: "GdB-SGB-IX", partner: "Zentrale Einlaufstelle", phone: "030112233", desc: "Nachreichung der Berichte zur Feststellung des Merkzeichens G.", needsDocs: false, docsItems: [], depot: "" }
+                { id: 6, title: "Zahnarzt Notdienst (Reizarm)", time: "08:30 Uhr (In 4 Tagen)", az: "Z-Proph", partner: "Dr. Zahn", phone: "089666", desc: "Behandlung im abgedunkelten Raum vereinbart.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 7, title: "Abgabe Schwerbehindertenantrag", time: "In 5 Tagen", az: "GdB-SGB-IX", partner: "Frau Beck", phone: "089777", desc: "Einschreiben fertigmachen.", needsDocs: true, docsComplete: true, docsItems: [{name: "Befunde", done: true}], depot: "Flur-Ablage" },
+                { id: 8, title: "Therapie-Rücksprache", time: "14:00 Uhr (In 6 Tagen)", az: "Praxis-Nord", partner: "Dr. Lang", phone: "089888", desc: "Telefontermin. Keine Anfahrt nötig.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 9, title: "Frist Steuererklärung (GdB)", time: "In 7 Tagen", az: "ST-2025-V", partner: "Finanzamt O.", phone: "089999", desc: "Belege über Krankheitskosten prüfen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 10, title: "Heilmittelverordnung Physio", time: "In 7 Tagen", az: "HMV-Physio", partner: "Schwester Nina", phone: "089101", desc: "Hausbesuch-Eintrag kontrollieren.", needsDocs: false, docsItems: [], depot: "" }
             ],
-            rot1: [{ id: 301, title: "Lieferung Schwellenrampe", time: "10:00 Uhr (In 8 Tagen)", az: "Sanitätshaus Süd", partner: "Wagner (Logistik)", phone: "040998877", desc: "Techniker kommt. Haustürklingel stummschalten – er klopft sanft an die Scheibe.", needsDocs: false, docsItems: [], depot: "" }],
-            blau3: [{ id: 401, title: "LDN Rezepttelefon Hausarzt", time: "In 11 Tagen", az: "Dr. Becker", partner: "Rezeptions-Team", phone: "0711889900", desc: "Low Dose Naltrexon Rezept telefonisch anfordern.", needsDocs: false, docsItems: [], depot: "" }],
-            blau2: [], blau1: [], gruen3: [], gruen2: [], gruen1: []
+            rot1: [
+                { id: 11, title: "Lieferung Hilfsmittel (Rampe)", time: "In 8 Tagen", az: "SH-Süd", partner: "Herr Kraft", phone: "089102", desc: "Fahrer klopft leise am Fenster.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 12, title: "Antrag Haushaltshilfe", time: "In 9 Tagen", az: "KK-HHH-22", partner: "Zentrale", phone: "089103", desc: "Ärztliche Bescheinigung beilegen.", needsDocs: true, docsComplete: false, docsItems: [{name: "Muster 21", done: false}], depot: "Ordner Kasse" },
+                { id: 13, title: "Gleichstellungsantrag AfA", time: "In 10 Tagen", az: "AfA-GL-26", partner: "Herr Jobst", phone: "089104", desc: "Eingangsbestätigung anfordern.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 14, title: "Befundkopie Radiologe", time: "In 10 Tagen", az: "MRT-Befund", partner: "Anmeldung", phone: "089105", desc: "CD und schriftlicher Bericht.", needsDocs: false, docsItems: [], depot: "" }
+            ],
+            blau3: [
+                { id: 15, title: "Kopienbestellung Akte", time: "In 11 Tagen", az: "AK-AfA-9", partner: "Frau Schulze", phone: "089106", desc: "Akteneinsicht nach SGB X § 25.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 16, title: "Termin Orthopäde", time: "In 12 Tagen", az: "OR-Termin", partner: "Dr. Bein", phone: "089107", desc: "Rollstuhlgerechter Zugang vorhanden.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 17, title: "Antrag Parkerleichterung", time: "In 14 Tagen", az: "VA-Park-G", partner: "Bürgerbüro", phone: "089108", desc: "Merkzeichen aG oder G erforderlich.", needsDocs: false, docsItems: [], depot: "" }
+            ],
+            blau2: [
+                { id: 18, title: "Überprüfung GdB-Bescheid", time: "In 15 Tagen", az: "VA-GdB-Prüf", partner: "VdK Berater", phone: "089109", desc: "Widerspruchschancen abwägen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 19, title: "Folgeantrag Rente (EM)", time: "In 17 Tagen", az: "DRV-EM-26", partner: "Zentrale", phone: "089110", desc: "Frühzeitig absenden wegen Bearbeitungszeit.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 20, title: "Sanitätshaus Beratung Rollstuhl", time: "In 18 Agen", az: "SH-Aktiv", partner: "Herr Rad", phone: "089112", desc: "Ausmessung vor Ort im Haus.", needsDocs: false, docsItems: [], depot: "" }
+            ],
+            blau1: [
+                { id: 21, title: "Wiedereingliederungsplan", time: "In 19 Tagen", az: "BEM-WI-26", partner: "Frau Personal", phone: "089113", desc: "Stufenweise Erhöhung strikt ablehnen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 22, title: "Kontrolle Blutwerte", time: "In 20 Tagen", az: "Lab-Labor", partner: "Praxis-Team", phone: "089114", desc: "Nüchtern erscheinen für Entnahme.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 23, title: "Antrag Blindengeld (Zusatz)", time: "In 21 Tagen", az: "Z-BL-99", partner: "Landratsamt", phone: "089115", desc: "Visus-Nachweis notwendig.", needsDocs: false, docsItems: [], depot: "" }
+            ],
+            gruen3: [
+                { id: 24, title: "Wohnumfeldberatung", time: "In 22 Tagen", az: "Pflege-Wohn", partner: "Frau Umbau", phone: "089116", desc: "Zuschuss für Badumbau prüfen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 25, title: "Antrag Rehasport", time: "In 24 Tagen", az: "KK-Reha-Sp", partner: "Zentrale", phone: "089117", desc: "Genehmigung durch Kasse abwarten.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 26, title: "Zuzahlungsbefreiung KK", time: "In 26 Tagen", az: "KK-Zuzahl", partner: "Frau Spar", phone: "089118", desc: "Quittungen sammeln.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 27, title: "Antrag Assistenzhund", time: "In 28 Tagen", az: "AH-Hund-26", partner: "Verein Ost", phone: "089119", desc: "Prüfung der Kostenübernahme.", needsDocs: false, docsItems: [], depot: "" }
+            ],
+            gruen2: [
+                { id: 28, title: "Mitgliedschaft VdK", time: "In 30 Tagen", az: "VdK-Anm", partner: "Mitgliederservice", phone: "089120", desc: "Beitragseinzug prüfen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 29, title: "Termin Umweltmedizin", time: "In 35 Tagen", az: "UM-Spezial", partner: "Prof. Dr. Gift", phone: "089121", desc: "Sehr lange Wartezeit einplanen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 30, title: "Patientenverfügung Update", time: "In 40 Tagen", az: "PV-Notar", partner: "Notar Siegel", phone: "089122", desc: "Unterschrift beglaubigen lassen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 31, title: "Antrag Kuraufenthalt", time: "In 45 Tagen", az: "KK-Kur-26", partner: "Zentrale", phone: "089123", desc: "Sanatorium muss reizarm sein.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 32, title: "Vorsorgevollmacht Hinterlegung", time: "In 50 Tagen", az: "VV-Gericht", partner: "Zentralregister", phone: "089124", desc: "Registrierungsgebühr einplanen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 33, title: "Krankenkassenwechsel Option", time: "In 60 Tagen", az: "KK-Wechsel", partner: "Berater", phone: "089125", desc: "Satzungsleistungen vergleichen.", needsDocs: false, docsItems: [], depot: "" }
+            ],
+            gruen1: [
+                { id: 34, title: "Erneuerung Schwerbehindertenausweis", time: "In 70 Tagen", az: "VA-Ausweis-Ex", partner: "Frau Pass", phone: "089126", desc: "Passbild einsenden.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 35, title: "Hauptuntersuchung Auto (GdB)", time: "In 90 Tagen", az: "TÜV-HU", partner: "Prüfer", phone: "089127", desc: "Eintragung Umbau prüfen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 36, title: "Lebensmittelallergie Test", time: "In 120 Tagen", az: "All-Test", partner: "Dr. Allergie", phone: "089128", desc: "Vorbereitende Karenzdiät beachten.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 37, title: "Rentenkonto Klärung", time: "In 150 Tagen", az: "DRV-Konto", partner: "Herr Rentner", phone: "089129", desc: "Fehlende Zeiten nachmelden.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 38, title: "Zuschuss barrierefreies Bad", time: "In 180 Tagen", az: "KfW-455-B", partner: "Zentrale", phone: "089130", desc: "Antrag vor Umbaubeginn stellen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 39, title: "Langzeit-EKG Auswertung", time: "In 200 Tagen", az: "Kardio-Plan", partner: "Dr. Herz", phone: "089131", desc: "POTS-Diagnostik besprechen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 40, title: "Archivierung Altablagen", time: "In 250 Tagen", az: "Archiv-2025", partner: "Selbst", phone: "Keine", desc: "Nur bei sehr guter Tagesform sortieren.", needsDocs: false, docsItems: [], depot: "" }
+            ]
         };
 
         let currentActiveScreen = 'startScreen';
@@ -700,7 +742,6 @@
                 if(p2) html += `<a href="tel:${p2}" class="crash-phone-btn"><span>📞 ${lbl2}: ${p2}</span><span>➔</span></a>`;
                 if(p3) html += `<a href="tel:${p3}" class="crash-phone-btn"><span>📞 ${lbl3}: ${p3}</span><span>➔</span></a>`;
                 
-                // Notruf-Feld hinter Kontakt 3 gereiht mit Sicherheitsabstand-Klasse
                 html += `<a href="tel:${sosNum}" class="crash-phone-btn sos-btn"><span>🚨 ${lblSos}: ${sosNum}</span><span>➔</span></a>`;
                 
                 container.innerHTML = html;
@@ -713,7 +754,6 @@
             if(document.getElementById('brightnessRangeInput')) document.getElementById('brightnessRangeInput').value = val;
         }
 
-        // Helligkeit drosselt sich über 1,5 Sekunden gleichmäßig herunter
         function fadeBrightnessToMin() {
             if (fadeInterval) clearInterval(fadeInterval);
             let currentBright = parseInt(preCrashBrightness, 10);
