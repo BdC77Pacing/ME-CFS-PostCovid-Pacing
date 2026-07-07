@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="de" id="html-root"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v65</title>
+    <title>Pacing App v67</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -171,6 +171,10 @@
         .lang-tab-btn { background-color: #222; border: 1px solid #444; color: #888; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; gap: 4px; }
         .lang-tab-btn.active-lang { border-color: var(--color-blau); color: #fff; background-color: #333; }
         .flag-icon { width: 16px; height: 11px; display: inline-block; border-radius: 1px; }
+
+        /* Info-Button Style */
+        .info-trigger-btn { background: none; border: none; color: var(--color-blau); font-size: 1.15rem; cursor: pointer; padding: 0 5px; vertical-align: middle; }
+        .info-desc-text { display: none; font-size: 0.85rem; color: #FFE066; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin: 5px 0 10px 0; border-left: 2px solid #FFE066; }
     </style></head><body>
 
     <header class="global-app-header">
@@ -185,8 +189,7 @@
         </div>
     </header>
 
-    <!-- LIVE-UHRZEIT UND DATUMS ANZEIGE -->
-    <div class="live-time-ticker" id="appLiveTimeTicker">07.07.2026 - 10:52:00 Uhr</div>
+    <div class="live-time-ticker" id="appLiveTimeTicker">07.07.2026 - 11:11:00 Uhr</div>
 
     <div id="welcomeScreen" class="screen active">
         <div class="start-container" style="text-align: left;">
@@ -215,7 +218,7 @@
                 </button>
                 <button class="quad-btn" onclick="toggleConfigLayer('layerAuditiv')">
                     <span class="icon">🔔</span>
-                    <span data-txt="btn_audio">Auditive Einstellungen</span>
+                    <span data-txt="btn_audio_haptic">Auditive & Haptische Optionen</span>
                 </button>
                 <button class="quad-btn" onclick="toggleConfigLayer('layerTerminEingabe')" style="border: 1px solid var(--color-blau);">
                     <span class="icon">📅</span>
@@ -257,11 +260,35 @@
             </div>
 
             <div id="layerAuditiv" class="config-layer">
-                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:0.95rem;" data-txt="audio_title">Wecker- & Signal-Modus</h3>
-                <select id="pacingAlarmSoundMode" class="pacing-select" style="margin-bottom:0;" onchange="syncAlarmSoundMode(this.value); updateSetupButtonText();">
-                    <option value="visual" data-txt="opt_vis">Nur visuelles Blinken (Reizarm)</option>
-                    <option value="sound" data-txt="opt_sound">Sanfter Gong + Visuell</option>
+                <!-- ℹ️ NEU: Grundsätzlich benötigter Puffer mit Info-Button -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+                    <label style="font-size:0.9rem; font-weight:600; color:#D6D6FF;">Grundsätzlich benötigter Puffer?</label>
+                    <button class="info-trigger-btn" onclick="toggleInfoVisibility('pufferGlobalInfoText')">ℹ️</button>
+                </div>
+                <div id="pufferGlobalInfoText" class="info-desc-text">Der Pacing-Rettungsanker (Puffer) schützt deine verbleibende Tagesenergie. Er schlägt rechtzeitig vor Abfahrt an, um eine reizarme Vorruhe-Phase zu erzwingen, bevor die Belastung durch den eigentlichen Termin oder die Fahrt beginnt.</div>
+                
+                <select id="pacingGlobalBufferSelect" class="pacing-select" onchange="localStorage.setItem('pacing_global_buffer', this.value)">
+                    <option value="15">15 Min</option>
+                    <option value="30" selected>30 Min</option>
+                    <option value="45">45 Min</option>
+                    <option value="60">1 Std</option>
+                    <option value="120">2 Std (Maximale Vorruhe)</option>
                 </select>
+
+                <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:0.95rem;" data-txt="audio_title">Wecker- & Signal-Modus</h3>
+                <select id="pacingAlarmSoundMode" class="pacing-select" onchange="handleAudioModeSelection(this.value)">
+                    <option value="visual">Nur visuelles Blinken (Reizarm)</option>
+                    <option value="sound">Sanfter Gong + Visuell</option>
+                    <option value="vibe_increasing">Leicht beginnendes und stärker werdendes Vibrieren</option>
+                    <option value="vibe_constant">Gleichbleibendes Vibrieren</option>
+                </select>
+
+                <div id="constantVibrationSliderWrapper" style="display:none; margin-top:10px; background:#121212; padding:10px; border-radius:8px;">
+                    <label id="vibeIntensityLabel" style="font-size:0.85rem; color:#aaa;">📳 Vibrations-Intensität: 80%</label>
+                    <input type="range" min="10" max="100" step="5" value="80" class="atem-slider" id="vibeIntensityInput" oninput="document.getElementById('vibeIntensityLabel').innerText='📳 Vibrations-Intensität: '+this.value+'%'">
+                </div>
+                
+                <p id="audioSaveConfirmationText" style="color:#8AFF9A; font-size:0.85rem; margin-top:10px; font-weight:500;"></p>
             </div>
 
             <div id="layerTerminEingabe" class="config-layer">
@@ -274,26 +301,26 @@
                 
                 <div id="manualFormContainer" style="display:none; border-top:1px dashed #444; padding-top:12px;">
                     <input type="text" id="newFormTitle" class="setup-input" placeholder="Bei wem ist der Termin?">
-                    
-                    <div style="position:relative; display:flex; align-items:center;">
-                        <input type="date" id="newFormDate" class="setup-input" style="padding-right:2.5rem;">
-                    </div>
-                    
-                    <input type="time" id="newFormTime" class="setup-input" placeholder="Uhrzeit">
+                    <input type="date" id="newFormDate" class="setup-input">
+                    <input type="time" id="newFormTime" class="setup-input">
                     <input type="text" id="newFormAz" class="setup-input" placeholder="Ident / Az">
                     <input type="text" id="newFormPartner" class="setup-input" placeholder="Ansprechpartner">
                     <input type="tel" id="newFormPhone" class="setup-input" placeholder="Telefonnummer">
                     
-                    <label style="font-size:0.85rem; color:#aaa; font-weight:600; display:block; margin-top:0.4rem;" data-txt="required_docs_lbl">Folgende Dokumente benötige ich!</label>
-                    <select id="newFormDocsSelect" class="pacing-select" onchange="addPredefinedDoc(this.value)">
-                        <!-- Dynamisch befüllt via JS -->
-                    </select>
+                    <!-- ℹ️ NEU: Ungefähre Fahrtzeit mit Infobutton -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 4px;">
+                        <label style="font-size:0.85rem; color:#aaa; font-weight:600;">Ungefähre Fahrtzeit mit ÖPNV oder privat?</label>
+                        <button class="info-trigger-btn" onclick="toggleInfoVisibility('fahrtzeitManualInfoText')">ℹ️</button>
+                    </div>
+                    <div id="fahrtzeitManualInfoText" class="info-desc-text">Die eingetragene Fahrtzeit wird zusammen mit deinem Pacing-Rettungsanker (Puffer) verrechnet. Dadurch ermittelt das System minutengenau, wann deine reizarme Ruhepause beginnen muss, um PEM sicher abzuwehren.</div>
+                    <input type="number" id="newFormDriveTime" class="setup-input" placeholder="Fahrzeit in Minuten (z.B. 25)" value="20">
                     
+                    <label style="font-size:0.85rem; color:#aaa; font-weight:600; display:block; margin-top:0.4rem;">Folgende Dokumente benötige ich!</label>
+                    <select id="newFormDocsSelect" class="pacing-select" onchange="addPredefinedDoc(this.value)"></select>
                     <input type="text" id="newFormCustomDoc" class="setup-input" placeholder="Freie Eingabe eines neuen Dokuments">
-                    
                     <textarea id="newFormDesc" class="setup-input" style="height:60px; resize:none;" placeholder="Zusätzliche Reizarm-Info / Beschreibung"></textarea>
                     
-                    <button class="action-btn" style="background-color:#1E3D23; border-color:#4ade80; color:#8AFF9A; margin-top:5px;" onclick="saveManualAppointment()">Termin speichern</button>
+                    <button class="action-btn" style="background-color:#1E3D23; border-color:#4ade80; color:#8AFF9A; margin-top:5px;" onclick="saveManualAppointment()">Termin保存</button>
                 </div>
             </div>
 
@@ -304,9 +331,6 @@
     <!-- SCREEN 3: TAGESFORM-AMPEL -->
     <div id="startScreen" class="screen">
         <div class="start-container">
-            <div id="onboardingIntro" style="margin-bottom: 25px; color:#D6D6FF; font-size:0.95rem; background-color: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #444; text-align: center;" data-txt="intro_pacing">
-                Bestimme deine heutige Energie für die automatische Filterung.
-            </div>
             <div class="start-question" data-txt="question_form">Wie geht es Dir gerade?</div>
             <div class="start-subtext" data-txt="question_honesty">Bitte sei ehrlich, denn nur dann können wir Dir mit diesem Planer effektiv helfen</div>
             
@@ -314,6 +338,8 @@
             <button class="ampel-btn btn-gehtso" onclick="handleStartChoice('gehtso')" data-txt="ampel_ok">Mittelmäßiger Tag</button>
             <button class="ampel-btn btn-naja" onclick="handleStartChoice('naja')" data-txt="ampel_bad">Schlechter Tag mit PEM-Phase</button>
             <button class="ampel-btn btn-crash" onclick="handleStartChoice('crash')" data-txt="ampel_crash">Crash steht kurz bevor</button>
+            
+            <button class="action-btn" style="margin-top:45px; background-color:#1a1a1a; border-color:#444;" onclick="showScreen('setupScreen')">⚙️ Zurück ins Hauptmenü</button>
         </div>
     </div>
 
@@ -417,7 +443,6 @@
                 </div>
             </div>
 
-            <!-- 📜 NEU: SICHTBARES TERMINARCHIV -->
             <div id="containerSektionArchiv">
                 <div class="section-title" style="color: #666;">📜 Abgelaufenes Terminarchiv (60 Tage Vorhaltezeit)</div>
                 <div class="field-row main-header-row" style="--accent-color: #444; background-color: #161616;" onclick="checkAndTogglePanel('archivePanel', this)">
@@ -429,7 +454,7 @@
                     <div class="chevron">&#9656;</div>
                 </div>
                 <div id="archivePanel" class="sub-panel">
-                    <div id="archiveItemsContent" style="color: #666; font-size: 0.85rem; padding: 5px;"></div>
+                    <div id="archiveItemsContent" style="display:flex; flex-direction:column; gap:8px;"></div>
                 </div>
             </div>
         </div>
@@ -442,7 +467,7 @@
     </div>
 
     <div id="detailScreen" class="screen">
-        <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="goBack('appointmentsScreen')" data-txt="btn_back_list">↩ Zurück zur Liste</button>
+        <button class="action-btn action-btn-contrast" style="margin-bottom:15px;" onclick="handleDetailBackNavigation()" data-txt="btn_back_list">↩ Zurück</button>
         
         <div class="docs-status-box" id="docsStatusSection">
             <div style="font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
@@ -486,6 +511,8 @@
                 </select>
                 <p id="calculatedAlarmTime" style="font-size:0.85rem; color:#8AFF9A; font-weight:500; line-height:1.4;"></p>
             </div>
+            
+            <button id="manualArchiveDetailBtn" class="action-btn" style="background-color:#4A3319; border-color:#FFA333; color:#FFA333; margin-top:15px;" onclick="manuallyArchiveActiveTermin()">✓ Als erledigt markieren & archivieren</button>
         </div>
     </div>
 
@@ -508,144 +535,219 @@
     </div>
 
     <script>
-        // Fester Bezugszeitpunkt für die Live-Simulation
-        let simulatortag = new Date(2026, 6, 7, 10, 52, 0);
+        let simulatortag = new Date(2026, 6, 7, 11, 11, 0);
+        let detailOpenedFromArchive = false;
 
         function runLiveClockSimulation() {
             simulatortag.setSeconds(simulatortag.getSeconds() + 1);
-            const pad = (n) => String(num = n).padStart(2, '0');
+            const pad = (n) => String(n).padStart(2, '0');
             const formatStr = `${pad(simulatortag.getDate())}.${pad(simulatortag.getMonth()+1)}.${simulatortag.getFullYear()} - ${pad(simulatortag.getHours())}:${pad(simulatortag.getMinutes())}:${pad(simulatortag.getSeconds())} Uhr`;
-            const el = document.getElementById('appLiveTimeTicker');
-            if(el) el.innerText = formatStr;
+            if(document.getElementById('appLiveTimeTicker')) document.getElementById('appLiveTimeTicker').innerText = formatStr;
         }
         setInterval(runLiveClockSimulation, 1000);
 
-        const translations = {
-            de: {
-                welcome_title: "Herzlich willkommen",
-                welcome_sec1: "🔒 <strong>100% Datensicherheit:</strong> Deine Daten werden ausschließlich auf deinem eigenen Smartphone gespeichert. Es gibt keinen Server und keine Datenübertragung nach außen.",
-                welcome_sec2: "🧪 <strong>Testphase:</strong> Dies ist ein Prototyp. Wir freuen uns über Rückmeldungen zu Verbesserungen, Fehlermeldungen oder unhandlicher Bedienung.",
-                nav_settings: "Einstellungen", onboarding_sub: "Wähle die für dich angenehmsten Einstellungen aus:",
-                btn_textsize: "Schriftgröße", btn_visual: "Visuelle Ansicht", btn_audio: "Auditive Optionen", btn_add_appointment: "Termineingabe",
-                vis_title: "Farbschwächen & Reizreduktion:", opt_def: "Standard (Reizarm Dunkel)",
-                opt_rg: "Rot-Grün-Schwäche", opt_by: "Blau-Gelb-Schwäche", opt_mono: "Monochrom (100% Graustufen)",
-                vis_bright: "🖥️ Bildschirm-Helligkeit drosseln:", audio_title: "Wecker- & Signal-Modus",
-                opt_vis: "Nur visuelles Blinken (Reizarm)", opt_sound: "Sanfter Gong + Visuell",
-                question_form: "Wie geht es Dir gerade?", question_honesty: "Bitte sei ehrlich, denn nur dann können wir Dir mit diesem Planer effektiv helfen",
-                ampel_good: "Guter Tag", ampel_ok: "Mittelmäßiger Tag", ampel_bad: "Schlechter Tag mit PEM-Phase", ampel_crash: "Crash steht kurz bevor",
-                menu_title: "⚙️ Hauptmenü & Einstellungen", btn_emergency: "Notfallkontakt", btn_save_return: "Zum Planer",
-                tier_high: "Höchste Dringlichkeit", tier_med: "Mittlere Dringlichkeit", tier_low: "Niedrige Dringlichkeit",
-                days_1_3: "1 - 3 Tage (Kritische Fristen)", days_4_7: "4 - 7 Tage", days_8_10: "8 - 10 Tage", days_11_21: "11 - 21 Tage",
-                days_11_14: "11 - 14 Tage", days_15_18: "15 - 18 Tage", days_19_21: "19 - 21 Tage", days_22_plus: "Über 22 Tage",
-                days_22_28: "22 - 28 Tage", days_29_60: "29 - 60 Tage", days_60_plus: "Über 60 Tage",
-                btn_back_overview: "↩ Zurück zur Übersicht", btn_back_list: "↩ Zurück zur Liste",
-                det_docs_needed: "📋 Benötigte Unterlagen:", det_location: "📍 Physischer Ablageort im Raum:",
-                det_partner: "Ansprechpartner", det_phone: "Direktruf", det_reizinfo: "📋 Reizarm-Info:",
-                det_drive: "⏱️ Geschätzte Fahrzeit (Minuten):", det_pacing_anchor: "🔔 Pacing-Rettungsanker (Puffer):",
-                crash_title: "🚨 Akuter Crash-Schutz", crash_breathe_box: "🧘 MITATMEN (FARBTAKT)",
-                crash_speeddial: "📞 Sofort-Anruf Kontakte:", btn_exit_crash: "← Modus beenden",
-                em_input_title: "Signal-Eingabe: Notfallkontakte", b_txt: "Sekunden",
-                required_docs_lbl: "Folgende Dokumente benötige ich!"
-            },
-            en: {
-                welcome_title: "Welcome",
-                welcome_sec1: "🔒 <strong>100% Data Security:</strong> Your data is strictly saved on your smartphone. No servers, no data transfers outside.",
-                welcome_sec2: "🧪 <strong>Beta Phase:</strong> This is a prototype. We are glad to hear any bug reports, layout requests or handling feedback.",
-                nav_settings: "Accessibility", onboarding_sub: "Choose the options most comfortable for you:",
-                btn_textsize: "Text Size", btn_visual: "Visual Mode", btn_audio: "Add Appointments",
-                vis_title: "Color Filters & Processing Control:", opt_def: "Default (Low-Stimulus Dark)",
-                opt_rg: "Red-Green Blindness", opt_by: "Blue-Yellow Blindness", opt_mono: "Monochrome (100% Grayscale)",
-                vis_bright: "🖥️ Reduce Screen Brightness:", audio_title: "Alarm & Alert Mode",
-                opt_vis: "Visual Flash Only (Low Stimulus)", opt_sound: "Soft Gong + Visual",
-                question_form: "How is your energy right now?", question_honesty: "Please be honest, only then we can effectively help you with this planner",
-                ampel_good: "Good Day", ampel_ok: "Average Day", ampel_bad: "Bad Day with PEM phase", ampel_crash: "Crash is imminent",
-                menu_title: "⚙️ Main Menu & Settings", btn_emergency: "Emergency Contacts", btn_save_return: "To Planner",
-                tier_high: "High Urgency", tier_med: "Medium Urgency", tier_low: "Low Urgency",
-                days_1_3: "1 - 3 Days (Critical Deadlines)", days_4_7: "4 - 7 Days", days_8_10: "8 - 10 Days", days_11_21: "11 - 21 Days",
-                days_11_14: "11 - 14 Days", days_15_18: "15 - 18 Days", days_19_21: "19 - 21 Days", days_22_plus: "Over 22 Days",
-                days_22_28: "22 - 28 Days", days_29_60: "29 - 60 Days", days_60_plus: "Over 60 Days",
-                btn_back_overview: "↩ Back to Overview", btn_back_list: "↩ Back to List",
-                det_docs_needed: "📋 Required Documents:", det_location: "📍 Physical Storage Location:",
-                det_partner: "Contact Person", det_phone: "Direct Line", det_reizinfo: "📋 Processing Info:",
-                det_drive: "⏱️ Estimated Drive Time (Minutes):", det_pacing_anchor: "🔔 Pacing Buffer Anchor:",
-                crash_title: "🚨 Acute Crash Guard", crash_breathe_box: "🧘 BREATHE HERE (COLOR TRACK)",
-                crash_speeddial: "📞 Emergency Speed Dial:", btn_exit_crash: "← Exit Guard Mode",
-                em_input_title: "Input Device: Emergency Contacts", b_txt: "seconds",
-                required_docs_lbl: "Documents I need:"
-            }
-        };
-
-        let baseDocumentOptions = [
-            "Aktueller Arztbericht", "Ärztliche Befunde", "Bonusheft", "Kopie Verlaufsbericht", "Medikamentenplan", "Pflegetagebuch", "Widerspruchsschreiben"
-        ];
-
         let mockDatabase = {
             rot3: [
-                { id: 1, title: "Amtsärztliches Gutachten", time: "09:00 Uhr (In 1 Tag)", az: "AZ-2026-X7", partner: "Frau Kling (Zentrale)", phone: "08911145", desc: "Untersuchung Dienstfähigkeit. Nimm die gelbe Mappe vom Schreibtisch mit.", needsDocs: true, docsComplete: false, docsItems: [{name: "Kopie Verlaufsbericht", done: false}], depot: "Mappe rot" },
-                { id: 2, title: "Fristwahrung Krankengeld", time: "12:00 Uhr (In 2 Tagen)", az: "KG-Frist-99", partner: "Herr Richter", phone: "08922267", desc: "Widerspruch Krankengeldstrehung.", needsDocs: true, docsComplete: true, docsItems: [{name: "Widerspruchsschreiben", done: true}], depot: "Schreibtisch" }
+                { id: 1, title: "Amtsärztliches Gutachten", time: "11:15 Uhr", az: "AZ-2026-X7", partner: "Frau Kling (Zentrale)", phone: "08911145", desc: "Untersuchung Dienstfähigkeit.", needsDocs: true, docsComplete: false, docsItems: [{name: "Kopie Verlaufsbericht", done: false}], depot: "Mappe rot", driveTime: 20, timestamp: new Date(2026,6,7,11,15).getTime() },
+                { id: 2, title: "Fristwahrung Krankengeld", time: "12:00 Uhr", az: "KG-Frist-99", partner: "Herr Richter", phone: "08922267", desc: "Widerspruch Einreichen.", needsDocs: true, docsComplete: true, docsItems: [{name: "Widerspruchsschreiben", done: true}], depot: "Schreibtisch", driveTime: 15, timestamp: new Date(2026,6,7,12,0).getTime() },
+                { id: 3, title: "Rezeptabholung LDN", time: "16:00 Uhr", az: "Rezept-LDN", partner: "Praxis Dr. Arndt", phone: "08933389", desc: "Naltrexon anfordern.", needsDocs: false, docsItems: [], depot: "Brieftasche", driveTime: 10, timestamp: new Date(2026,6,7,16,0).getTime() },
+                { id: 4, title: "Widerspruch Pflegegrad", time: "23:59 Uhr", az: "MD-PF-44", partner: "Herr Weber", phone: "08944412", desc: "Fristende Pflegegrad.", needsDocs: true, docsComplete: false, docsItems: [{name: "Pflegetagebuch", done: false}], depot: "Regal", driveTime: 0, timestamp: new Date(2026,6,7,23,59).getTime() },
+                { id: 5, title: "Eilantrag Sozialgericht", time: "Morgen", az: "SG-2026-Eil", partner: "Rechtspfleger Meyer", phone: "08955534", desc: "Vorab per Fax.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,6,8,12,0).getTime() }
             ],
-            rot2: [], rot1: [], blau3: [], blau2: [], blau1: [], gruen3: [], gruen2: [], gruen1: []
+            rot2: [
+                { id: 6, title: "Zahnarzt Notdienst (Reizarm)", time: "In 4 Tagen", az: "Z-Proph", partner: "Dr. Zahn", phone: "08966690", desc: "Abgedunkelter Raum.", needsDocs: false, docsItems: [], depot: "", driveTime: 25, timestamp: new Date(2026,6,11,9,0).getTime() },
+                { id: 7, title: "Abgabe Schwerbehindertenantrag", time: "In 5 Tagen", az: "GdB-SGB-IX", partner: "Frau Beck", phone: "08977712", desc: "Einschreiben absenden.", needsDocs: true, docsComplete: true, docsItems: [{name: "Ärztliche Befunde", done: true}], depot: "Flur", driveTime: 30, timestamp: new Date(2026,6,12,12,0).getTime() },
+                { id: 8, title: "Therapie-Rücksprache", time: "In 6 Tagen", az: "Praxis-Nord", partner: "Dr. Lang", phone: "08988843", desc: "Telefontermin.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,6,13,14,0).getTime() },
+                { id: 9, title: "Frist Steuererklärung", time: "In 7 Tagen", az: "ST-2025-V", partner: "Finanzamt", phone: "08999911", desc: "Belege prüfen.", needsDocs: false, docsItems: [], depot: "Ordner", driveTime: 15, timestamp: new Date(2026,6,14,12,0).getTime() },
+                { id: 10, title: "Heilmittelverordnung Physio", time: "In 7 Tagen", az: "HMV-Physio", partner: "Schwester Nina", phone: "08910199", desc: "Hausbesuch.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,6,14,16,0).getTime() }
+            ],
+            rot1: [
+                { id: 11, title: "Lieferung Rampe", time: "In 8 Tagen", az: "SH-Süd", partner: "Herr Kraft", phone: "08910244", desc: "Fahrer klopft leise.", needsDocs: false, docsItems: [], depot: "", driveTime: 20, timestamp: new Date(2026,6,15,10,0).getTime() },
+                { id: 12, title: "Antrag Haushaltshilfe", time: "In 9 Tagen", az: "KK-HHH-22", partner: "Zentrale Kasse", phone: "08910355", desc: "Bescheinigung beilegen.", needsDocs: true, docsComplete: false, docsItems: [{name: "Muster 21", done: false}], depot: "Ordner", driveTime: 0, timestamp: new Date(2026,6,16,12,0).getTime() },
+                { id: 13, title: "Gleichstellungsantrag AfA", time: "In 10 Tagen", az: "AfA-GL-26", partner: "Herr Jobst", phone: "08910466", desc: "Kündigungsschutz.", needsDocs: false, docsItems: [], depot: "", driveTime: 40, timestamp: new Date(2026,6,17,11,0).getTime() },
+                { id: 14, title: "Befundkopie Radiologe", time: "In 10 Tagen", az: "MRT-Befund", partner: "Anmeldung", phone: "08910577", desc: "CD abholen.", needsDocs: false, docsItems: [], depot: "Schublade", driveTime: 15, timestamp: new Date(2026,6,17,15,0).getTime() }
+            ],
+            blau3: [
+                { id: 15, title: "Kopienbestellung Akte", time: "In 11 Tagen", az: "AK-AfA-9", partner: "Frau Schulze", phone: "08910688", desc: "SGB X Antrag.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,6,18,12,0).getTime() },
+                { id: 16, title: "Termin Orthopäde", time: "In 12 Tagen", az: "OR-Termin", partner: "Dr. Bein", phone: "08910799", desc: "Rollstuhlzugang vorhanden.", needsDocs: false, docsItems: [], depot: "", driveTime: 35, timestamp: new Date(2026,6,19,9,30).getTime() },
+                { id: 17, title: "Antrag Parkerleichterung", time: "In 14 Tagen", az: "VA-Park-G", partner: "Bürgerbüro", phone: "08910811", desc: "Blauer Ausweis.", needsDocs: false, docsItems: [], depot: "", driveTime: 20, timestamp: new Date(2026,6,21,11,0).getTime() }
+            ],
+            blau2: [
+                { id: 18, title: "Überprüfung GdB-Bescheid", time: "In 15 Tagen", az: "VA-GdB-Prüf", partner: "VdK Berater", phone: "08910922", desc: "Widerspruch abwägen.", needsDocs: false, docsItems: [], depot: "Mappe", driveTime: 30, timestamp: new Date(2026,6,22,14,0).getTime() },
+                { id: 19, title: "Folgeantrag Rente (EM)", time: "In 17 Tagen", az: "DRV-EM-26", partner: "DRV", phone: "08911033", desc: "EM-Rente verlängern.", needsDocs: false, docsItems: [], depot: "", driveTime: 45, timestamp: new Date(2026,6,24,10,0).getTime() },
+                { id: 20, title: "Beratung Aktiv-Rollstuhl", time: "In 18 Tagen", az: "SH-Aktiv", partner: "Herr Rad", phone: "08911255", desc: "Ausmessung im Haus.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,6,25,13,0).getTime() }
+            ],
+            blau1: [
+                { id: 21, title: "Wiedereingliederungsplan", time: "In 19 Tagen", az: "BEM-WI-26", partner: "Frau Personal", phone: "08911366", desc: "Belastungsgrenze beachten.", needsDocs: false, docsItems: [], depot: "", driveTime: 20, timestamp: new Date(2026,6,26,10,30).getTime() },
+                { id: 22, title: "Kontrolle Blutwerte", time: "In 20 Tagen", az: "Lab-Labor", partner: "Praxis", phone: "08911477", desc: "Nüchtern erscheinen.", needsDocs: false, docsItems: [], depot: "", driveTime: 15, timestamp: new Date(2026,6,27,8,0).getTime() },
+                { id: 23, title: "Antrag Blindengeld", time: "In 21 Tagen", az: "Z-BL-99", partner: "Landratsamt", phone: "08911588", desc: "Visus-Nachweis beilegen.", needsDocs: false, docsItems: [], depot: "", driveTime: 25, timestamp: new Date(2026,6,28,12,0).getTime() }
+            ],
+            gruen3: [
+                { id: 24, title: "Wohnumfeldberatung", time: "In 22 Tagen", az: "Pflege-Wohn", partner: "Frau Umbau", phone: "08911699", desc: "Badumbau Prüfung.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,6,29,15,0).getTime() },
+                { id: 25, title: "Antrag Rehasport", time: "In 24 Tagen", az: "KK-Reha-Sp", partner: "Krankenkasse", phone: "08911711", desc: "Genehmigung abwarten.", needsDocs: false, docsItems: [], depot: "", driveTime: 15, timestamp: new Date(2026,6,31,12,0).getTime() },
+                { id: 26, title: "Zuzahlungsbefreiung KK", time: "In 26 Tagen", az: "KK-Zuzahl", partner: "Frau Spar", phone: "08911822", desc: "Quittungen einreichen.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,7,2,11,0).getTime() },
+                { id: 27, title: "Antrag Assistenzhund", time: "In 28 Tagen", az: "AH-Hund-26", partner: "Verein Ost", phone: "08911933", desc: "Kostenübernahme prüfen.", needsDocs: false, docsItems: [], depot: "", driveTime: 50, timestamp: new Date(2026,7,4,14,0).getTime() }
+            ],
+            gruen2: [
+                { id: 28, title: "Mitgliedschaft VdK", time: "In 30 Tagen", az: "VdK-Anm", partner: "Service", phone: "08912044", desc: "Rechtsschutz decken.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,7,6,12,0).getTime() },
+                { id: 29, title: "Termin Umweltmedizin", time: "In 35 Tagen", az: "UM-Spezial", partner: "Prof. Gift", phone: "08912155", desc: "Lange Wartezeit.", needsDocs: false, docsItems: [], depot: "", driveTime: 60, timestamp: new Date(2026,7,11,10,0).getTime() },
+                { id: 30, title: "Patientenverfügung Update", time: "In 40 Tagen", az: "PV-Notar", partner: "Notar Siegel", phone: "08912266", desc: "Unterschrift beglaubigen.", needsDocs: false, docsItems: [], depot: "Ordner", driveTime: 15, timestamp: new Date(2026,7,16,11,30).getTime() },
+                { id: 31, title: "Antrag Kuraufenthalt", time: "In 45 Tagen", az: "KK-Kur-26", partner: "Zentrale Kasse", phone: "08912377", desc: "MCS-geeignet.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,7,21,12,0).getTime() },
+                { id: 32, title: "Vorsorgevollmacht", time: "In 50 Tagen", az: "VV-Gericht", partner: "Zentralregister", phone: "08912488", desc: "Gebühr einplanen.", needsDocs: false, docsItems: [], depot: "", driveTime: 20, timestamp: new Date(2026,7,26,10,0).getTime() },
+                { id: 33, title: "Krankenkassenwechsel", time: "In 60 Tagen", az: "KK-Wechsel", partner: "Berater", phone: "08912599", desc: "Satzung abgleichen.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,8,5,12,0).getTime() }
+            ],
+            gruen1: [
+                { id: 34, title: "Schwerbehindertenausweis", time: "In 70 Tagen", az: "VA-Ausweis-Ex", partner: "Frau Pass", phone: "08912611", desc: "Passbild senden.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2026,8,15,12,0).getTime() },
+                { id: 35, title: "HU Auto (GdB-Umbau)", time: "In 90 Tagen", az: "TÜV-HU", partner: "Prüfer", phone: "08912722", desc: "Handgas prüfen.", needsDocs: false, docsItems: [], depot: "", driveTime: 30, timestamp: new Date(2026,9,5,14,0).getTime() },
+                { id: 36, title: "Lebensmittelallergie Test", time: "In 120 Tagen", az: "All-Test", partner: "Dr. Allergie", phone: "08912833", desc: "Karenzdiät beachten.", needsDocs: false, docsItems: [], depot: "", driveTime: 20, timestamp: new Date(2026,10,5,9,0).getTime() },
+                { id: 37, title: "Rentenkonto Klärung", time: "In 150 Tagen", az: "DRV-Konto", partner: "Herr Rentner", phone: "08912944", desc: "Ausbildungszeiten.", needsDocs: false, docsItems: [], depot: "", driveTime: 40, timestamp: new Date(2026,11,4,12,0).getTime() },
+                { id: 38, title: "Zuschuss KfW Bad", time: "In 180 Tagen", az: "KfW-455-B", partner: "Zentrale", phone: "08913055", desc: "Online einreichen.", needsDocs: false, docsItems: [], depot: "", driveTime: 0, timestamp: new Date(2027,0,3,12,0).getTime() },
+                { id: 39, title: "Langzeit-EKG POTS", time: "In 200 Tagen", az: "Kardio-Plan", partner: "Dr. Herz", phone: "08913166", desc: "Schellong-Test.", needsDocs: false, docsItems: [], depot: "", driveTime: 30, timestamp: new Date(2027,1,22,10,0).getTime() },
+                { id: 40, title: "Archivierung Altablagen", time: "In 250 Tagen", az: "Archiv-2025", partner: "Selbst", phone: "Keine", desc: "Sortierung.", needsDocs: false, docsItems: [], depot: "Keller", driveTime: 0, timestamp: new Date(2027,3,14,12,0).getTime() }
+            ]
         };
 
-        // Das persistente Terminarchiv (wird im localStorage gesichert)
         let archiveDatabase = JSON.parse(localStorage.getItem('pacing_archive_db') || "[]");
 
-        let currentActiveScreen = 'welcomeScreen';
-        let currentEnergyStatus = 'gut';
-        let selectedAtemSekunden = 8;
-        let activeOpenedTerminRef = null;
-        let preCrashBrightness = '100';
-        let fadeInterval = null;
-        let currentLang = 'de';
+        function toggleInfoVisibility(id) {
+            const el = document.getElementById(id);
+            if(el) el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+        }
 
-        applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default');
-        applyGlobalTextScale(localStorage.getItem('pacing_text_scale') || '16');
-        
-        document.addEventListener("DOMContentLoaded", () => {
-            switchLanguage(currentLang);
-            buildSelectOptions();
+        function handleAudioModeSelection(mode) {
+            const wrapper = document.getElementById('constantVibrationSliderWrapper');
+            if(wrapper) wrapper.style.display = (mode === 'vibe_constant') ? 'block' : 'none';
+            
+            const confEl = document.getElementById('audioSaveConfirmationText');
+            if(confEl) {
+                if(mode === 'visual') confEl.innerText = "✓ Gespeichert: Nur visuelles Blinken (Reizarm) aktiv.";
+                if(mode === 'sound') confEl.innerText = "✓ Gespeichert: Sanfter Gong + Visuell aktiv.";
+                if(mode === 'vibe_increasing') confEl.innerText = "✓ Gespeichert: Ansteigende Vibration aktiv.";
+                if(mode === 'vibe_constant') confEl.innerText = "✓ Gespeichert: Gleichbleibendes Vibrieren aktiv.";
+            }
+            localStorage.setItem('pacing_sound_mode', mode);
+            updateSetupButtonText();
+        }
+
+        function checkAndArchiveExpiredAppointments() {
+            const nowMs = simulatortag.getTime();
+            const twoHoursMs = 2 * 60 * 60 * 1000; 
+            const keys = ['rot3', 'rot2', 'rot1', 'blau3', 'blau2', 'blau1', 'gruen3', 'gruen2', 'gruen1'];
+            
+            keys.forEach(key => {
+                mockDatabase[key] = mockDatabase[key].filter(appointment => {
+                    if (appointment.timestamp && (appointment.timestamp + twoHoursMs) < nowMs) {
+                        appointment.archivedAtMs = nowMs;
+                        archiveDatabase.push(appointment);
+                        return false;
+                    }
+                    return true;
+                });
+            });
+
+            const sixtyDaysMs = 60 * 24 * 60 * 60 * 1000;
+            archiveDatabase = archiveDatabase.filter(item => (nowMs - item.archivedAtMs) < sixtyDaysMs);
+            localStorage.setItem('pacing_archive_db', JSON.stringify(archiveDatabase));
+            renderArchiveListView();
+        }
+
+        function manuallyArchiveActiveTermin() {
+            if(!activeOpenedTerminRef) return;
+            const nowMs = simulatortag.getTime();
+            activeOpenedTerminRef.archivedAtMs = nowMs;
+            
+            const keys = ['rot3', 'rot2', 'rot1', 'blau3', 'blau2', 'blau1', 'gruen3', 'gruen2', 'gruen1'];
+            keys.forEach(key => {
+                mockDatabase[key] = mockDatabase[key].filter(item => item.id !== activeOpenedTerminRef.id);
+            });
+
+            archiveDatabase.push(activeOpenedTerminRef);
+            localStorage.setItem('pacing_archive_db', JSON.stringify(archiveDatabase));
+            
             renderArchiveListView();
             updateCounters();
-        });
+            showScreen('listScreen');
+        }
 
-        function switchLanguage(lang) {
-            currentLang = lang;
-            document.querySelectorAll('[data-txt]').forEach(el => {
-                const key = el.getAttribute('data-txt');
-                if (translations[lang][key]) el.innerHTML = translations[lang][key];
+        function renderArchiveListView() {
+            const container = document.getElementById('archiveItemsContent');
+            if(!container) return;
+            if(archiveDatabase.length === 0) {
+                container.innerHTML = `<p style="color:#555; font-style:italic; padding:10px 0;">Keine archivierten Termine vorhanden.</p>`;
+                return;
+            }
+            let html = '';
+            archiveDatabase.forEach(item => {
+                html += `
+                    <div class="field-row" style="background-color: #161616; border-color: #222;" onclick="loadAndShowArchiveDetail(${item.id})">
+                        <div class="label-text" style="color: #777;">📁 <strong>${item.title}</strong> - ${item.time}</div>
+                        <div class="chevron">&#10148;</div>
+                    </div>`;
             });
-            document.getElementById('btnLangDE').classList.toggle('active-lang', lang === 'de');
-            document.getElementById('btnLangEN').classList.toggle('active-lang', lang === 'en');
+            container.innerHTML = html;
+            document.getElementById('count_archiveGroup').innerText = `(${archiveDatabase.length})`;
         }
 
-        function applyGlobalTextScale(pxValue) {
-            localStorage.setItem('pacing_text_scale', pxValue);
-            document.getElementById('html-root').style.setProperty('--text-base-size', pxValue + 'px');
-            const txt = currentLang === 'de' ? "Textgröße" : "Text Size";
-            if(document.getElementById('inappScaleLabel')) document.getElementById('inappScaleLabel').innerText = `🔎 ${txt}: ${pxValue}px`;
+        function loadAndShowArchiveDetail(id) {
+            const termin = archiveDatabase.find(item => item.id === id);
+            if(!termin) return;
+            
+            detailOpenedFromArchive = true;
+            activeOpenedTerminRef = termin;
+            
+            document.getElementById('detTitle').innerText = termin.title + " (Archiviert)";
+            document.getElementById('detTime').innerText = termin.time;
+            document.getElementById('detAz').innerText = "Ident / Az: " + termin.az;
+            document.getElementById('detDescription').innerText = termin.desc;
+            document.getElementById('detPartner').innerText = termin.partner || "Nicht genannt";
+            
+            const phoneEl = document.getElementById('detPhone');
+            phoneEl.innerText = termin.phone || "Keine Nummer";
+            phoneEl.onclick = () => { if(termin.phone) window.location.href = "tel:" + termin.phone; };
+            document.getElementById('detDepotInput').value = termin.depot || "";
+            
+            document.getElementById('manualArchiveDetailBtn').style.display = 'none'; 
+
+            renderDocsChecklist();
+            recalculatePacingAlarm();
+            showScreen('detailScreen');
         }
 
-        function handleSliderChange(val) {
-            selectedAtemSekunden = parseInt(val, 10);
-            localStorage.setItem('pacing_atem_freq', selectedAtemSekunden);
-            let styleEl = document.getElementById('dynamic-pulse-style') || document.createElement('style');
-            styleEl.id = 'dynamic-pulse-style';
-            styleEl.innerHTML = `.filled-breathe-block { animation: crashFilledColorBreathe ${selectedAtemSekunden}s infinite ease-in-out !important; }`;
-            if(!styleEl.parentNode) document.head.appendChild(styleEl);
+        function handleDetailBackNavigation() {
+            if(detailOpenedFromArchive) {
+                detailOpenedFromArchive = false;
+                showScreen('listScreen');
+            } else {
+                showScreen('appointmentsScreen');
+            }
         }
 
-        function syncAlarmSoundMode(val) { localStorage.setItem('pacing_sound_mode', val); }
-        
-        function saveContactsToRam() {
-            localStorage.setItem('pacing_phone1', document.getElementById('setupPhoneInput').value);
-            localStorage.setItem('pacing_phone2', document.getElementById('setupPhoneInput2').value);
-            localStorage.setItem('pacing_phone3', document.getElementById('setupPhoneInput3').value);
-            localStorage.setItem('pacing_emergency_num', document.getElementById('setupEmergencyInput').value);
+        function updateSetupButtonText() {
+            const btn = document.getElementById('setupMainActionBtn');
+            if (!btn) return;
+            const layers = ['layerNotfall', 'layerVisuell', 'layerAuditiv'];
+            const anySettingsOpen = layers.some(id => document.getElementById(id)?.classList.contains('open'));
+            btn.innerText = anySettingsOpen ? "Speichern und Schließen" : "Zum Planer";
         }
 
-        function triggerCameraInput() { document.getElementById('cameraInput').click(); }
-        function showManualForm() { 
-            document.getElementById('manualFormContainer').style.display = 'block'; 
+        function finishSetupAndGoToGrid() {
+            const openLayer = document.querySelector('.config-layer.open');
+            if (openLayer) {
+                saveContactsToRam();
+                openLayer.classList.remove('open');
+                document.getElementById('manualFormContainer').style.display = 'none';
+                updateSetupButtonText();
+            } else {
+                checkAndArchiveExpiredAppointments();
+                showScreen('startScreen');
+            }
+        }
+
+        function toggleConfigLayer(layerId) {
+            const currentLayer = document.getElementById(layerId);
+            const isOpen = currentLayer.classList.contains('open');
+            document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
+            if (!isOpen) currentLayer.classList.add('open');
             updateSetupButtonText();
         }
 
@@ -674,6 +776,7 @@
             const az = document.getElementById('newFormAz').value;
             const partner = document.getElementById('newFormPartner').value;
             const phone = document.getElementById('newFormPhone').value;
+            const driveTimeVal = parseInt(document.getElementById('newFormDriveTime').value, 10) || 0;
             const customDocVal = document.getElementById('newFormCustomDoc').value;
             const desc = document.getElementById('newFormDesc').value;
             
@@ -707,84 +810,15 @@
             else if (diffDays <= 60) tier = "gruen2";
 
             mockDatabase[tier].push({
-                id: Date.now(), title: title, time: timeStr, az: az, partner: partner, phone: phone, desc: desc, needsDocs: !!customDocVal, docsComplete: false, docsItems: [{name: customDocVal, done: false}], depot: "", timestamp: pickedDate.getTime()
+                id: Date.now(), title: title, time: timeStr, az: az, partner: partner, phone: phone, desc: desc, needsDocs: !!customDocVal, docsComplete: false, docsItems: [{name: customDocVal, done: false}], depot: "", driveTime: driveTimeVal, timestamp: pickedDate.getTime()
             });
 
-            // Felder leeren
             document.getElementById('manualFormContainer').style.display = 'none';
             document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
             updateCounters();
             showScreen('listScreen');
         }
 
-        // 📜 ARCHIVIERUNGS-ENGINE (60 TAGE LÖSCH-FRIST)
-        function checkAndArchiveExpiredAppointments() {
-            const nowMs = simulatortag.getTime();
-            const keys = ['rot3', 'rot2', 'rot1', 'blau3', 'blau2', 'blau1', 'gruen3', 'gruen2', 'gruen1'];
-            
-            keys.forEach(key => {
-                mockDatabase[key] = mockDatabase[key].filter(appointment => {
-                    if (appointment.timestamp && appointment.timestamp < nowMs) {
-                        appointment.archivedAtMs = nowMs;
-                        archiveDatabase.push(appointment);
-                        return false;
-                    }
-                    return true;
-                });
-            });
-
-            // Frist-Prüfung: Einträge älter als 60 Tage im Archiv vernichten
-            const sixtyDaysMs = 60 * 24 * 60 * 60 * 1000;
-            archiveDatabase = archiveDatabase.filter(item => (nowMs - item.archivedAtMs) < sixtyDaysMs);
-            
-            localStorage.setItem('pacing_archive_db', JSON.stringify(archiveDatabase));
-            renderArchiveListView();
-        }
-
-        function renderArchiveListView() {
-            const container = document.getElementById('archiveItemsContent');
-            if(!container) return;
-            if(archiveDatabase.length === 0) {
-                container.innerHTML = `<p style="color:#555; font-style:italic;">Keine archivierten Termine vorhanden.</p>`;
-                return;
-            }
-            let html = '<div style="display:flex; flex-direction:column; gap:6px;">';
-            archiveDatabase.forEach(item => {
-                html += `<div style="padding:6px; background:#1a1a1a; border-radius:6px; font-size:0.8rem; color:#666;">📁 <strong>${item.title}</strong> - ${item.time} (Archiviert)</div>`;
-            });
-            html += '</div>';
-            container.innerHTML = html;
-            document.getElementById('count_archiveGroup').innerText = `(${archiveDatabase.length})`;
-        }
-
-        function updateSetupButtonText() {
-            const layers = ['layerNotfall', 'layerVisuell', 'layerAuditiv', 'layerTerminEingabe'];
-            const anyOpen = layers.some(id => document.getElementById(id)?.classList.contains('open'));
-            document.getElementById('setupMainActionBtn').innerText = anyOpen ? "Speichern und Schließen" : "Zum Planer";
-        }
-
-        function finishSetupAndGoToGrid() {
-            const openLayer = document.querySelector('.config-layer.open');
-            if (openLayer) {
-                saveContactsToRam();
-                openLayer.classList.remove('open');
-                document.getElementById('manualFormContainer').style.display = 'none';
-                updateSetupButtonText();
-            } else {
-                checkAndArchiveExpiredAppointments();
-                showScreen('startScreen');
-            }
-        }
-
-        function toggleConfigLayer(layerId) {
-            const currentLayer = document.getElementById(layerId);
-            const isOpen = currentLayer.classList.contains('open');
-            document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
-            if (!isOpen) currentLayer.classList.add('open');
-            updateSetupButtonText();
-        }
-
-        // 🚨 REPARATUR: NOTFALLKONTAKTE IM CRASH-SCREEN LADEN
         function rebuildCrashContactsView() {
             try {
                 const container = document.getElementById('crashContactsContainer');
@@ -793,6 +827,7 @@
                 const p2 = localStorage.getItem('pacing_phone2') || '';
                 const p3 = localStorage.getItem('pacing_phone3') || '';
                 const sosNum = localStorage.getItem('pacing_emergency_num') || '112';
+                
                 let html = '';
                 if(p1) html += `<a href="tel:${p1}" class="crash-phone-btn"><span>📞 Hauptkontakt: ${p1}</span><span>➔</span></a>`;
                 if(p2) html += `<a href="tel:${p2}" class="crash-phone-btn"><span>📞 Kontakt 2: ${p2}</span><span>➔</span></a>`;
@@ -825,7 +860,10 @@
                 showScreen('najaWarningScreen');
             } else if (choice === 'crash') {
                 preCrashBrightness = localStorage.getItem('pacing_brightness') || '100';
-                showScreen('crashScreen'); fadeBrightnessToMin(); handleSliderChange(selectedAtemSekunden); rebuildCrashContactsView();
+                applyScreenBrightness('20');
+                showScreen('crashScreen');
+                handleSliderChange(selectedAtemSekunden);
+                rebuildCrashContactsView();
             }
         }
 
@@ -867,7 +905,10 @@
             const list = mockDatabase[tierKey] || [];
             const termin = list.find(item => item.id === id);
             if(!termin) return;
+            
+            detailOpenedFromArchive = false;
             activeOpenedTerminRef = termin;
+            
             document.getElementById('detTitle').innerText = termin.title;
             document.getElementById('detTime').innerText = termin.time;
             document.getElementById('detAz').innerText = "Ident / Az: " + termin.az;
@@ -877,6 +918,9 @@
             phoneEl.innerText = termin.phone || "Keine Nummer";
             phoneEl.onclick = () => { if(termin.phone) window.location.href = "tel:" + termin.phone; };
             document.getElementById('detDepotInput').value = termin.depot || "";
+            
+            document.getElementById('manualArchiveDetailBtn').style.display = 'block';
+
             renderDocsChecklist(); recalculatePacingAlarm(); showScreen('detailScreen');
         }
 
@@ -904,12 +948,17 @@
         function recalculatePacingAlarm() {
             const fahrzeitField = document.getElementById('detFahrzeitInput');
             const alarmDisplay = document.getElementById('calculatedAlarmTime');
-            if (!fahrzeitField || !alarmDisplay) return;
-            const fahrtzeit = parseInt(fahrzeitField.value, 10) || 0;
-            const puffer = parseInt(document.getElementById('pacingDropdown').value, 10) || 0;
+            if (!alarmDisplay) return;
+
+            let fahrtzeit = activeOpenedTerminRef && activeOpenedTerminRef.driveTime ? activeOpenedTerminRef.driveTime : 20;
+            if(fahrzeitField) fahrtzeit = parseInt(fahrzeitField.value, 10) || 0;
+
+            const puffer = parseInt(localStorage.getItem('pacing_global_buffer') || "30", 10);
+            
+            // Angenommener Zielzeitpunkt ist 10:30 Uhr
             let totalInMinutes = (10 * 60 + 30) - (fahrtzeit + puffer);
             const pad = (num) => String(num).padStart(2, '0');
-            alarmDisplay.innerHTML = `🚗 Späteste Abfahrt: <strong>${pad(Math.floor(((10*60+30)-fahrtzeit)/60))}:${pad(((10*60+30)-fahrtzeit)%60)} Uhr</strong><br>🧘 Pacing-Anker schlägt an um: <strong style="color:var(--color-rot);">${pad(Math.floor(totalInMinutes/60))}:${pad(totalInMinutes%60)} Uhr</strong>`;
+            alarmDisplay.innerHTML = `🚗 Späteste Abfahrt: <strong>${pad(Math.floor(((10*60+30)-fahrtzeit)/60))}:${pad(((10*60+30)-fahrtzeit)%60)} Uhr</strong><br>🧘 Pacing-Anker (Puffer inkl. Vorruhe) schlägt an um: <strong style="color:var(--color-rot);">${pad(Math.floor(totalInMinutes/60))}:${pad(totalInMinutes%60)} Uhr</strong>`;
         }
 
         function updateCounters() {
@@ -927,18 +976,16 @@
             if(profile !== 'default') document.body.classList.add('cb-' + profile);
         }
 
-        function openNachtraeglichSetup() { showScreen('setupScreen'); updateSetupButtonText(); }
+        function openNachtraeglichSetup() { showScreen('setupScreen'); applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default'); }
+        function goToMainMenu() { showScreen('startScreen'); }
+        function goBack(id) { showScreen(id); }
         
-        // 🚨 REPARATUR: CRASH SCHLIEẞEN STABILISIERT
         function exitCrashMode() { 
             if (fadeInterval) clearInterval(fadeInterval); 
             applyScreenBrightness(preCrashBrightness); 
             showScreen('startScreen'); 
         }
-        
-        function goToMainMenu() { showScreen('startScreen'); }
-        function goBack(id) { showScreen(id); }
-        
+
         function showScreen(screenId) { 
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active'); 
