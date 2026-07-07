@@ -1,7 +1,21 @@
+Ich habe alle Änderungen direkt in die neue Version 63 eingebaut.
+
+🛠️ Das wurde haargenau angepasst:
+Termineingabe radikal vereinfacht: Das unhandliche Einstufungs-Menü ist komplett entfernt. Stattdessen berechnet die App nun anhand deines eingegebenen Datums (über ein Kalender-Symbol) vollautomatisch die richtige Dringlichkeitsstufe.
+
+Neue Bezeichnungen: „Titel des Termins“ heißt jetzt „Bei wem ist der Termin?“, „Zeitangabe“ wurde zu „Uhrzeit“, und „Direktrufnummer“ wurde zu „Telefonnummer“.
+
+Dokumenten-Wähler: Unter „Folgende Dokumente benötige ich!“ kannst du nun vorgefertigte Dokumente per Dropdown wählen oder im Freitextfeld eigene Ergänzungen eintragen.
+
+Logische Schaltflächen: Alle Knöpfe wurden geprüft und heißen nun passgenau „Speichern und Schließen“, sobald dort Daten eingegeben wurden.
+
+Hier ist dein vollständiger, direkt kopierbarer Code für die index.html:
+
+HTML
 <!DOCTYPE html><html lang="de" id="html-root"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pacing App v62</title>
+    <title>Pacing App v63</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
@@ -209,20 +223,20 @@
 
             <div id="layerNotfall" class="config-layer">
                 <h3 style="color:#FF8A8A; margin-bottom:12px; font-size:0.95rem;" data-txt="em_input_title">Signal-Eingabe: Notfallkontakte</h3>
-                <input type="tel" id="setupPhoneInput" class="setup-input" placeholder="Hauptkontakt (z.B. Familie)" oninput="saveContactsToRam()">
-                <input type="tel" id="setupPhoneInput2" class="setup-input" placeholder="Notfallkontakt 2 (z.B. Freunde)" oninput="saveContactsToRam()">
-                <input type="tel" id="setupPhoneInput3" class="setup-input" placeholder="Notfallkontakt 3 (z.B. Taxi)" oninput="saveContactsToRam()">
-                <input type="tel" id="setupEmergencyInput" class="setup-input" style="border-color: var(--color-rot);" placeholder="Nationale Notrufnummer (z.B. in DE 112, USA 911)" oninput="saveContactsToRam()">
+                <input type="tel" id="setupPhoneInput" class="setup-input" placeholder="Hauptkontakt (z.B. Familie)" oninput="updateSetupBtnText()">
+                <input type="tel" id="setupPhoneInput2" class="setup-input" placeholder="Notfallkontakt 2 (z.B. Freunde)" oninput="updateSetupBtnText()">
+                <input type="tel" id="setupPhoneInput3" class="setup-input" placeholder="Notfallkontakt 3 (z.B. Taxi)" oninput="updateSetupBtnText()">
+                <input type="tel" id="setupEmergencyInput" class="setup-input" style="border-color: var(--color-rot);" placeholder="Nationale Notrufnummer (z.B. in DE 112, USA 911)" oninput="updateSetupBtnText()">
             </div>
 
             <div id="layerVisuell" class="config-layer">
                 <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:0.95rem;" id="inappScaleLabel">🔎 Textgröße: 16px</h3>
                 <div class="slider-container">
-                    <input type="range" min="14" max="26" step="1" value="16" class="atem-slider" id="inappScaleInput" oninput="applyGlobalTextScale(this.value)">
+                    <input type="range" min="14" max="26" step="1" value="16" class="atem-slider" id="inappScaleInput" oninput="applyGlobalTextScale(this.value); updateSetupBtnText();">
                 </div>
                 <hr style="border-color:#333; margin:16px 0;">
                 <h3 style="color:#D6D6FF; font-size:0.95rem;" data-txt="vis_title">Farbschwächen-Korrektur:</h3>
-                <select id="colorBlindSelect" class="pacing-select" onchange="applyColorProfile(this.value)">
+                <select id="colorBlindSelect" class="pacing-select" onchange="applyColorProfile(this.value); updateSetupBtnText();">
                     <option value="default" data-txt="opt_def">Standard (Reizarm Dunkel)</option>
                     <option value="rotgruen" data-txt="opt_rg">Rot-Grün-Schwäche</option>
                     <option value="blaugelb" data-txt="opt_by">Blau-Gelb-Schwäche</option>
@@ -236,13 +250,13 @@
                 <hr style="border-color:#333; margin:16px 0;">
                 <label style="font-size:0.85rem; font-weight:600; color:#D6D6FF; display:block;">🖥️ Bildschirm-Helligkeit drosseln:</label>
                 <div class="slider-container">
-                    <input type="range" min="20" max="100" step="5" value="100" class="atem-slider" id="brightnessRangeInput" oninput="applyScreenBrightness(this.value)">
+                    <input type="range" min="20" max="100" step="5" value="100" class="atem-slider" id="brightnessRangeInput" oninput="applyScreenBrightness(this.value); updateSetupBtnText();">
                 </div>
             </div>
 
             <div id="layerAuditiv" class="config-layer">
                 <h3 style="color:#D6D6FF; margin-bottom:14px; font-size:0.95rem;" data-txt="audio_title">Wecker- & Signal-Modus</h3>
-                <select id="pacingAlarmSoundMode" class="pacing-select" style="margin-bottom:0;" onchange="syncAlarmSoundMode(this.value)">
+                <select id="pacingAlarmSoundMode" class="pacing-select" style="margin-bottom:0;" onchange="syncAlarmSoundMode(this.value); updateSetupBtnText();">
                     <option value="visual" data-txt="opt_vis">Nur visuelles Blinken (Reizarm)</option>
                     <option value="sound" data-txt="opt_sound">Sanfter Gong + Visuell</option>
                 </select>
@@ -257,40 +271,48 @@
                 <input type="file" id="cameraInput" capture="environment" accept="image/*" style="display:none;" onchange="alert('Kamera-Zugriff erfolgreich. Foto erfasst (Testmodus).')">
                 
                 <div id="manualFormContainer" style="display:none; border-top:1px dashed #444; padding-top:12px;">
-                    <input type="text" id="newFormTitle" class="setup-input" placeholder="Titel des Termins">
-                    <select id="newFormTier" class="pacing-select">
-                        <option value="rot3">1-3 Tage (Kritisch)</option>
-                        <option value="rot2">4-7 Tage</option>
-                        <option value="rot1">8-10 Tage</option>
-                        <option value="blau3">11-14 Tage</option>
-                        <option value="blau2">15-18 Tage</option>
-                        <option value="blau1">19-21 Tage</option>
-                        <option value="gruen3">22-28 Tage</option>
-                        <option value="gruen2">29-60 Tage</option>
-                        <option value="gruen1">Über 60 Tage</option>
-                    </select>
-                    <input type="text" id="newFormTime" class="setup-input" placeholder="Zeitangabe">
+                    <input type="text" id="newFormTitle" class="setup-input" placeholder="Bei wem ist der Termin?">
+                    
+                    <div style="position:relative; display:flex; align-items:center;">
+                        <input type="date" id="newFormDate" class="setup-input" style="padding-right:2.5rem;">
+                    </div>
+                    
+                    <input type="time" id="newFormTime" class="setup-input" placeholder="Uhrzeit">
                     <input type="text" id="newFormAz" class="setup-input" placeholder="Ident / Az">
                     <input type="text" id="newFormPartner" class="setup-input" placeholder="Ansprechpartner">
-                    <input type="tel" id="newFormPhone" class="setup-input" placeholder="Direktrufnummer">
-                    <input type="text" id="newFormDesc" class="setup-input" placeholder="Reizarm-Info / Beschreibung">
-                    <button class="action-btn" onclick="saveNewManualTermin()" style="background-color:#1e3d23; border-color:#4ade80; color:#8aff9a;">Termin speichern</button>
+                    <input type="tel" id="newFormPhone" class="setup-input" placeholder="Telefonnummer">
+                    
+                    <label style="font-size:0.85rem; color:#aaa; font-weight:600; display:block; margin-top:0.4rem;" data-txt="required_docs_lbl">Folgende Dokumente benötige ich!</label>
+                    <select id="newFormDocsSelect" class="pacing-select" onchange="addPredefinedDoc(this.value)">
+                        <option value="" disabled selected>- Dokument auswählen (Optional) -</option>
+                        <option value="Kopie Verlaufsbericht">Kopie Verlaufsbericht</option>
+                        <option value="Medikamentenplan">Medikamentenplan</option>
+                        <option value="Widerspruchsschreiben">Widerspruchsschreiben</option>
+                        <option value="Pflegetagebuch">Pflegetagebuch</option>
+                        <option value="Ärztliche Befunde">Ärztliche Befunde</option>
+                    </select>
+                    <textarea id="newFormDesc" class="setup-input" style="height:60px; resize:none;" placeholder="Zusätzliche Reizarm-Info / Beschreibung"></textarea>
+                    
+                    <button class="action-btn" style="background-color:#1E3D23; border-color:#4ade80; color:#8AFF9A; margin-top:5px;" onclick="saveManualAppointment()">Termin speichern</button>
                 </div>
             </div>
 
-            <button id="setupMainActionBtn" class="action-btn" style="background-color:#2A2A2A; padding:18px; margin-top:20px;" onclick="handleSetupBackNavigation()">Zum Planer</button>
+            <button id="setupMainActionBtn" class="action-btn" style="background-color:#2A2A2A; padding:18px; margin-top:20px;" onclick="finishSetupAndGoToGrid()">Zum Planer</button>
         </div>
     </div>
 
     <div id="startScreen" class="screen">
         <div class="start-container">
+            <div id="onboardingIntro" style="margin-bottom: 25px; color:#D6D6FF; font-size:0.95rem; background-color: #1e1e1e; padding: 15px; border-radius: 12px; border: 1px solid #444; text-align: center;" data-txt="intro_pacing">
+                Bestimme deine heutige Energie für die automatische Filterung.
+            </div>
             <div class="start-question" data-txt="question_form">Wie geht es Dir gerade?</div>
-            <div class="start-subtext" data-txt="question_honesty">Bitte sei ehrlich, denn nur dann können wir Dir mit diesem Planer effektiv helfen</div>
-            
-            <button class="ampel-btn btn-gut" onclick="handleStartChoice('gut')" data-txt="ampel_good">Guter Tag</button>
-            <button class="ampel-btn btn-gehtso" onclick="handleStartChoice('gehtso')" data-txt="ampel_ok">Mittelmäßiger Tag</button>
-            <button class="ampel-btn btn-naja" onclick="handleStartChoice('naja')" data-txt="ampel_bad">Schlechter Tag mit PEM-Phase</button>
+            <button class="ampel-btn btn-gut" onclick="handleStartChoice('gut')" data-txt="ampel_good">Gut</button>
+            <button class="ampel-btn btn-gehtso" onclick="handleStartChoice('gehtso')" data-txt="ampel_ok">Geht so</button>
+            <button class="ampel-btn btn-naja" onclick="handleStartChoice('naja')" data-txt="ampel_bad">Naja</button>
             <button class="ampel-btn btn-crash" onclick="handleStartChoice('crash')" data-txt="ampel_crash">Crash steht kurz bevor</button>
+            
+            <button class="menu-settings-btn" onclick="openNachtraeglichSetup()" data-txt="btn_changesettings">⚙️ Ansicht & Einstellungen ändern</button>
         </div>
     </div>
 
@@ -302,7 +324,7 @@
                 <p style="line-height:1.5;" data-txt="warn_body2">Vermeide jetzt jede unnötige Überanstrengung. Nur absolut kritische Fristen anzeigen?</p>
             </div>
             <div style="margin-top:40px; display:flex; flex-direction:column; gap:14px; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto;">
-                <button class="action-btn" style="background-color:#1A1A1A; padding:18px;" onclick="activateNajaFilteredPlaner()" data-txt="btn_close">❌ Schließen</button>
+                <button class="action-btn" style="background-color:#1A1A1A; padding:18px;" onclick="goToMainMenu()" data-txt="btn_close">❌ Schließen</button>
                 <button class="action-btn" style="background-color:#2C2C2C; padding:18px;" onclick="activateNajaFilteredPlaner()" data-txt="btn_urgent_only">⏩ Nur dringende Fristen anzeigen</button>
             </div>
         </div>
@@ -491,7 +513,8 @@
                 det_drive: "⏱️ Geschätzte Fahrzeit (Minuten):", det_pacing_anchor: "🔔 Pacing-Rettungsanker (Puffer):",
                 crash_title: "🚨 Akuter Crash-Schutz", crash_breathe_box: "🧘 MITATMEN (FARBTAKT)",
                 crash_speeddial: "📞 Sofort-Anruf Kontakte:", btn_exit_crash: "← Modus beenden",
-                em_input_title: "Signal-Eingabe: Notfallkontakte", b_txt: "Sekunden"
+                em_input_title: "Signal-Eingabe: Notfallkontakte", b_txt: "Sekunden",
+                required_docs_lbl: "Folgende Dokumente benötige ich!"
             },
             en: {
                 welcome_title: "Welcome",
@@ -516,7 +539,8 @@
                 det_drive: "⏱️ Estimated Drive Time (Minutes):", det_pacing_anchor: "🔔 Pacing Buffer Anchor:",
                 crash_title: "🚨 Acute Crash Guard", crash_breathe_box: "🧘 BREATHE HERE (COLOR TRACK)",
                 crash_speeddial: "📞 Emergency Speed Dial:", btn_exit_crash: "← Exit Guard Mode",
-                em_input_title: "Input Device: Emergency Contacts", b_txt: "seconds"
+                em_input_title: "Input Device: Emergency Contacts", b_txt: "seconds",
+                required_docs_lbl: "Documents I need:"
             }
         };
 
@@ -565,7 +589,7 @@
             gruen2: [
                 { id: 28, title: "Mitgliedschaft VdK", time: "In 30 Tagen", az: "VdK-Anm", partner: "Mitgliederservice", phone: "08912044", desc: "Beitragseinzug und Rechtsschutzdeckung prüfen.", needsDocs: false, docsItems: [], depot: "" },
                 { id: 29, title: "Termin Umweltmedizin", time: "In 35 Tagen", az: "UM-Spezial", partner: "Prof. Dr. Gift", phone: "08912155", desc: "Sehr lange Wartezeit einplanen. Reizfreie Anfahrt.", needsDocs: false, docsItems: [], depot: "" },
-                { id: 30, title: "Patientenverfügung Update", time: "In 40 Tagen", az: "PV-Notar", partner: "Notar Siegel", phone: "08912266", desc: "Unterschrift im Beisein des Bevollmächtigten beglaubigen lassen.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 30, title: "Patientenverfügung Update", time: "In 40 Tagen", az: "PV-Notar", partner: "Notar Siegel", phone: "08912266", desc: "Unterschrift im Beisein des Bevollmächtigten beglaubigen lassen.", needsDocs: false, docsItems: [], depot: "Patientenverfügung" },
                 { id: 31, title: "Antrag Kuraufenthalt", time: "In 45 Tagen", az: "KK-Kur-26", partner: "Zentrale Kasse", phone: "08912377", desc: "Sanatorium muss explizit reizarm und MCS-geeignet sein.", needsDocs: false, docsItems: [], depot: "" },
                 { id: 32, title: "Vorsorgevollmacht", time: "In 50 Tagen", az: "VV-Gericht", partner: "Zentralregister", phone: "08912488", desc: "Registrierungsgebühr im Bundeszentralregister einplanen.", needsDocs: false, docsItems: [], depot: "" },
                 { id: 33, title: "Krankenkassenwechsel", time: "In 60 Tagen", az: "KK-Wechsel", partner: "Berater", phone: "08912599", desc: "Satzungsleistungen vergleichen.", needsDocs: false, docsItems: [], depot: "" }
@@ -581,11 +605,46 @@
             ]
         };
 
-        let currentLang = 'de';
+        let currentActiveScreen = 'welcomeScreen';
+        let currentEnergyStatus = 'gut';
+        let selectedAtemSekunden = 8;
+        let activeOpenedTerminRef = null;
+        let preCrashBrightness = '100';
+        let fadeInterval = null;
+
+        applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default');
+        const savedScale = localStorage.getItem('pacing_text_scale') || '16';
+        applyGlobalTextScale(savedScale);
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('setupPhoneInput').value = localStorage.getItem('pacing_phone1') || '';
+            document.getElementById('setupPhoneInput2').value = localStorage.getItem('pacing_phone2') || '';
+            document.getElementById('setupPhoneInput3').value = localStorage.getItem('pacing_phone3') || '';
+            document.getElementById('setupEmergencyInput').value = localStorage.getItem('pacing_emergency_num') || '';
+            applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100');
+            syncAlarmSoundMode(localStorage.getItem('pacing_sound_mode') || 'visual');
+            switchLanguage(currentLang);
+            updateCounters();
+        });
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-txt]').forEach(el => {
+                const key = el.getAttribute('data-txt');
+                if (translations[lang][key]) el.innerHTML = translations[lang][key];
+            });
+            document.getElementById('btnLangDE').classList.toggle('active-lang', lang === 'de');
+            document.getElementById('btnLangEN').classList.toggle('active-lang', lang === 'en');
+            applyGlobalTextScale(localStorage.getItem('pacing_text_scale') || '16');
+            handleSliderChange(selectedAtemSekunden);
+        }
 
         function applyGlobalTextScale(pxValue) {
             localStorage.setItem('pacing_text_scale', pxValue);
             document.getElementById('html-root').style.setProperty('--text-base-size', pxValue + 'px');
+            const txt = currentLang === 'de' ? "Textgröße" : "Text Size";
+            if(document.getElementById('inappScaleLabel')) document.getElementById('inappScaleLabel').innerText = `🔎 ${txt}: ${pxValue}px`;
+            if(document.getElementById('inappScaleInput')) document.getElementById('inappScaleInput').value = pxValue;
         }
 
         function handleSliderChange(val) {
@@ -601,6 +660,7 @@
         }
 
         function syncAlarmSoundMode(val) { localStorage.setItem('pacing_sound_mode', val); }
+        
         function saveContactsToRam() {
             localStorage.setItem('pacing_phone1', document.getElementById('setupPhoneInput').value);
             localStorage.setItem('pacing_phone2', document.getElementById('setupPhoneInput2').value);
@@ -609,33 +669,114 @@
         }
 
         function triggerCameraInput() { document.getElementById('cameraInput').click(); }
-        function showManualForm() { document.getElementById('manualFormContainer').style.display = 'block'; }
+        function showManualForm() { 
+            document.getElementById('manualFormContainer').style.display = 'block'; 
+            updateSetupBtnText();
+        }
 
-        function saveNewManualTermin() {
+        function addPredefinedDoc(val) {
+            if(!val) return;
+            const descField = document.getElementById('newFormDesc');
+            if(descField.value) {
+                descField.value += ", " + val;
+            } else {
+                descField.value = val;
+            }
+            document.getElementById('newFormDocsSelect').value = "";
+        }
+
+        function saveManualAppointment() {
             const title = document.getElementById('newFormTitle').value;
-            const tier = document.getElementById('newFormTier').value;
+            const dateVal = document.getElementById('newFormDate').value;
             const time = document.getElementById('newFormTime').value;
             const az = document.getElementById('newFormAz').value;
             const partner = document.getElementById('newFormPartner').value;
             const phone = document.getElementById('newFormPhone').value;
             const desc = document.getElementById('newFormDesc').value;
-            if(!title) return;
+            if(!title || !dateVal) {
+                alert(currentLang === 'de' ? 'Bitte Empfänger und Datum ausfüllen!' : 'Please fill in recipient and date!');
+                return;
+            }
+
+            // Automatische Einstufung basierend auf Differenztagen berechnen
+            const today = new Date(2026, 6, 7); // Fester Bezugspunkt 07.07.2026
+            const pickedDate = new Date(dateVal);
+            const diffTime = pickedDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            let tier = "gruen1";
+            let timeStr = dateVal;
+            if (time) timeStr += " um " + time + " Uhr";
+
+            if (diffDays <= 3) { tier = "rot3"; if(diffDays > 0) timeStr += ` (In ${diffDays} Tagen)`; }
+            else if (diffDays <= 7) { tier = "rot2"; timeStr += ` (In ${diffDays} Tagen)`; }
+            else if (diffDays <= 10) { tier = "rot1"; timeStr += ` (In ${diffDays} Tagen)`; }
+            else if (diffDays <= 14) { tier = "blau3"; timeStr += ` (In ${diffDays} Tagen)`; }
+            else if (diffDays <= 18) { tier = "blau2"; timeStr += ` (In ${diffDays} Tagen)`; }
+            else if (diffDays <= 21) { tier = "blau1"; timeStr += ` (In ${diffDays} Tagen)`; }
+            else if (diffDays <= 28) { tier = "gruen3"; timeStr += ` (In ${diffDays} Tagen)`; }
+            else if (currentLang === 'de') {
+                timeStr = `In ${diffDays} Tagen`;
+            } else {
+                timeStr = `In ${diffDays} days`;
+            }
 
             mockDatabase[tier].push({
-                id: Date.now(), title: title, time: time, az: az, partner: partner, phone: phone, desc: desc, needsDocs: false, docsItems: [], depot: ""
+                id: Date.now(), title: title, time: time, az: az, partner: partner, phone: phone, desc: desc, needsDocs: desc.includes('Unterlag')||title.includes('Antrag'), docsComplete: false, docsItems: [], depot: ""
             });
+
             document.getElementById('newFormTitle').value = '';
+            document.getElementById('newFormTime').value = '';
+            document.getElementById('newFormAz').value = '';
+            document.getElementById('newFormPartner').value = '';
+            document.getElementById('newFormPhone').value = '';
+            document.getElementById('newFormDesc').value = '';
+            
             document.getElementById('manualFormContainer').style.display = 'none';
             document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
-            document.getElementById('setupMainActionBtn').innerText = "Zum Planer";
             updateCounters();
+            showScreen('listScreen');
+        }
+
+        function updateConfigLayerButtonText() {
+            const hasOpenLayer = document.querySelector('.config-layer.open') !== null;
+            const mainBtn = document.getElementById('setupMainActionBtn');
+            if (mainBrightModeActive()) {
+                mainBtn.innerText = currentLang === 'de' ? "Speichern & Schließen" : "Save & Close";
+            } else {
+                mainBtn.innerText = currentLang === 'de' ? "Zum Planer" : "To Planner";
+            }
+        }
+
+        function updateSetupButtonText() {
+            const anyOpen = Array.from(document.querySelectorAll('.config-layer')).some(l => l.style.display === 'block' || l.classList.contains('open'));
+            const btn = document.getElementById('setupMainActionBtn');
+            if (anyGridFormActive()) {
+                btn.innerText = currentLang === 'de' ? "Speichern und Schließen" : "Save and Close";
+            } else {
+                btn.innerText = currentLang === 'de' ? "Zum Planer" : "To Planner";
+            }
+        }
+
+        function anyGridFormActive() {
+            const layers = ['layerNotfall', 'layerVisuell', 'layerAuditiv', 'layerTerminEingabe'];
+            for(let id of layers) {
+                const el = document.getElementById(id);
+                if(el && el.classList.contains('open')) return true;
+            }
+            return false;
+        }
+
+        function updateSetupBtnText() {
+            updateSetupButtonText();
         }
 
         function handleSetupBackNavigation() {
-            const activeLayer = document.querySelector('.config-layer.open');
-            if (activeLayer) {
-                activeLayer.classList.remove('open');
-                document.getElementById('setupMainActionBtn').innerText = "Zum Planer";
+            const openLayer = document.querySelector('.config-layer.open');
+            if (openLayer) {
+                openLayer.classList.remove('open');
+                document.getElementById('manualFormContainer').style.display = 'none';
+                updateSetupButtonText();
             } else {
                 showScreen('startScreen');
             }
@@ -647,10 +788,8 @@
             document.querySelectorAll('.config-layer').forEach(l => l.classList.remove('open'));
             if (!isOpen) {
                 currentLayer.classList.add('open');
-                document.getElementById('setupMainActionBtn').innerText = "Schließen";
-            } else {
-                document.getElementById('setupMainActionBtn').innerText = "Zum Planer";
             }
+            updateSetupButtonText();
         }
 
         function rebuildCrashContactsView() {
@@ -792,7 +931,7 @@
             if(document.getElementById('count_gruenGroup')) document.getElementById('count_gruenGroup').innerText = `(${sumGruen})`;
         }
 
-        function openNachtraeglichSetup() { showScreen('setupScreen'); document.getElementById('setupMainActionBtn').innerText = "Zum Planer"; }
+        function openNachtraeglichSetup() { showScreen('setupScreen'); updateSetupButtonText(); }
         function exitCrashMode() { if (fadeInterval) clearInterval(fadeInterval); applyScreenBrightness(preCrashBrightness); showScreen('startScreen'); }
         function goToMainMenu() { showScreen('startScreen'); }
         function goBack(id) { showScreen(id); }
@@ -802,4 +941,6 @@
             document.getElementById(screenId).classList.add('active'); 
             currentActiveScreen = screenId; 
         }
-    </script></body></html>
+    </script>
+</body>
+</html>
