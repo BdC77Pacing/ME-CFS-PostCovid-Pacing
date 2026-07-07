@@ -1,4 +1,3 @@
-HTML
 <!DOCTYPE html><html lang="de" id="html-root"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -96,6 +95,13 @@ HTML
         #setupEmergencyInput::placeholder { font-size: 0.78rem; color: #777; }
         .setup-input::placeholder { color: #777; }
         
+        /* Kalender-Styling optimiert */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
         .pacing-select { width: 100%; padding: 0.75rem; background-color: var(--bg-main); border: 1px solid #444; border-radius: 8px; color: #D6D6FF; font-size: 1rem; font-weight: 600; margin-top: 0.4rem; margin-bottom: 1rem; outline: none; }
         
         .slider-container { margin-top: 0.6rem; padding: 4px 0; margin-bottom: 0.8rem; }
@@ -271,13 +277,10 @@ HTML
                     
                     <label style="font-size:0.85rem; color:#aaa; font-weight:600; display:block; margin-top:0.4rem;" data-txt="required_docs_lbl">Folgende Dokumente benötige ich!</label>
                     <select id="newFormDocsSelect" class="pacing-select" onchange="addPredefinedDoc(this.value)">
-                        <option value="" disabled selected>- Dokument auswählen (Optional) -</option>
-                        <option value="Kopie Verlaufsbericht">Kopie Verlaufsbericht</option>
-                        <option value="Medikamentenplan">Medikamentenplan</option>
-                        <option value="Widerspruchsschreiben">Widerspruchsschreiben</option>
-                        <option value="Pflegetagebuch">Pflegetagebuch</option>
-                        <option value="Ärztliche Befunde">Ärztliche Befunde</option>
-                    </select>
+                        </select>
+                    
+                    <input type="text" id="newFormCustomDoc" class="setup-input" placeholder="Freie Eingabe eines neuen Dokuments">
+                    
                     <textarea id="newFormDesc" class="setup-input" style="height:60px; resize:none;" placeholder="Zusätzliche Reizarm-Info / Beschreibung"></textarea>
                     
                     <button class="action-btn" style="background-color:#1E3D23; border-color:#4ade80; color:#8AFF9A; margin-top:5px;" onclick="saveManualAppointment()">Termin speichern</button>
@@ -294,12 +297,12 @@ HTML
                 Bestimme deine heutige Energie für die automatische Filterung.
             </div>
             <div class="start-question" data-txt="question_form">Wie geht es Dir gerade?</div>
-            <button class="ampel-btn btn-gut" onclick="handleStartChoice('gut')" data-txt="ampel_good">Gut</button>
-            <button class="ampel-btn btn-gehtso" onclick="handleStartChoice('gehtso')" data-txt="ampel_ok">Geht so</button>
-            <button class="ampel-btn btn-naja" onclick="handleStartChoice('naja')" data-txt="ampel_bad">Naja</button>
-            <button class="ampel-btn btn-crash" onclick="handleStartChoice('crash')" data-txt="ampel_crash">Crash steht kurz bevor</button>
+            <div class="start-subtext" data-txt="question_honesty">Bitte sei ehrlich, denn nur dann können wir Dir mit diesem Planer effektiv helfen</div>
             
-            <button class="menu-settings-btn" onclick="openNachtraeglichSetup()" data-txt="btn_changesettings">⚙️ Ansicht & Einstellungen ändern</button>
+            <button class="ampel-btn btn-gut" onclick="handleStartChoice('gut')" data-txt="ampel_good">Guter Tag</button>
+            <button class="ampel-btn btn-gehtso" onclick="handleStartChoice('gehtso')" data-txt="ampel_ok">Mittelmäßiger Tag</button>
+            <button class="ampel-btn btn-naja" onclick="handleStartChoice('naja')" data-txt="ampel_bad">Schlechter Tag mit PEM-Phase</button>
+            <button class="ampel-btn btn-crash" onclick="handleStartChoice('crash')" data-txt="ampel_crash">Crash steht kurz bevor</button>
         </div>
     </div>
 
@@ -311,7 +314,7 @@ HTML
                 <p style="line-height:1.5;" data-txt="warn_body2">Vermeide jetzt jede unnötige Überanstrengung. Nur absolut kritische Fristen anzeigen?</p>
             </div>
             <div style="margin-top:40px; display:flex; flex-direction:column; gap:14px; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto;">
-                <button class="action-btn" style="background-color:#1A1A1A; padding:18px;" onclick="goToMainMenu()" data-txt="btn_close">❌ Schließen</button>
+                <button class="action-btn" style="background-color:#1A1A1A; padding:18px;" onclick="activateNajaFilteredPlaner()" data-txt="btn_close">❌ Schließen</button>
                 <button class="action-btn" style="background-color:#2C2C2C; padding:18px;" onclick="activateNajaFilteredPlaner()" data-txt="btn_urgent_only">⏩ Nur dringende Fristen anzeigen</button>
             </div>
         </div>
@@ -531,6 +534,17 @@ HTML
             }
         };
 
+        // Standardmäßig vorbelegte Dokumenttypen
+        let baseDocumentOptions = [
+            "Aktueller Arztbericht",
+            "Ärztliche Befunde",
+            "Bonusheft",
+            "Kopie Verlaufsbericht",
+            "Medikamentenplan",
+            "Pflegetagebuch",
+            "Widerspruchsschreiben"
+        ];
+
         let mockDatabase = {
             rot3: [
                 { id: 1, title: "Amtsärztliches Gutachten", time: "09:00 Uhr (In 1 Tag)", az: "AZ-2026-X7", partner: "Frau Kling (Zentrale)", phone: "08911145", desc: "Untersuchung Dienstfähigkeit. Nimm die gelbe Mappe vom Schreibtisch mit. Vorher 2 Stunden totale Reizpause einplanen!", needsDocs: true, docsComplete: false, docsItems: [{name: "Kopie Verlaufsbericht", done: false}, {name: "Medikamentenplan", done: false}], depot: "Mappe rot, Regal links" },
@@ -559,7 +573,7 @@ HTML
             ],
             blau2: [
                 { id: 18, title: "Überprüfung GdB-Bescheid", time: "In 15 Tagen", az: "VA-GdB-Prüf", partner: "VdK Berater Team", phone: "08910922", desc: "Widerspruchschancen mit dem Sozialverband abwägen.", needsDocs: false, docsItems: [], depot: "VdK-Mappe" },
-                { id: 19, title: "Folgeantrag Rente (EM)", time: "In 17 Tagen", az: "DRV-EM-26", partner: "Zentrale DRV", phone: "08911033", desc: "Frühzeitig absenden wegen langer Bearbeitungszeit der Erwerbsminderungsrente.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 19, title: "Folgende Rente (EM)", time: "In 17 Tagen", az: "DRV-EM-26", partner: "Zentrale DRV", phone: "08911033", desc: "Frühzeitig absenden wegen langer Bearbeitungszeit der Erwerbsminderungsrente.", needsDocs: false, docsItems: [], depot: "" },
                 { id: 20, title: "Beratung Aktiv-Rollstuhl", time: "In 18 Tagen", az: "SH-Aktiv", partner: "Herr Rad (Techniker)", phone: "08911255", desc: "Ausmessung vor Ort im Haus für die optimale Anpassung.", needsDocs: false, docsItems: [], depot: "" }
             ],
             blau1: [
@@ -570,7 +584,7 @@ HTML
             gruen3: [
                 { id: 24, title: "Wohnumfeldberatung", time: "In 22 Tagen", az: "Pflege-Wohn", partner: "Frau Umbau", phone: "08911699", desc: "Zuschuss für barrierefreien Badumbau (4000€) prüfen.", needsDocs: false, docsItems: [], depot: "" },
                 { id: 25, title: "Antrag Rehasport", time: "In 24 Tagen", az: "KK-Reha-Sp", partner: "Zentrale Kasse", phone: "08911711", desc: "Genehmigung durch die Krankenkasse abwarten.", needsDocs: false, docsItems: [], depot: "" },
-                { id: 26, title: "Zuzahlungsbefreiung KK", time: "In 26 Tagen", az: "KK-Zuzahl", partner: "Frau Spar", phone: "08911822", desc: "Chroniker-Quittungen für die 1% Grenze sammeln.", needsDocs: false, docsItems: [], depot: "" },
+                { id: 26, title: "Zuzahlungsbefreiung KK", time: "In 26 Tagen", az: "KK-Zuzahl", partner: "Frau Spar", phone: "08911822", desc: "Chroniker-Quittungen für die 1% Grenze sammeln.", needsDocs: false, docsItems: [], depot: "Küchentisch" },
                 { id: 27, title: "Antrag Assistenzhund", time: "In 28 Tagen", az: "AH-Hund-26", partner: "Verein Ost", phone: "08911933", desc: "Prüfung der privaten Stiftungs-Kostenübernahme.", needsDocs: false, docsItems: [], depot: "" }
             ],
             gruen2: [
@@ -611,6 +625,7 @@ HTML
             applyScreenBrightness(localStorage.getItem('pacing_brightness') || '100');
             syncAlarmSoundMode(localStorage.getItem('pacing_sound_mode') || 'visual');
             switchLanguage(currentLang);
+            buildSelectOptions();
             updateCounters();
         });
 
@@ -658,16 +673,35 @@ HTML
         function triggerCameraInput() { document.getElementById('cameraInput').click(); }
         function showManualForm() { 
             document.getElementById('manualFormContainer').style.display = 'block'; 
-            updateSetupBtnText();
+            updateSetupButtonText();
+        }
+
+        // Alphabetischer Dokumentenaufbau & persistente Freitexteingaben
+        function buildSelectOptions() {
+            const select = document.getElementById('newFormDocsSelect');
+            if(!select) return;
+            
+            // Eventuell gespeicherte Freitexte aus dem RAM laden
+            let customOptions = JSON.parse(localStorage.getItem('pacing_custom_doc_options') || "[]");
+            let combined = [...baseDocumentOptions, ...customOptions];
+            
+            // Duplikate eliminieren & alphabetisch sortieren
+            combined = [...new Set(combined)].sort((a, b) => a.localeCompare(b, 'de'));
+            
+            let html = `<option value="" disabled selected>- ${currentLang === 'de' ? 'Dokument auswählen (Optional)' : 'Select Document (Optional)'} -</option>`;
+            combined.forEach(opt => {
+                html += `<option value="${opt}">${opt}</option>`;
+            });
+            select.innerHTML = html;
         }
 
         function addPredefinedDoc(val) {
             if(!val) return;
-            const descField = document.getElementById('newFormDesc');
-            if(descField.value) {
-                descField.value += ", " + val;
+            const customInput = document.getElementById('newFormCustomDoc');
+            if(customInput.value) {
+                customInput.value += ", " + val;
             } else {
-                descField.value = val;
+                customInput.value = val;
             }
             document.getElementById('newFormDocsSelect').value = "";
         }
@@ -679,14 +713,29 @@ HTML
             const az = document.getElementById('newFormAz').value;
             const partner = document.getElementById('newFormPartner').value;
             const phone = document.getElementById('newFormPhone').value;
+            const customDocVal = document.getElementById('newFormCustomDoc').value;
             const desc = document.getElementById('newFormDesc').value;
+            
             if(!title || !dateVal) {
                 alert(currentLang === 'de' ? 'Bitte Empfänger und Datum ausfüllen!' : 'Please fill in recipient and date!');
                 return;
             }
 
-            // Automatische Einstufung basierend auf Differenztagen berechnen
-            const today = new Date(2026, 6, 7); // Fester Bezugspunkt 07.07.2026
+            // Neue Freitexteingaben dauerhaft im lokalen Dropdown speichern
+            if(customDocVal) {
+                let customOptions = JSON.parse(localStorage.getItem('pacing_custom_doc_options') || "[]");
+                // Splitten falls durch Komma getrennt eingegeben
+                let splitDocs = customDocVal.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                splitDocs.forEach(d => {
+                    if(!baseDocumentOptions.includes(d)) {
+                        customOptions.push(d);
+                    }
+                });
+                localStorage.setItem('pacing_custom_doc_options', JSON.stringify([...new Set(customOptions)]));
+                buildSelectOptions();
+            }
+
+            const today = new Date(2026, 6, 7); // Fixer Bezugspunkt 07.07.2026
             const pickedDate = new Date(dateVal);
             const diffTime = pickedDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -702,21 +751,29 @@ HTML
             else if (diffDays <= 18) { tier = "blau2"; timeStr += ` (In ${diffDays} Tagen)`; }
             else if (diffDays <= 21) { tier = "blau1"; timeStr += ` (In ${diffDays} Tagen)`; }
             else if (diffDays <= 28) { tier = "gruen3"; timeStr += ` (In ${diffDays} Tagen)`; }
-            else if (currentLang === 'de') {
-                timeStr = `In ${diffDays} Tagen`;
-            } else {
-                timeStr = `In ${diffDays} days`;
+            else if (currentLang === 'de') { timeStr = `In ${diffDays} Tagen`; } 
+            else { timeStr = `In ${diffDays} days`; }
+
+            // Generiere Dokumentenliste für die Detailansicht
+            let docItemsArray = [];
+            let docNeeded = false;
+            if(customDocVal) {
+                docNeeded = true;
+                docItemsArray = customDocVal.split(',').map(s => { return { name: s.trim(), done: false }; });
             }
 
             mockDatabase[tier].push({
-                id: Date.now(), title: title, time: time, az: az, partner: partner, phone: phone, desc: desc, needsDocs: desc.includes('Unterlag')||title.includes('Antrag'), docsComplete: false, docsItems: [], depot: ""
+                id: Date.now(), title: title, time: timeStr, az: az, partner: partner, phone: phone, desc: desc, needsDocs: docNeeded, docsComplete: false, docsItems: docItemsArray, depot: ""
             });
 
+            // Formular zurücksetzen
             document.getElementById('newFormTitle').value = '';
+            document.getElementById('newFormDate').value = '';
             document.getElementById('newFormTime').value = '';
             document.getElementById('newFormAz').value = '';
             document.getElementById('newFormPartner').value = '';
             document.getElementById('newFormPhone').value = '';
+            document.getElementById('newFormCustomDoc').value = '';
             document.getElementById('newFormDesc').value = '';
             
             document.getElementById('manualFormContainer').style.display = 'none';
@@ -725,46 +782,35 @@ HTML
             showScreen('listScreen');
         }
 
-        function updateConfigLayerButtonText() {
-            const hasOpenLayer = document.querySelector('.config-layer.open') !== null;
-            const mainBtn = document.getElementById('setupMainActionBtn');
-            if (mainBrightModeActive()) {
-                mainBtn.innerText = currentLang === 'de' ? "Speichern & Schließen" : "Save & Close";
-            } else {
-                mainBtn.innerText = currentLang === 'de' ? "Zum Planer" : "To Planner";
-            }
-        }
-
+        // FIXED: Intelligente Beschriftung - "Speichern und Schließen" nur bei echten Konfigurations-Eingaben
         function updateSetupButtonText() {
-            const anyOpen = Array.from(document.querySelectorAll('.config-layer')).some(l => l.style.display === 'block' || l.classList.contains('open'));
             const btn = document.getElementById('setupMainActionBtn');
-            if (anyGridFormActive()) {
+            if (!btn) return;
+            
+            const layers = ['layerNotfall', 'layerVisuell', 'layerAuditiv'];
+            const anySettingsOpen = layers.some(id => {
+                const el = document.getElementById(id);
+                return el && el.classList.contains('open');
+            });
+
+            if (anySettingsOpen) {
                 btn.innerText = currentLang === 'de' ? "Speichern und Schließen" : "Save and Close";
             } else {
                 btn.innerText = currentLang === 'de' ? "Zum Planer" : "To Planner";
             }
         }
 
-        function anyGridFormActive() {
-            const layers = ['layerNotfall', 'layerVisuell', 'layerAuditiv', 'layerTerminEingabe'];
-            for(let id of layers) {
-                const el = document.getElementById(id);
-                if(el && el.classList.contains('open')) return true;
-            }
-            return false;
-        }
+        function updateSetupBtnText() { updateSetupButtonText(); }
 
-        function updateSetupBtnText() {
-            updateSetupButtonText();
-        }
-
-        function handleSetupBackNavigation() {
+        // FIXED: Löst die Funktionslosigkeit des unteren Buttons im Einstellungsmenü auf
+        function finishSetupAndGoToGrid() {
             const openLayer = document.querySelector('.config-layer.open');
             if (openLayer) {
                 openLayer.classList.remove('open');
                 document.getElementById('manualFormContainer').style.display = 'none';
                 updateSetupButtonText();
             } else {
+                // Wenn kein Untermenü offen ist, direkt zum Pacing-Tagesform-Check wechseln
                 showScreen('startScreen');
             }
         }
@@ -777,23 +823,6 @@ HTML
                 currentLayer.classList.add('open');
             }
             updateSetupButtonText();
-        }
-
-        function rebuildCrashContactsView() {
-            try {
-                const container = document.getElementById('crashContactsContainer');
-                if (!container) return;
-                const p1 = localStorage.getItem('pacing_phone1') || '';
-                const p2 = localStorage.getItem('pacing_phone2') || '';
-                const p3 = localStorage.getItem('pacing_phone3') || '';
-                const sosNum = localStorage.getItem('pacing_emergency_num') || '112';
-                let html = '';
-                if(p1) html += `<a href="tel:${p1}" class="crash-phone-btn"><span>📞 Hauptkontakt: ${p1}</span><span>➔</span></a>`;
-                if(p2) html += `<a href="tel:${p2}" class="crash-phone-btn"><span>📞 Kontakt 2: ${p2}</span><span>➔</span></a>`;
-                if(p3) html += `<a href="tel:${p3}" class="crash-phone-btn"><span>📞 Kontakt 3: ${p3}</span><span>➔</span></a>`;
-                html += `<a href="tel:${sosNum}" class="crash-phone-btn sos-btn"><span>🚨 NOTRUF: ${sosNum}</span><span>➔</span></a>`;
-                container.innerHTML = html;
-            } catch (e) { console.log(e); }
         }
 
         function applyScreenBrightness(val) {
@@ -918,8 +947,22 @@ HTML
             if(document.getElementById('count_gruenGroup')) document.getElementById('count_gruenGroup').innerText = `(${sumGruen})`;
         }
 
-        function openNachtraeglichSetup() { showScreen('setupScreen'); updateSetupButtonText(); }
-        function exitCrashMode() { if (fadeInterval) clearInterval(fadeInterval); applyScreenBrightness(preCrashBrightness); showScreen('startScreen'); }
+        function applyColorProfile(profile) {
+            localStorage.setItem('pacing_color_profile', profile);
+            document.body.classList.remove('cb-rotgruen', 'cb-blaugelb', 'cb-monochrom');
+            if(profile !== 'default') document.body.classList.add('cb-' + profile);
+            if(document.getElementById('colorBlindSelect')) document.getElementById('colorBlindSelect').value = profile;
+            if(document.getElementById('onboardingColorBlindSelect')) document.getElementById('onboardingColorBlindSelect').value = profile;
+            const dots = document.querySelectorAll('.color-preview-dot');
+            if(dots.length >= 3) {
+                const computedStyle = getComputedStyle(document.body);
+                dots[0].style.backgroundColor = computedStyle.getPropertyValue('--color-rot');
+                dots[1].style.backgroundColor = computedStyle.getPropertyValue('--color-blau');
+                dots[2].style.backgroundColor = computedStyle.getPropertyValue('--color-gruen');
+            }
+        }
+
+        function openNachtraeglichSetup() { showScreen('setupScreen'); applyColorProfile(localStorage.getItem('pacing_color_profile') || 'default'); }
         function goToMainMenu() { showScreen('startScreen'); }
         function goBack(id) { showScreen(id); }
         
